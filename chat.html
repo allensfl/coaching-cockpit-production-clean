@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KI-Ruhestandscoaching</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .phase-indicator {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .chat-container {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(15px);
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            padding: 1.5rem;
+            border-radius: 15px;
+            max-width: 85%;
+            line-height: 1.6;
+            font-size: 1rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-message {
+            background: linear-gradient(135deg, #f8f9ff, #e3e7ff);
+            border: 1px solid #d1d9ff;
+            align-self: flex-start;
+            border-left: 4px solid #667eea;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            border-left: 4px solid rgba(255,255,255,0.3);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: white;
+        }
+
+        .send-button {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 100px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            font-style: italic;
+            padding: 1rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.5s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .learning-style-selector {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .learning-style-selector h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .style-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .style-option {
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .style-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .style-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .input-container {
+                flex-direction: column;
+            }
+            
+            .send-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <span>🌟</span>
+            KI-Ruhestandscoaching
+        </h1>
+        <div class="phase-indicator" id="phaseIndicator">
+            Bereite dich auf dein Coaching vor...
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="learning-style-selector" id="learningStyleSelector">
+            <h3>Wie lernst du am liebsten?</h3>
+            <div class="style-options">
+                <div class="style-option" data-style="visual">
+                    <strong>👁️ Visuell</strong><br>
+                    Bilder, Diagramme, Mindmaps
+                </div>
+                <div class="style-option" data-style="auditory">
+                    <strong>👂 Auditiv</strong><br>
+                    Gespräche, Erklärungen, Audio
+                </div>
+                <div class="style-option" data-style="kinesthetic">
+                    <strong>✋ Kinästhetisch</strong><br>
+                    Übungen, Bewegung, Ausprobieren
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span>KI denkt nach</span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <strong>Fehler:</strong> <span id="errorText"></span>
+        </div>
+
+        <div class="input-container">
+            <textarea 
+                id="chatInput" 
+                class="chat-input" 
+                placeholder="Schreibe deine Nachricht..."
+                rows="1"></textarea>
+            <button id="sendButton" class="send-button">Senden</button>
+        </div>
+    </div>
+
+    <script>
+        class AICoachingSystem {
+            constructor() {
+                this.conversationHistory = [];
+                this.learningStyle = null;
+                this.currentPhase = 0;
+                this.isTyping = false;
+                
+                this.initElements();
+                this.attachEventListeners();
+                this.startSession();
+            }
+
+            initElements() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.chatInput = document.getElementById('chatInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.phaseIndicator = document.getElementById('phaseIndicator');
+                this.learningStyleSelector = document.getElementById('learningStyleSelector');
+            }
+
+            attachEventListeners() {
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Auto-resize textarea
+                this.chatInput.addEventListener('input', () => {
+                    this.chatInput.style.height = 'auto';
+                    this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 120) + 'px';
+                });
+
+                // Learning style selection
+                document.querySelectorAll('.style-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        this.selectLearningStyle(e.target.closest('.style-option').dataset.style);
+                    });
+                });
+            }
+
+            selectLearningStyle(style) {
+                this.learningStyle = style;
+                
+                // Update UI
+                document.querySelectorAll('.style-option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelector(`[data-style="${style}"]`).classList.add('selected');
+                
+                // Hide selector after selection
+                setTimeout(() => {
+                    this.learningStyleSelector.style.display = 'none';
+                    this.sendLearningStyleToAI(style);
+                }, 500);
+            }
+
+            async sendLearningStyleToAI(style) {
+                const styleMessages = {
+                    visual: 'visuell',
+                    auditory: 'auditiv', 
+                    kinesthetic: 'kinästhetisch'
+                };
+                
+                await this.sendMessageToAI(styleMessages[style]);
+            }
+
+            startSession() {
+                this.addAIMessage('«Herzlich willkommen! Der Ruhestand eröffnet dir neue Möglichkeiten, dich selbst neu zu entdecken und deine Stärken einzubringen. Unser Coaching ist lösungsorientiert, vertraulich und auf deine Ziele ausgerichtet. Bist du bereit für den ersten Schritt?»');
+                
+                // Show learning style selector
+                setTimeout(() => {
+                    this.learningStyleSelector.style.display = 'block';
+                }, 1000);
+            }
+
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message || this.isTyping) return;
+
+                this.addUserMessage(message);
+                this.chatInput.value = '';
+                this.chatInput.style.height = 'auto';
+                
+                await this.sendMessageToAI(message);
+            }
+
+            async sendMessageToAI(message) {
+                this.showTyping(true);
+                this.hideError();
+
+                try {
+                    const response = await fetch('/api/openai-simple', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            conversationHistory: this.conversationHistory,
+                            learningStyle: this.learningStyle
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Update conversation history
+                    this.conversationHistory = data.conversationHistory || [];
+                    
+                    // Add AI response
+                    this.addAIMessage(data.response);
+                    
+                    // Update phase indicator
+                    this.updatePhaseIndicator(data.response);
+
+                } catch (error) {
+                    console.error('API Error:', error);
+                    this.showError(`Verbindungsfehler: ${error.message}`);
+                    
+                    // Fallback response
+                    this.addAIMessage('Entschuldigung, ich hatte einen kurzen Aussetzer. Könntest du deine Nachricht bitte wiederholen?');
+                    
+                } finally {
+                    this.showTyping(false);
+                }
+            }
+
+            addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            addAIMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            updatePhaseIndicator(response) {
+                const phases = [
+                    'Standortbestimmung',
+                    'Emotionale Vertiefung', 
+                    'Zielvision',
+                    'Systemanalyse',
+                    'Komplementärkräfte',
+                    'Erfolgsimagination',
+                    'Konkrete Schritte',
+                    'Integration'
+                ];
+
+                // Simple heuristic to detect phase progression
+                const phaseKeywords = [
+                    ['situation', 'aktuell', 'beschäftigt'],
+                    ['gefühl', 'emotion', 'empfindung'],
+                    ['vision', 'zukunft', 'vorstellung'],
+                    ['system', 'dynamik', 'muster'],
+                    ['balance', 'ausgleich', 'komplement'],
+                    ['erfolg', 'szenario', 'imagination'],
+                    ['schritte', 'aktivität', 'handlung'],
+                    ['integration', 'zusammenfassung', 'learnings']
+                ];
+
+                for (let i = 0; i < phaseKeywords.length; i++) {
+                    const keywords = phaseKeywords[i];
+                    if (keywords.some(keyword => response.toLowerCase().includes(keyword))) {
+                        this.currentPhase = Math.max(this.currentPhase, i);
+                        break;
+                    }
+                }
+
+                if (this.currentPhase < phases.length) {
+                    this.phaseIndicator.textContent = `Phase ${this.currentPhase + 1}: ${phases[this.currentPhase]}`;
+                }
+            }
+
+            showTyping(show) {
+                this.isTyping = show;
+                this.typingIndicator.style.display = show ? 'flex' : 'none';
+                this.sendButton.disabled = show;
+                
+                if (show) {
+                    this.scrollToBottom();
+                }
+            }
+
+            showError(message) {
+                document.getElementById('errorText').textContent = message;
+                this.errorMessage.style.display = 'block';
+                setTimeout(() => this.hideError(), 5000);
+            }
+
+            hideError() {
+                this.errorMessage.style.display = 'none';
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                }, 100);
+            }
+        }
+
+        // Initialize the coaching system when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AICoachingSystem();
+        });
+    </script>
+</body>
+</html>
