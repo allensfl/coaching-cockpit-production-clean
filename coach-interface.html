@@ -3,830 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Interface - RuhestandsSynth Coaching</title>
+    <title>KI-Coaching Cockpit - Coach Interface</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
+            min-height: 100vh;
+            padding: 20px;
         }
-        
-        .main-container {
-            display: flex;
-            width: 100%;
-            height: 100vh;
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
         }
-        
-        .chat-container {
-            flex: 2;
-            background: white;
-            border-radius: 20px 0 0 20px;
-            margin: 20px 0 20px 20px;
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
-        
-        .guidance-panel {
-            flex: 1;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            border-radius: 0 20px 20px 0;
-            margin: 20px 20px 20px 0;
-            padding: 30px;
-            color: white;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px 30px;
-            border-radius: 20px 0 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        
-        .sync-status {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .sync-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-        
-        .message {
-            max-width: 70%;
+
+        h1 {
+            color: #4a5568;
             margin-bottom: 20px;
-            padding: 15px 20px;
-            border-radius: 18px;
-            position: relative;
-            animation: messageSlide 0.3s ease-out;
+            font-size: 24px;
+            text-align: center;
         }
-        
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .message.klient {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            margin-left: 0;
-            border-bottom-left-radius: 5px;
-        }
-        
-        .message.coach {
-            background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
-            margin-left: auto;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .message.synced {
-            border-left: 4px solid #4CAF50;
-            animation: syncPulse 0.5s ease-out;
-        }
-        
-        @keyframes syncPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-        
-        .message-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        .message-time {
-            font-size: 0.8rem;
-            color: #666;
-            margin-left: 8px;
-        }
-        
-        .message-content {
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        .input-area {
-            padding: 25px 30px;
-            background: white;
-            border-radius: 0 0 0 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .role-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        
-        .role-button {
-            padding: 10px 20px;
-            border: 2px solid #667eea;
-            background: white;
+
+        h2 {
             color: #667eea;
-            border-radius: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .phase-selector {
+            margin-bottom: 25px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
+            transition: border-color 0.3s;
         }
-        
-        .role-button.active {
-            background: #667eea;
-            color: white;
-            transform: scale(1.05);
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
-        }
-        
-        .message-input {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 1rem;
-            resize: none;
-            min-height: 50px;
-            max-height: 120px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-        
-        .message-input:focus {
+
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
-        
-        .send-button {
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .instructions-panel {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .instructions-panel h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions-panel p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            min-height: 300px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.coach {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.klient {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .message.system {
+            background: #f0f4f8;
+            color: #4a5568;
+            font-style: italic;
+            text-align: center;
+            max-width: 100%;
+            border: 1px dashed #cbd5e0;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+            min-height: 40px;
+            max-height: 120px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s ease;
-            min-width: 100px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
-        
-        .send-button:hover {
-            transform: translateY(-2px);
+
+        button:hover {
+            background: #5a67d8;
         }
-        
-        .send-button:disabled {
-            opacity: 0.7;
+
+        button:disabled {
+            background: #a0aec0;
             cursor: not-allowed;
         }
-        
-        .phase-selector {
-            margin-bottom: 20px;
-        }
-        
-        .phase-dropdown {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .phase-dropdown:focus {
-            outline: none;
-            border-color: rgba(255,255,255,0.6);
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .phase-dropdown option {
-            background: #4CAF50;
-            color: white;
-            padding: 10px;
-        }
-        
-        .phase-indicator {
-            background: rgba(255,255,255,0.2);
-            padding: 10px 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        
-        .guidance-content {
-            line-height: 1.6;
-        }
-        
-        .guidance-section {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .guidance-section h3 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: #fff3e0;
-        }
-        
-        .session-info {
-            position: absolute;
-            bottom: 10px;
-            left: 30px;
-            font-size: 0.8rem;
-            color: #666;
+
+        .sender-toggle {
             display: flex;
-            gap: 20px;
-        }
-        
-        .loading {
-            opacity: 0.7;
-        }
-        
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #f7fafc;
             padding: 15px;
+            border-radius: 8px;
+        }
+
+        .sender-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .sender-toggle input[type="radio"] {
+            margin: 0;
+        }
+
+        .status-indicator {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-connected {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
             border-radius: 10px;
-            margin: 10px 0;
-            border-left: 4px solid #c62828;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .welcome-message h2 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            
+            .sidebar {
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="chat-container">
-            <div class="header">
-                <h1>🎯 Coach Interface</h1>
-                <div class="sync-status">
-                    <div class="sync-indicator"></div>
-                    <span id="syncStatus">Chat-Sync aktiv</span>
-                </div>
-            </div>
+    <div class="container">
+        <div class="sidebar">
+            <h1>🎯 Coach Cockpit</h1>
             
-            <div class="chat-messages" id="chatMessages">
-                <!-- Begrüßungsnachrichten -->
-                <div class="message klient">
-                    <div class="message-header">
-                        👤 Klient
-                        <span class="message-time" id="clientTime"></span>
-                    </div>
-                    <div class="message-content">Willkommen zu unserem Coaching-Gespräch! Ich freue mich auf unser Gespräch und bin bereit, gemeinsam an meiner Ruhestandsplanung zu arbeiten.</div>
-                </div>
-                
-                <div class="message coach">
-                    <div class="message-header">
-                        👨‍💼 Ihr Coach
-                        <span class="message-time" id="coachTime"></span>
-                    </div>
-                    <div class="message-content">Herzlich willkommen zu unserem Coaching-Gespräch! Ich freue mich, Sie auf diesem wichtigen Weg zu begleiten. Erzählen Sie mir gerne, was Sie aktuell zum Thema Ruhestand beschäftigt.</div>
-                </div>
+            <div class="welcome-message">
+                <h2>Willkommen im KI-Coaching System!</h2>
+                <p>Wählen Sie eine Coaching-Phase und starten Sie Ihre professionelle Begleitung.</p>
             </div>
-            
-            <div class="input-area">
-                <div class="role-selector">
-                    <span style="font-weight: 600; color: #666;">Schreiben als:</span>
-                    <button class="role-button active" id="klientBtn" onclick="setRole('klient')">👤 Klient</button>
-                    <button class="role-button" id="coachBtn" onclick="setRole('coach')">👨‍💼 Coach</button>
-                </div>
-                
-                <div class="input-group">
-                    <textarea 
-                        id="messageInput" 
-                        class="message-input" 
-                        placeholder="Als Klient: Ihre Gedanken, Gefühle, Situation..."
-                        rows="1"></textarea>
-                    <button class="send-button" id="sendBtn" onclick="sendMessage()">📤 Senden</button>
-                </div>
-            </div>
-            
-            <div class="session-info">
-                <span>🔗 Session aktiv</span>
-                <span id="sessionId">Thread: Nicht verbunden</span>
-                <span>🔄 Aktuelle Rolle: <span id="currentRole">Klient</span></span>
-            </div>
-        </div>
-        
-        <div class="guidance-panel">
-            <div class="guidance-title">🎯 Coach Guidance</div>
-            
-            <!-- Phase Selector -->
+
             <div class="phase-selector">
-                <select id="phaseSelect" onchange="changePhase()" class="phase-dropdown">
-                    <option value="1">Phase 1: Standortbestimmung</option>
-                    <option value="2">Phase 2: Zielfindung</option>
-                    <option value="3">Phase 3: Ressourcenaktivierung</option>
-                    <option value="4">Phase 4: Lösungsentwicklung</option>
-                    <option value="5">Phase 5: Entscheidungsfindung</option>
-                    <option value="6">Phase 6: Umsetzungsplanung</option>
-                    <option value="7">Phase 7: Implementierung</option>
-                    <option value="8">Phase 8: Evaluation & Abschluss</option>
+                <h2>Coaching Phase</h2>
+                <select id="phaseSelect" onchange="updateInstructions()">
+                    <option value="1">Phase 1: Begrüßung & Rapport</option>
+                    <option value="2">Phase 2: Thema & Ziel definieren</option>
+                    <option value="3">Phase 3: Ist-Situation erfassen</option>
+                    <option value="4">Phase 4: Hindernisse identifizieren</option>
+                    <option value="5">Phase 5: Ressourcen aktivieren</option>
+                    <option value="6">Phase 6: Lösungsoptionen entwickeln</option>
+                    <option value="7">Phase 7: Entscheidung & Planung</option>
+                    <option value="8">Phase 8: Abschluss & Follow-up</option>
                 </select>
             </div>
-            
-            <div class="phase-indicator" id="phaseIndicator">Phase 1: Standortbestimmung</div>
-            
-            <div class="guidance-content" id="guidanceContent">
-                <!-- Phase 1 Content (Default) -->
-                <div class="guidance-section">
-                    <h3>📋 Phase 1: Erste Erfassung der Soll-Ist-Situation</h3>
-                    <p><strong>Aufbau einer positiven Arbeitsbeziehung und Problemerfassung</strong></p>
+
+            <div class="instructions-panel" id="instructionsPanel">
+                <h3>Phase 1: Begrüßung & Rapport</h3>
+                <p><strong>Ziel:</strong> Vertrauen aufbauen und den Klienten willkommen heißen.</p>
+                <p><strong>KI-Anweisungen:</strong></p>
+                <p>• Herzliche Begrüßung mit dem Namen des Klienten</p>
+                <p>• Kurze Erklärung des Coaching-Prozesses</p>
+                <p>• Offene Fragen zum Befinden und Erwartungen</p>
+                <p>• Vertraulichkeit und Rahmen klären</p>
+                <p>• Auf eine entspannte, vertrauensvolle Atmosphäre achten</p>
+            </div>
+
+            <div class="sender-toggle">
+                <label>
+                    <input type="radio" name="sender" value="coach" checked>
+                    Als Coach senden
+                </label>
+                <label>
+                    <input type="radio" name="sender" value="klient">
+                    Als Klient senden
+                </label>
+            </div>
+
+            <div id="statusIndicator" class="status-indicator status-connected">
+                🟢 Chat-Synchronisation aktiv
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    💬 Live Coaching Chat - Synchronisiert mit Klient Interface
                 </div>
-                
-                <div class="guidance-section">
-                    <h3>1. Begrüßung & Beziehungsaufbau</h3>
-                    <p>Coach begrüßt Coachingpartner, macht etwas Small Talk und teilt dann den Bildschirm, um Coachee das Konzept und Verfahren des KI-Coachings vorzustellen. Coach achtet dabei insbesondere auf den Aufbau einer positiven Arbeitsbeziehung.</p>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message system">
+                        Coaching-Session gestartet. Wählen Sie eine Phase und beginnen Sie das Gespräch.
+                    </div>
                 </div>
-                
-                <div class="guidance-section">
-                    <h3>2. Raum für Problempräsentation</h3>
-                    <p>In diesem Zusammenhang prüft Coachee, wie viel „medientechnisch ungestörten" Raum Coachee für die Präsentation seiner/ihrer Problematik braucht – oder wie hilfreich es ist, dass Coach die Präsentation der Problematik parallel mitprotokolliert.</p>
-                </div>
-                
-                <div class="guidance-section">
-                    <h3>💡 Coaching-Hinweise</h3>
-                    <p>• Aktives Zuhören praktizieren<br>
-                    • Empathie und Verständnis zeigen<br>
-                    • Offene Fragen stellen<br>
-                    • Sicherheit und Vertrauen schaffen</p>
+                <div class="chat-input-container">
+                    <textarea 
+                        id="messageInput" 
+                        class="chat-input" 
+                        placeholder="Nachricht eingeben..." 
+                        onkeydown="handleKeyDown(event)">
+                    </textarea>
+                    <button onclick="sendMessage()">Senden</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Chat-Sync Konfiguration
-        let currentRole = 'klient';
-        let sessionId = generateSessionId();
-        let messageCount = 0;
-        let isLoading = false;
-
-        // Session-ID generieren
-        function generateSessionId() {
-            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Rolle setzen
-        function setRole(role) {
-            currentRole = role;
-            document.getElementById('klientBtn').classList.toggle('active', role === 'klient');
-            document.getElementById('coachBtn').classList.toggle('active', role === 'coach');
-            document.getElementById('currentRole').textContent = role === 'klient' ? 'Klient' : 'Coach';
-            
-            const placeholder = role === 'klient' 
-                ? 'Als Klient: Ihre Gedanken, Gefühle, Situation...'
-                : 'Als Coach: Ihre Anleitung, Fragen, Feedback...';
-            document.getElementById('messageInput').placeholder = placeholder;
-        }
-
-        // Nachricht senden
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message || isLoading) return;
-            
-            isLoading = true;
-            document.getElementById('sendBtn').disabled = true;
-            document.getElementById('sendBtn').textContent = '⏳ Wird gesendet...';
-            
-            try {
-                // Nachricht zum Chat hinzufügen
-                addMessageToChat(currentRole, message);
-                input.value = '';
-                
-                // Nachricht über Chat-Sync API senden
-                await broadcastToKlient(currentRole, message);
-                
-                // AI-Response nur für Coach-Nachrichten
-                if (currentRole === 'coach') {
-                    await sendToAI(message);
-                }
-                
-            } catch (error) {
-                console.error('Fehler beim Senden:', error);
-                showError('Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.');
-            } finally {
-                isLoading = false;
-                document.getElementById('sendBtn').disabled = false;
-                document.getElementById('sendBtn').textContent = '📤 Senden';
+        const phaseInstructions = {
+            1: {
+                title: "Phase 1: Begrüßung & Rapport",
+                content: `<p><strong>Ziel:</strong> Vertrauen aufbauen und den Klienten willkommen heißen.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Herzliche Begrüßung mit dem Namen des Klienten</p>
+                         <p>• Kurze Erklärung des Coaching-Prozesses</p>
+                         <p>• Offene Fragen zum Befinden und Erwartungen</p>
+                         <p>• Vertraulichkeit und Rahmen klären</p>
+                         <p>• Auf eine entspannte, vertrauensvolle Atmosphäre achten</p>`
+            },
+            2: {
+                title: "Phase 2: Thema & Ziel definieren",
+                content: `<p><strong>Ziel:</strong> Das Coaching-Thema und gewünschte Ergebnisse klären.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Nach dem konkreten Anliegen fragen</p>
+                         <p>• SMART-Ziele formulieren helfen</p>
+                         <p>• Prioritäten und Dringlichkeit erfassen</p>
+                         <p>• Motivation und Interesse hinterfragen</p>
+                         <p>• Erfolg messbar machen</p>`
+            },
+            3: {
+                title: "Phase 3: Ist-Situation erfassen",
+                content: `<p><strong>Ziel:</strong> Die aktuelle Situation vollständig verstehen.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Detaillierte Situationsanalyse durchführen</p>
+                         <p>• Fakten von Interpretationen trennen</p>
+                         <p>• Emotionale Aspekte erfassen</p>
+                         <p>• Systemische Zusammenhänge erkunden</p>
+                         <p>• Bisherige Lösungsversuche erfragen</p>`
+            },
+            4: {
+                title: "Phase 4: Hindernisse identifizieren",
+                content: `<p><strong>Ziel:</strong> Blockaden und Hindernisse aufdecken.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Innere und äußere Hindernisse erkunden</p>
+                         <p>• Glaubenssätze und Denkmuster hinterfragen</p>
+                         <p>• Ängste und Widerstände ansprechen</p>
+                         <p>• Systemische Blockaden identifizieren</p>
+                         <p>• Muster und Wiederholungen erkennen</p>`
+            },
+            5: {
+                title: "Phase 5: Ressourcen aktivieren",
+                content: `<p><strong>Ziel:</strong> Stärken und Ressourcen des Klienten mobilisieren.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Persönliche Stärken und Fähigkeiten erfragen</p>
+                         <p>• Erfolgreiche Bewältigungsstrategien aus der Vergangenheit</p>
+                         <p>• Soziale und materielle Ressourcen erkunden</p>
+                         <p>• Werte und Motivation stärken</p>
+                         <p>• Positive Erfahrungen und Erfolge würdigen</p>`
+            },
+            6: {
+                title: "Phase 6: Lösungsoptionen entwickeln",
+                content: `<p><strong>Ziel:</strong> Kreative Lösungsansätze gemeinsam erarbeiten.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Brainstorming verschiedener Optionen</p>
+                         <p>• Pro und Contra abwägen</p>
+                         <p>• Kreative und unkonventionelle Ideen fördern</p>
+                         <p>• Machbarkeit und Umsetzbarkeit prüfen</p>
+                         <p>• Prioritäten und Präferenzen erfragen</p>`
+            },
+            7: {
+                title: "Phase 7: Entscheidung & Planung",
+                content: `<p><strong>Ziel:</strong> Konkrete Schritte und Umsetzungsplan entwickeln.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Klare Entscheidung für einen Lösungsweg</p>
+                         <p>• Detaillierte Schritt-für-Schritt Planung</p>
+                         <p>• Zeitpläne und Meilensteine definieren</p>
+                         <p>• Erfolgs- und Fortschrittsmessung festlegen</p>
+                         <p>• Notfallpläne und Alternativen besprechen</p>`
+            },
+            8: {
+                title: "Phase 8: Abschluss & Follow-up",
+                content: `<p><strong>Ziel:</strong> Session abschließen und weitere Schritte planen.</p>
+                         <p><strong>KI-Anweisungen:</strong></p>
+                         <p>• Zusammenfassung der wichtigsten Erkenntnisse</p>
+                         <p>• Commitment und Selbstverpflichtung einholen</p>
+                         <p>• Nächste Schritte und Follow-up planen</p>
+                         <p>• Feedback zur Session einholen</p>
+                         <p>• Wertschätzung und Ermutigung aussprechen</p>`
             }
+        };
+
+        let chatMessages = [];
+        let syncInterval;
+
+        function updateInstructions() {
+            const phaseSelect = document.getElementById('phaseSelect');
+            const instructionsPanel = document.getElementById('instructionsPanel');
+            const selectedPhase = phaseSelect.value;
+            const instructions = phaseInstructions[selectedPhase];
+            
+            instructionsPanel.innerHTML = `
+                <h3>${instructions.title}</h3>
+                ${instructions.content}
+            `;
         }
 
-        // Nachricht zu Chat hinzufügen
-        function addMessageToChat(role, content, isSync = false) {
+        function addMessage(sender, content, timestamp) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}${isSync ? ' synced' : ''}`;
+            messageDiv.className = `message ${sender}`;
             
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            
-            const roleIcon = role === 'klient' ? '👤' : '👨‍💼';
-            const roleName = role === 'klient' ? 'Klient' : 'Ihr Coach';
-            
+            const time = timestamp ? new Date(timestamp).toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'}) : new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
             messageDiv.innerHTML = `
-                <div class="message-header">
-                    ${roleIcon} ${roleName}
-                    <span class="message-time">${timeStr}</span>
-                </div>
-                <div class="message-content">${content}</div>
+                <div>${content}</div>
+                <small style="opacity: 0.7; font-size: 12px;">${time}</small>
             `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            messageCount++;
-            updateSyncStatus();
         }
 
-        // Nachricht an Klient-Interface weiterleiten
-        async function broadcastToKlient(role, message) {
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+            
+            if (!content) return;
+            
+            const senderRadio = document.querySelector('input[name="sender"]:checked');
+            const sender = senderRadio ? senderRadio.value : 'coach';
+            
             try {
-                const response = await fetch('/api/klient-message', {
+                const response = await fetch('/api/klient-message.js', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        sessionId: sessionId,
-                        role: role,
-                        message: message,
+                        sender: sender,
+                        content: content,
                         timestamp: new Date().toISOString(),
-                        source: 'coach_interface'
+                        phase: document.getElementById('phaseSelect').value
                     })
                 });
-                
-                if (!response.ok) {
-                    throw new Error('Broadcast fehlgeschlagen');
+
+                if (response.ok) {
+                    addMessage(sender, content);
+                    messageInput.value = '';
+                    updateStatus('connected');
+                } else {
+                    throw new Error('Nachricht konnte nicht gesendet werden');
                 }
-                
-                console.log('✅ Nachricht erfolgreich an Klient gesendet');
             } catch (error) {
-                console.error('❌ Broadcast Fehler:', error);
-                throw error;
+                console.error('Fehler beim Senden:', error);
+                updateStatus('error');
+                addMessage('system', 'Fehler beim Senden der Nachricht. Versuchen Sie es erneut.');
             }
         }
 
-        // AI-Response anfordern
-        async function sendToAI(message) {
+        async function loadMessages() {
             try {
-                const response = await fetch('/api/ruhestand-coach', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        trigger: 'manual_coach',
-                        intent: 'respond_to_client',
-                        sessionId: sessionId
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('AI-Response fehlgeschlagen');
-                }
-                
-                const aiData = await response.json();
-                if (aiData.response) {
-                    // AI-Response zu Chat hinzufügen
-                    addMessageToChat('coach', aiData.response);
+                const response = await fetch('/api/klient-message.js');
+                if (response.ok) {
+                    const data = await response.json();
+                    const newMessages = data.messages || [];
                     
-                    // AI-Response auch an Klient weiterleiten
-                    await broadcastToKlient('coach', aiData.response);
+                    if (newMessages.length > chatMessages.length) {
+                        const messagesToAdd = newMessages.slice(chatMessages.length);
+                        messagesToAdd.forEach(msg => {
+                            addMessage(msg.sender, msg.content, msg.timestamp);
+                        });
+                        chatMessages = newMessages;
+                    }
+                    updateStatus('connected');
+                } else {
+                    throw new Error('Nachrichten konnten nicht geladen werden');
                 }
-                
             } catch (error) {
-                console.error('❌ AI-Response Fehler:', error);
-                showError('KI-Antwort konnte nicht abgerufen werden.');
+                console.error('Fehler beim Laden der Nachrichten:', error);
+                updateStatus('error');
             }
         }
 
-        // Sync-Status aktualisieren
-        function updateSyncStatus() {
-            document.getElementById('syncStatus').textContent = `${messageCount} Nachrichten synchronisiert`;
-            document.getElementById('sessionId').textContent = `Session: ${sessionId.substr(-8)}`;
+        function updateStatus(status) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (status === 'connected') {
+                statusIndicator.className = 'status-indicator status-connected';
+                statusIndicator.textContent = '🟢 Chat-Synchronisation aktiv';
+            } else {
+                statusIndicator.className = 'status-indicator status-error';
+                statusIndicator.textContent = '🔴 Verbindungsfehler - Erneut versuchen';
+            }
         }
 
-        // Fehler anzeigen
-        function showError(message) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = message;
-            
-            const messagesContainer = document.getElementById('chatMessages');
-            messagesContainer.appendChild(errorDiv);
-            
-            setTimeout(() => errorDiv.remove(), 5000);
-        }
-
-        // Enter-Taste für Senden
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
                 sendMessage();
             }
-        });
-
-        // Auto-resize Textarea
-        document.getElementById('messageInput').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
-
-        // Zeiten initialisieren
-        document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('clientTime').textContent = timeStr;
-            document.getElementById('coachTime').textContent = timeStr;
-            updateSyncStatus();
-        });
-            1: {
-                title: "Phase 1: Standortbestimmung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>📋 Phase 1: Erste Erfassung der Soll-Ist-Situation</h3>
-                        <p><strong>Aufbau einer positiven Arbeitsbeziehung und Problemerfassung</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Begrüßung & Beziehungsaufbau</h3>
-                        <p>Coach begrüßt Coachingpartner, macht etwas Small Talk und teilt dann den Bildschirm, um Coachee das Konzept und Verfahren des KI-Coachings vorzustellen. Coach achtet dabei insbesondere auf den Aufbau einer positiven Arbeitsbeziehung.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Raum für Problempräsentation</h3>
-                        <p>In diesem Zusammenhang prüft Coachee, wie viel „medientechnisch ungestörten" Raum Coachee für die Präsentation seiner/ihrer Problematik braucht – oder wie hilfreich es ist, dass Coach die Präsentation der Problematik parallel mitprotokolliert.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Aktives Zuhören praktizieren<br>
-                        • Empathie und Verständnis zeigen<br>
-                        • Offene Fragen stellen<br>
-                        • Sicherheit und Vertrauen schaffen</p>
-                    </div>
-                `
-            },
-            2: {
-                title: "Phase 2: Zielfindung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>🎯 Phase 2: Zielfindung und Zielklärung</h3>
-                        <p><strong>Entwicklung klarer, erreichbarer Ruhestandsziele</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Werte und Prioritäten erkunden</h3>
-                        <p>Was ist dem Coachee im Ruhestand wirklich wichtig? Welche Werte sollen das neue Lebenskapitel prägen? Gemeinsam werden die Kernwerte und Lebensprioritäten identifiziert.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Konkrete Zielformulierung</h3>
-                        <p>Transformation von Wünschen in SMART-Ziele. Wie soll der ideale Ruhestand aussehen? Was möchte der Coachee erreichen, erleben, beitragen?</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Visionen entwickeln lassen<br>
-                        • Ziele spezifisch formulieren<br>
-                        • Realismus und Träume balancieren<br>
-                        • Prioritäten setzen helfen</p>
-                    </div>
-                `
-            },
-            3: {
-                title: "Phase 3: Ressourcenaktivierung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>💪 Phase 3: Ressourcenaktivierung</h3>
-                        <p><strong>Vorhandene Stärken und Möglichkeiten bewusst machen</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Stärken und Kompetenzen</h3>
-                        <p>Welche Fähigkeiten, Erfahrungen und Talente bringt der Coachee mit? Wie können diese im Ruhestand genutzt werden? Erfolgserlebnisse aus der Vergangenheit reflektieren.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Soziales Netzwerk und Support</h3>
-                        <p>Wer sind die wichtigen Menschen im Leben des Coachees? Welche Unterstützung ist vorhanden? Wie kann das soziale Netzwerk für den Ruhestand aktiviert werden?</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Ressourcen systematisch erfassen<br>
-                        • Erfolgsgeschichten würdigen<br>
-                        • Netzwerk sichtbar machen<br>
-                        • Potentiale aufzeigen</p>
-                    </div>
-                `
-            },
-            4: {
-                title: "Phase 4: Lösungsentwicklung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>🔧 Phase 4: Lösungsentwicklung</h3>
-                        <p><strong>Kreative Wege zum Ruhestandsziel entwickeln</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Brainstorming und Ideenfindung</h3>
-                        <p>Verschiedene Wege zum Ziel sammeln. Was sind mögliche Szenarien für den Ruhestand? Kreative und unkonventionelle Ideen entwickeln. Alle Optionen sind zunächst willkommen.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Lösungsalternativen bewerten</h3>
-                        <p>Pro und Contra der verschiedenen Optionen abwägen. Welche Lösungen passen am besten zu den Zielen und Ressourcen? Realitätscheck durchführen.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Kreativität fördern<br>
-                        • Alle Ideen sammeln<br>
-                        • Bewertung strukturieren<br>
-                        • Machbarkeit prüfen</p>
-                    </div>
-                `
-            },
-            5: {
-                title: "Phase 5: Entscheidungsfindung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>⚖️ Phase 5: Entscheidungsfindung</h3>
-                        <p><strong>Den optimalen Weg für den Ruhestand wählen</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Entscheidungskriterien definieren</h3>
-                        <p>Was sind die wichtigsten Faktoren für die Entscheidung? Finanzielle Aspekte, persönliche Erfüllung, Gesundheit, Familie - alle relevanten Kriterien sammeln und gewichten.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Entscheidung treffen</h3>
-                        <p>Systematische Bewertung der Optionen anhand der Kriterien. Bauchgefühl und rationale Analyse verbinden. Commitment für den gewählten Weg entwickeln.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Strukturierte Entscheidung fördern<br>
-                        • Intuition einbeziehen<br>
-                        • Ängste vor Entscheidung bearbeiten<br>
-                        • Commitment stärken</p>
-                    </div>
-                `
-            },
-            6: {
-                title: "Phase 6: Umsetzungsplanung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>📅 Phase 6: Umsetzungsplanung</h3>
-                        <p><strong>Konkrete Schritte zum Ruhestandsziel planen</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Meilensteine definieren</h3>
-                        <p>Den Weg zum Ziel in überschaubare Etappen unterteilen. Was sind die wichtigsten Zwischenziele? Wann sollen diese erreicht werden? Realistische Zeitplanung entwickeln.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Konkrete Aktionsschritte</h3>
-                        <p>Was ist der erste Schritt? Welche konkreten Handlungen sind notwendig? Wer macht was bis wann? Detaillierte To-Do-Liste erstellen.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Kleine Schritte planen<br>
-                        • Termine konkret festlegen<br>
-                        • Verantwortlichkeiten klären<br>
-                        • Erfolgsmessung definieren</p>
-                    </div>
-                `
-            },
-            7: {
-                title: "Phase 7: Implementierung",
-                content: `
-                    <div class="guidance-section">
-                        <h3>🚀 Phase 7: Implementierung</h3>
-                        <p><strong>Die Ruhestandspläne in die Tat umsetzen</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Erste Schritte begleiten</h3>
-                        <p>Wie läuft die Umsetzung? Welche Herausforderungen treten auf? Wo ist Anpassung notwendig? Den Coachee bei den ersten Schritten unterstützen und motivieren.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Hindernisse überwinden</h3>
-                        <p>Welche Probleme sind aufgetreten? Wie können sie gelöst werden? Flexibilität bei der Umsetzung zeigen. Plan anpassen ohne das Ziel aus den Augen zu verlieren.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Umsetzung begleiten<br>
-                        • Flexibilität ermöglichen<br>
-                        • Motivation aufrechterhalten<br>
-                        • Lernen aus Fehlern fördern</p>
-                    </div>
-                `
-            },
-            8: {
-                title: "Phase 8: Evaluation & Abschluss",
-                content: `
-                    <div class="guidance-section">
-                        <h3>🏁 Phase 8: Evaluation & Abschluss</h3>
-                        <p><strong>Erfolge würdigen und Coaching abschließen</strong></p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>1. Zielerreichung bewerten</h3>
-                        <p>Was wurde erreicht? Wo steht der Coachee jetzt? Erfolge anerkennen und feiern. Noch offene Punkte identifizieren und bewerten.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>2. Nachhaltigkeit sichern</h3>
-                        <p>Wie kann der Coachee selbstständig weitermachen? Welche Strategien haben sich bewährt? Rückfallprophylaxe und Selbstcoaching-Strategien entwickeln.</p>
-                    </div>
-                    
-                    <div class="guidance-section">
-                        <h3>💡 Coaching-Hinweise</h3>
-                        <p>• Erfolge würdigen<br>
-                        • Gelerntes reflektieren<br>
-                        • Selbstständigkeit fördern<br>
-                        • Abschied gestalten</p>
-                    </div>
-                `
-            }
-        };
-
-        // Phase wechseln
-        function changePhase() {
-            const phaseSelect = document.getElementById('phaseSelect');
-            const selectedPhase = parseInt(phaseSelect.value);
-            const phaseData = phaseContents[selectedPhase];
-            
-            // Phase Indicator aktualisieren
-            document.getElementById('phaseIndicator').textContent = phaseData.title;
-            
-            // Guidance Content aktualisieren
-            document.getElementById('guidanceContent').innerHTML = phaseData.content;
-            
-            console.log(`Phase gewechselt zu: ${phaseData.title}`);
         }
+
+        function startSync() {
+            syncInterval = setInterval(loadMessages, 1500);
+        }
+
+        function stopSync() {
+            if (syncInterval) {
+                clearInterval(syncInterval);
+            }
+        }
+
+        // Initialisierung beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', function() {
+            updateInstructions();
+            loadMessages();
+            startSync();
+            
+            // Sync stoppen wenn Seite verlassen wird
+            window.addEventListener('beforeunload', stopSync);
+        });
     </script>
 </body>
 </html>
