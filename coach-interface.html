@@ -307,7 +307,7 @@
 
             <div class="phase-selector">
                 <h2>Coaching Phase</h2>
-                <select id="phaseSelect">
+                <select id="phaseSelect" onchange="updateInstructions()">
                     <option value="1">Phase 1: Erste Erfassung der Soll-Ist-Situation</option>
                     <option value="2">Phase 2: Vertiefte Erfassung des „Schlüsselaffekts"</option>
                     <option value="3">Phase 3: Vertiefte Erfassung des Coachingziels</option>
@@ -540,7 +540,7 @@ Sage mir, was ich mit Blick auf meine Erfolgsimagination und - soweit vorhanden 
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const content = messageInput.value.trim();
             
@@ -549,53 +549,90 @@ Sage mir, was ich mit Blick auf meine Erfolgsimagination und - soweit vorhanden 
             const senderRadio = document.querySelector('input[name="sender"]:checked');
             const sender = senderRadio ? senderRadio.value : 'coach';
             
-            // Nachricht lokal hinzufügen
-            addMessage(sender, content);
-            messageInput.value = '';
-            
-            // Simulate API call - in production würde hier der echte API-Call stehen
-            updateStatus('connected');
-        }
-
-        function loadMessages() {
-            // Simulate loading messages - würde in der Produktion echte API-Calls machen
-            updateStatus('connected');
-        }
-
-        function updateStatus(status) {
-            const statusIndicator = document.getElementById('statusIndicator');
-            if (status === 'connected') {
-                statusIndicator.className = 'status-indicator status-connected';
-                statusIndicator.textContent = '🟢 Chat-System bereit';
-            } else {
-                statusIndicator.className = 'status-indicator status-error';
-                statusIndicator.textContent = '🔴 Verbindungsfehler';
+            try {
+                // Lokale Nachricht sofort hinzufügen
+                addMessage(sender, content);
+                messageInput.value = '';
+                
+                // Nachricht an Server senden für Synchronisation
+                const response = await fetch('/api/sync-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sender: sender,
+                        content: content,
+                        timestamp: new Date().toISOString(),
+                        phase: document.getElementById('phaseSelect').value
+                    })
+                });
+                
+                if (response.ok) {
+                    updateStatus('connected');
+                } else {
+                    throw new Error('Sync failed');
+                }
+            } catch (error) {
+                console.log('Chat-Sync offline mode:', error);
+                updateStatus('error');
+                // Nachricht bleibt trotzdem lokal sichtbar
             }
         }
 
-        function handleKeyDown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
+        async function loadMessages() {
+            try {
+                const response = await fetch('/api/sync-message');
+                if (response.ok) {
+                    const data = await response.json();
+                    const newMessages = data.messages || [];
+                    
+                    // Nur neue Nachrichten hinzufügen
+                    if (newMessages.length > chatMessages.length) {
+                        const messagesToAdd = newMessages.slice(chatMessages.length);
+                        messagesToAdd.forEach(msg => {
+                            addMessage(msg.sender, msg.content, msg.timestamp);
+                        });
+                        chatMessages = newMessages;
+                    }
+                    updateStatus('connected');
+                } else {
+                    updateStatus('error');
+                }
+            } catch (error) {
+                console.log('Loading messages failed:', error);
+                updateStatus('error');
             }
         }
 
         function startSync() {
-            // In production würde hier das echte Sync-System starten
+            // Alle 2 Sekunden nach neuen Nachrichten schauen
+            syncInterval = setInterval(loadMessages, 2000);
             updateStatus('connected');
         }
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialisierung
             updateInstructions();
+            loadMessages();
+            startSync();
             
-            // Phase selector change event
-            document.getElementById('phaseSelect').addEventListener('change', updateInstructions);
+            // Phase selector change event - DIREKT auf das select Element
+            const phaseSelect = document.getElementById('phaseSelect');
+            if (phaseSelect) {
+                phaseSelect.onchange = function() {
+                    updateInstructions();
+                };
+            }
             
             // Message input keydown event
-            document.getElementById('messageInput').addEventListener('keydown', handleKeyDown);
-            
-            startSync();
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.onkeydown = function(event) {
+                    handleKeyDown(event);
+                };
+            }
         });
     </script>
 </body>
