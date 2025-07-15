@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KI-Coaching Cockpit - Coach Interface [DEBUG]</title>
+    <title>KI-Coaching Cockpit - Coach Interface</title>
     <style>
         * {
             margin: 0;
@@ -283,16 +283,6 @@
             margin-bottom: 10px;
         }
 
-        .debug-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -308,27 +298,20 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <h1>🎯 Coach Cockpit [DEBUG]</h1>
-            
-            <div class="debug-info" id="debugInfo">
-                <strong>Debug Status:</strong><br>
-                Phase-System: Lädt...<br>
-                Chat-API: Lädt...<br>
-                Event Listeners: Lädt...
-            </div>
+            <h1>🎯 Coach Cockpit</h1>
             
             <div class="welcome-message">
                 <h2>Professionelles KI-Coaching System</h2>
-                <p>8-Phasen-Methodik mit strukturierten Arbeitsschritten.</p>
+                <p>8-Phasen-Methodik mit strukturierten Arbeitsschritten und GPT-Integration.</p>
             </div>
 
             <div class="phase-selector">
                 <h2>Coaching Phase</h2>
                 <select id="phaseSelect">
                     <option value="1">Phase 1: Erste Erfassung der Soll-Ist-Situation</option>
-                    <option value="2">Phase 2: Vertiefte Erfassung des „Schlüsselaffekts"</option>
+                    <option value="2">Phase 2: Vertiefte Erfassung des Schluesselaffekts</option>
                     <option value="3">Phase 3: Vertiefte Erfassung des Coachingziels</option>
-                    <option value="4">Phase 4: Rekonstruktion des „Teufelskreislaufs"</option>
+                    <option value="4">Phase 4: Rekonstruktion des Teufelskreislaufs</option>
                     <option value="5">Phase 5: Rekonstruktion der Ausbalancierungsprobleme</option>
                     <option value="6">Phase 6: Entwicklung einer Erfolgsimagination</option>
                     <option value="7">Phase 7: Identifikation zielführender Aktivitäten</option>
@@ -337,8 +320,8 @@
             </div>
 
             <div class="instructions-panel" id="instructionsPanel">
-                <h3>Lädt Phase-Anweisungen...</h3>
-                <p>Bitte warten...</p>
+                <h3>Phase 1: Erste Erfassung der Soll-Ist-Situation</h3>
+                <p>Phase wird geladen...</p>
             </div>
 
             <div class="sender-toggle">
@@ -352,253 +335,158 @@
                 </label>
             </div>
 
-            <div id="statusIndicator" class="status-indicator status-error">
-                🔴 System startet...
+            <div id="statusIndicator" class="status-indicator status-connected">
+                🟢 Chat-System bereit
             </div>
         </div>
 
         <div class="main-content">
             <div class="chat-container">
                 <div class="chat-header">
-                    💬 Live Coaching Chat - Debug Mode
+                    💬 Live Coaching Chat - Synchronisiert mit Klient Interface
                 </div>
                 <div class="chat-messages" id="chatMessages">
                     <div class="message system">
-                        Debug-Modus aktiv. Alle Funktionen werden getestet...
+                        Coaching-Session gestartet. Wählen Sie eine Phase und beginnen Sie das strukturierte Coaching.
                     </div>
                 </div>
                 <div class="chat-input-container">
                     <textarea 
                         id="messageInput" 
                         class="chat-input" 
-                        placeholder="Debug: Nachricht eingeben und testen...">
+                        placeholder="Nachricht eingeben...">
                     </textarea>
-                    <button onclick="testSendMessage()">Senden (Test)</button>
+                    <button onclick="sendMessage()">Senden</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Debug-Funktionen
-        function debugLog(message) {
-            console.log('[DEBUG]', message);
-            const debugInfo = document.getElementById('debugInfo');
-            const timestamp = new Date().toLocaleTimeString();
-            debugInfo.innerHTML += `<br>${timestamp}: ${message}`;
-        }
-
-        // Phase-Anweisungen
-        const phaseInstructions = {
-            1: {
+        // Phase-Anweisungen (alle Sonderzeichen entfernt)
+        var phaseInstructions = {
+            "1": {
                 title: "Phase 1: Erste Erfassung der Soll-Ist-Situation",
-                content: `
-                <div class="coach-action">Coach begrüßt Coachingpartner, macht etwas Small Talk und teilt dann den Bildschirm, um Coachee das Konzept und Verfahren des KI-Coachings vorzustellen. Coach achtet dabei insbesondere auf den Aufbau einer positiven Arbeitsbeziehung.</div>
-                
-                <div class="coach-action">Coach regt Coachee an zu erzählen, wie die aktuell unbefriedigende IST-Situation ist und wie er/sie sich die SOLL-Situation vorstellt. Coach beschränkt sich dabei auf aktives Zuhören.</div>
-                
-                <p><strong>Protokoll-Template:</strong><br>
-                "Ich habe folgendes Problem bzw. Coachingziel: [Coach fasst die Beschreibung der Ist- und Soll-Situation schriftlich zusammen. Fokus auf „Schlüsselsituation" und „Schlüsselaffekt".]"</p>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 1:</strong>Erstelle einen in Ich-Form geschriebenen „strukturierten Bericht meiner Coachingproblematik", in dem alle obigen Informationen zusammengefasst sind. Gliedere diesen Bericht in zwei Teile: zunächst die IST-Situation und dann die gewünschte SOLL-Situation.</div>`
+                content: '<div class="coach-action">Coach begruesst Coachingpartner, macht etwas Small Talk und teilt dann den Bildschirm, um Coachee das Konzept und Verfahren des KI-Coachings vorzustellen. Coach achtet dabei insbesondere auf den Aufbau einer positiven Arbeitsbeziehung.</div><div class="coach-action">Coach regt Coachee an zu erzaehlen, wie die aktuell unbefriedigende IST-Situation ist und wie er/sie sich die SOLL-Situation vorstellt. Coach beschraenkt sich dabei auf aktives Zuhoeren.</div><p><strong>Protokoll-Template:</strong><br>"Ich habe folgendes Problem bzw. Coachingziel: [Coach fasst die Beschreibung der Ist- und Soll-Situation schriftlich zusammen. Fokus auf Schluesselsituation und Schluesselaffekt.]"</p><div class="gpt-prompt"><strong>GPT-Prompt für Phase 1:</strong>Erstelle einen in Ich-Form geschriebenen strukturierten Bericht meiner Coachingproblematik, in dem alle obigen Informationen zusammengefasst sind. Gliedere diesen Bericht in zwei Teile: zunaechst die IST-Situation und dann die gewuenschte SOLL-Situation.</div>'
             },
-            2: {
-                title: "Phase 2: Vertiefte Erfassung des „Schlüsselaffekts" mithilfe immersiver Bildarbeit",
-                content: `
-                <div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div>
-                
-                <div class="coach-action">Coach erklärt Coachee das weitere Vorgehen und zeigt ihm/ihr mit geteiltem Bildschirm mehrere Fotos mit der Bitte, dasjenige auszuwählen, das am ehesten geeignet ist, den vorliegenden „Schlüsselaffekt" zu visualisieren.</div>
-                
-                <div class="coach-action">Coach führt mit Coachee eine immersive Bildbetrachtung durch.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 2:</strong>Ich habe für meinen „Schlüsselaffekt" ein passendes Bild ausgewählt. Sage mir, welche Bedeutung das gewählte Bild für meine Coachingproblematik hat.</div>`
+            "2": {
+                title: "Phase 2: Vertiefte Erfassung des Schluesselaffekts mit immersiver Bildarbeit",
+                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="coach-action">Coach erklaert Coachee das weitere Vorgehen und zeigt ihm/ihr mit geteiltem Bildschirm mehrere Fotos mit der Bitte, dasjenige auszuwaehlen, das am ehesten geeignet ist, den vorliegenden Schluesselaffekt zu visualisieren.</div><div class="coach-action">Coach fuehrt mit Coachee eine immersive Bildbetrachtung durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 2:</strong>Ich habe fuer meinen Schluesselaffekt ein passendes Bild ausgewaehlt. Sage mir, welche Bedeutung das gewaehlte Bild fuer meine Coachingproblematik hat.</div>'
             },
-            3: {
-                title: "Phase 3: Vertiefte Erfassung des Coachingziels mithilfe immersiver Bildarbeit",
-                content: `
-                <div class="coach-action">Coach bietet Coachee mehrere Fotos für die Visualisierung seines Ziels an und führt mit Coachee dann eine immersive Betrachtung dieses Bildes durch.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 3:</strong>Ich habe auch für mein Coachingziel ein passendes Bild ausgewählt. Sage mir, welche Bedeutung das gewählte Bild für meine Coachingproblematik hat.</div>`
+            "3": {
+                title: "Phase 3: Vertiefte Erfassung des Coachingziels mit immersiver Bildarbeit",
+                content: '<div class="coach-action">Coach bietet Coachee mehrere Fotos fuer die Visualisierung seines Ziels an und fuehrt mit Coachee dann eine immersive Betrachtung dieses Bildes durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 3:</strong>Ich habe auch fuer mein Coachingziel ein passendes Bild ausgewaehlt. Sage mir, welche Bedeutung das gewaehlte Bild fuer meine Coachingproblematik hat.</div>'
             },
-            4: {
-                title: "Phase 4: Rekonstruktion des „Teufelskreislaufs" mithilfe von Aufstellungsarbeit",
-                content: `
-                <div class="coach-action">Coach erklärt Coachee das Konzept des „Inneres Team" und des psychodramatischen Tiefeninterviews, das er mit Coachee dann durchführt.</div>
-                
-                <div class="coach-action">Coach führt mit Coachee das psychodramatische Tiefeninterview durch.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 4:</strong>Rekonstruiere mithilfe des Textbausteins „Teufelskreislauf" den problemstabilisierenden Teufelskreislauf. Rekonstruiere den heimlichen Wunsch, der mich im Teufelskreislauf gefangen hält.</div>`
+            "4": {
+                title: "Phase 4: Rekonstruktion des Teufelskreislaufs mit Aufstellungsarbeit",
+                content: '<div class="coach-action">Coach erklaert Coachee das Konzept des Inneres Team und des psychodramatischen Tiefeninterviews, das er mit Coachee dann durchfuehrt.</div><div class="coach-action">Coach fuehrt mit Coachee das psychodramatische Tiefeninterview durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 4:</strong>Rekonstruiere mit Hilfe des Textbausteins Teufelskreislauf den problemstabilisierenden Teufelskreislauf. Rekonstruiere den heimlichen Wunsch, der mich im Teufelskreislauf gefangen haelt.</div>'
             },
-            5: {
+            "5": {
                 title: "Phase 5: Rekonstruktion der zentralen Ausbalancierungsprobleme",
-                content: `
-                <div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 5:</strong>Analysiere mithilfe des Textbausteins „Ausbalancierungsprobleme" die Ausbalancierungsprobleme. Sage mir mithilfe des Textbausteins „Komplementärkräfte", welche Komplementärkräfte ich stärken müsste.</div>`
+                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 5:</strong>Analysiere mit Hilfe des Textbausteins Ausbalancierungsprobleme die Ausbalancierungsprobleme. Sage mir mit Hilfe des Textbausteins Komplementaerkraefte, welche Komplementaerkraefte ich staerken muesste.</div>'
             },
-            6: {
+            "6": {
                 title: "Phase 6: Entwicklung einer Erfolgsimagination",
-                content: `
-                <div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 6:</strong>Beschreibe in Ich-Form eine Erfolgssituation als Erfolgsimagination. Beschreibe alles sehr differenziert, lebensnah und persönlich, wie in einem Film. Erstelle zwei deutlich unterschiedliche Erlebnisbeschreibungen.</div>`
+                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 6:</strong>Beschreibe in Ich-Form eine Erfolgssituation als Erfolgsimagination. Beschreibe alles sehr differenziert, lebensnah und persoenlich, wie in einem Film. Erstelle zwei deutlich unterschiedliche Erlebnisbeschreibungen.</div>'
             },
-            7: {
-                title: "Phase 7: Identifikation der nächsten zielführenden Aktivitäten",
-                content: `
-                <div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 7:</strong>Biete mir drei – aber wirklich nur drei – geeignete Problemlösungshandlungen an. Sie müssen möglichst konkret sein und eng an die vorliegenden Informationen zu meiner Coachingproblematik anschließen.</div>`
+            "7": {
+                title: "Phase 7: Identifikation der naechsten zielfuehrenden Aktivitaeten",
+                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 7:</strong>Biete mir drei - aber wirklich nur drei - geeignete Problemloesungshandlungen an. Sie muessen moeglichst konkret sein und eng an die vorliegenden Informationen zu meiner Coachingproblematik anschliessen.</div>'
             },
-            8: {
-                title: "Phase 8: Umsetzungsunterstützung",
-                content: `
-                <div class="coach-action">Coach fragt Coachee nach den Umsetzungserfahrungen der geplanten Problemlösungsaktivitäten und fokussiert dabei zunächst vor allem auf die Erfolge.</div>
-                
-                <div class="coach-action">Coach fragt Coachee nach den Umsetzungserfahrungen und fokussiert dabei auf die Misserfolge.</div>
-
-                <div class="gpt-prompt"><strong>GPT-Prompt für Phase 8:</strong>Sage mir, was ich mit Blick auf meine Erfolgsimagination lernen kann, um in ähnlichen Situationen erfolgreicher zu sein. Nutze dabei den Textbaustein „Komplementärkräfte".</div>`
+            "8": {
+                title: "Phase 8: Umsetzungsunterstuetzung",
+                content: '<div class="coach-action">Coach fragt Coachee nach den Umsetzungserfahrungen der geplanten Problemloesungsaktivitaeten und fokussiert dabei zunaechst vor allem auf die Erfolge.</div><div class="coach-action">Coach fragt Coachee nach den Umsetzungserfahrungen und fokussiert dabei auf die Misserfolge.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 8:</strong>Sage mir, was ich mit Blick auf meine Erfolgsimagination lernen kann, um in aehnlichen Situationen erfolgreicher zu sein. Nutze dabei den Textbaustein Komplementaerkraefte.</div>'
             }
         };
 
-        let chatMessages = [];
-        let syncInterval;
+        var chatMessages = [];
 
         function updateInstructions() {
-            debugLog('updateInstructions() aufgerufen');
+            console.log('updateInstructions aufgerufen');
             
-            const phaseSelect = document.getElementById('phaseSelect');
-            const instructionsPanel = document.getElementById('instructionsPanel');
+            var phaseSelect = document.getElementById('phaseSelect');
+            var instructionsPanel = document.getElementById('instructionsPanel');
             
             if (!phaseSelect || !instructionsPanel) {
-                debugLog('ERROR: phaseSelect oder instructionsPanel nicht gefunden!');
+                console.error('Elemente nicht gefunden');
                 return;
             }
             
-            const selectedPhase = phaseSelect.value;
-            debugLog(`Gewählte Phase: ${selectedPhase}`);
+            var selectedPhase = phaseSelect.value;
+            var instructions = phaseInstructions[selectedPhase];
             
-            const instructions = phaseInstructions[selectedPhase];
-            
-            if (!instructions) {
-                debugLog(`ERROR: Keine Anweisungen für Phase ${selectedPhase} gefunden!`);
-                return;
+            if (instructions) {
+                instructionsPanel.innerHTML = '<h3>' + instructions.title + '</h3>' + instructions.content;
+                console.log('Phase aktualisiert:', instructions.title);
+            } else {
+                console.error('Keine Anweisungen gefunden für Phase:', selectedPhase);
             }
-            
-            instructionsPanel.innerHTML = `
-                <h3>${instructions.title}</h3>
-                ${instructions.content}
-            `;
-            
-            debugLog(`Phase-Anweisungen aktualisiert für: ${instructions.title}`);
         }
 
         function addMessage(sender, content, timestamp) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            var messagesContainer = document.getElementById('chatMessages');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + sender;
             
-            const time = timestamp ? new Date(timestamp).toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'}) : new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
-            messageDiv.innerHTML = `
-                <div>${content}</div>
-                <small style="opacity: 0.7; font-size: 12px;">${time}</small>
-            `;
+            var time = timestamp ? new Date(timestamp).toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'}) : new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+            messageDiv.innerHTML = '<div>' + content + '</div><small style="opacity: 0.7; font-size: 12px;">' + time + '</small>';
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            debugLog(`Nachricht hinzugefügt: ${sender} - ${content.substring(0, 50)}...`);
         }
 
-        function testSendMessage() {
-            debugLog('testSendMessage() aufgerufen');
+        function sendMessage() {
+            console.log('sendMessage aufgerufen');
             
-            const messageInput = document.getElementById('messageInput');
-            const content = messageInput.value.trim();
+            var messageInput = document.getElementById('messageInput');
+            var content = messageInput.value.trim();
             
-            if (!content) {
-                debugLog('Keine Nachricht eingegeben');
-                return;
-            }
+            if (!content) return;
             
-            const senderRadio = document.querySelector('input[name="sender"]:checked');
-            const sender = senderRadio ? senderRadio.value : 'coach';
+            var senderRadio = document.querySelector('input[name="sender"]:checked');
+            var sender = senderRadio ? senderRadio.value : 'coach';
             
-            debugLog(`Sende Nachricht als: ${sender}`);
-            
-            // Nachricht lokal hinzufügen
             addMessage(sender, content);
             messageInput.value = '';
-            
-            // Test API-Call (simuliert)
-            debugLog('Simuliere API-Call...');
-            updateStatus('connected');
-        }
-
-        function testLoadMessages() {
-            debugLog('testLoadMessages() aufgerufen');
             updateStatus('connected');
         }
 
         function updateStatus(status) {
-            const statusIndicator = document.getElementById('statusIndicator');
+            var statusIndicator = document.getElementById('statusIndicator');
             if (status === 'connected') {
                 statusIndicator.className = 'status-indicator status-connected';
-                statusIndicator.textContent = '🟢 Debug-Modus: System funktional';
+                statusIndicator.textContent = '🟢 Chat-System funktional';
             } else {
                 statusIndicator.className = 'status-indicator status-error';
-                statusIndicator.textContent = '🔴 Debug-Modus: Fehler erkannt';
+                statusIndicator.textContent = '🔴 Verbindungsfehler';
             }
-            debugLog(`Status aktualisiert: ${status}`);
         }
 
         function handleKeyDown(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                testSendMessage();
+                sendMessage();
             }
         }
 
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
-            debugLog('DOMContentLoaded - System startet');
+            console.log('System startet');
             
-            // Phase-System testen
-            try {
-                updateInstructions();
-                debugLog('✅ Phase-System: OK');
-            } catch (error) {
-                debugLog(`❌ Phase-System ERROR: ${error.message}`);
+            updateInstructions();
+            
+            var phaseSelect = document.getElementById('phaseSelect');
+            if (phaseSelect) {
+                phaseSelect.addEventListener('change', updateInstructions);
             }
             
-            // Event Listeners
-            try {
-                const phaseSelect = document.getElementById('phaseSelect');
-                if (phaseSelect) {
-                    phaseSelect.addEventListener('change', function() {
-                        debugLog('Phase-Dropdown geändert');
-                        updateInstructions();
-                    });
-                    debugLog('✅ Phase-Dropdown Event: OK');
-                } else {
-                    debugLog('❌ Phase-Dropdown nicht gefunden');
-                }
-                
-                const messageInput = document.getElementById('messageInput');
-                if (messageInput) {
-                    messageInput.addEventListener('keydown', handleKeyDown);
-                    debugLog('✅ Message Input Event: OK');
-                } else {
-                    debugLog('❌ Message Input nicht gefunden');
-                }
-                
-            } catch (error) {
-                debugLog(`❌ Event Listeners ERROR: ${error.message}`);
+            var messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('keydown', handleKeyDown);
             }
             
-            // Status setzen
             updateStatus('connected');
-            debugLog('🎯 System initialisiert - Debug-Modus aktiv');
+            console.log('System initialisiert');
         });
     </script>
 </body>
