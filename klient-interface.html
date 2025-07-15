@@ -380,7 +380,7 @@
             if (!content) return;
             
             try {
-                const response = await fetch('/api/klient-message.js', {
+                const response = await fetch('/api/klient-message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -408,7 +408,7 @@
 
         async function loadMessages() {
             try {
-                const response = await fetch('/api/klient-message.js');
+                const response = await fetch('/api/klient-message');
                 if (response.ok) {
                     const data = await response.json();
                     const newMessages = data.messages || [];
