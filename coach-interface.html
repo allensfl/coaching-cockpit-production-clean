@@ -446,9 +446,73 @@
             var senderRadio = document.querySelector('input[name="sender"]:checked');
             var sender = senderRadio ? senderRadio.value : 'coach';
             
+            // Nachricht sofort lokal anzeigen
             addMessage(sender, content);
             messageInput.value = '';
-            updateStatus('connected');
+            
+            // Nachricht an Server senden für Synchronisation
+            fetch('/api/sync-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sender: sender,
+                    content: content,
+                    timestamp: new Date().toISOString(),
+                    phase: document.getElementById('phaseSelect').value
+                })
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    updateStatus('connected');
+                    console.log('Nachricht erfolgreich gesendet');
+                } else {
+                    console.log('Server-Sync fehlgeschlagen, läuft lokal weiter');
+                    updateStatus('error');
+                }
+            })
+            .catch(function(error) {
+                console.log('Chat-Sync offline, läuft lokal weiter:', error);
+                updateStatus('error');
+            });
+        }
+
+        function loadMessages() {
+            fetch('/api/sync-message')
+            .then(function(response) {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('API nicht erreichbar');
+            })
+            .then(function(data) {
+                var newMessages = data.messages || [];
+                
+                // Nur neue Nachrichten hinzufügen (die nicht von uns selbst kommen)
+                if (newMessages.length > chatMessages.length) {
+                    var messagesToAdd = newMessages.slice(chatMessages.length);
+                    messagesToAdd.forEach(function(msg) {
+                        // Vermeiden von Duplikaten lokaler Nachrichten
+                        var lastMessage = document.querySelector('#chatMessages .message:last-child div');
+                        if (!lastMessage || lastMessage.textContent !== msg.content) {
+                            addMessage(msg.sender, msg.content, msg.timestamp);
+                        }
+                    });
+                    chatMessages = newMessages;
+                }
+                updateStatus('connected');
+            })
+            .catch(function(error) {
+                console.log('Nachrichten laden fehlgeschlagen:', error);
+                updateStatus('error');
+            });
+        }
+
+        function startSync() {
+            // Alle 3 Sekunden nach neuen Nachrichten schauen
+            setInterval(loadMessages, 3000);
+            loadMessages(); // Einmal sofort laden
         }
 
         function updateStatus(status) {
@@ -474,6 +538,7 @@
             console.log('System startet');
             
             updateInstructions();
+            startSync();
             
             var phaseSelect = document.getElementById('phaseSelect');
             if (phaseSelect) {
