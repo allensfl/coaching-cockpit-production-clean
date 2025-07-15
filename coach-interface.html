@@ -338,84 +338,181 @@
     <script>
         const phaseInstructions = {
             1: {
-                title: "Phase 1: Begrüßung & Rapport",
-                content: `<p><strong>Ziel:</strong> Vertrauen aufbauen und den Klienten willkommen heißen.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Herzliche Begrüßung mit dem Namen des Klienten</p>
-                         <p>• Kurze Erklärung des Coaching-Prozesses</p>
-                         <p>• Offene Fragen zum Befinden und Erwartungen</p>
-                         <p>• Vertraulichkeit und Rahmen klären</p>
-                         <p>• Auf eine entspannte, vertrauensvolle Atmosphäre achten</p>`
+                title: "Phase 1: Erste Erfassung der Soll-Ist-Situation",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>🎯 Coach begrüßt Coachingpartner, macht etwas Small Talk</p>
+                         <p>📺 Coach teilt Bildschirm, um Coachee das Konzept und Verfahren des KI-Coachings vorzustellen</p>
+                         <p>🤝 Coach achtet auf den Aufbau einer positiven Arbeitsbeziehung</p>
+                         <p>📝 Coach prüft, wie viel "medientechnisch ungestörten" Raum Coachee braucht</p>
+                         <p>👂 Coach regt Coachee an zu erzählen (IST-Situation und SOLL-Situation)</p>
+                         <p>✍️ Coach beschränkt sich auf aktives Zuhören und protokolliert</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 1:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Erstelle einen in Ich-Form geschriebenen „strukturierten Bericht meiner Coachingproblematik", in dem alle obigen Informationen zusammengefasst sind. Gliedere diesen Bericht in zwei Teile: zunächst die IST-Situation und dann die gewünschte SOLL-Situation.<br><br>
+                         
+                         Nimm in jedem der beiden Teile Bezug auf:<br>
+                         • äußere Rahmenbedingungen und äußerliche Ressourcen einschließlich körperlicher Bedingungen<br>
+                         • psychische Prozesse (Gefühle, motivationale Impulse und Gedanken)<br>
+                         • beobachtbare Verhaltensweisen<br>
+                         • faktische Folgen bei Mitmenschen und mir selbst<br><br>
+                         
+                         Rekonstruiere anschließend mithilfe des Textbausteins „Teufelskreislauf" den Teufelskreislauf meiner Coachingproblematik und entwickle Hypothesen über den versteckten Gewinn.
+                         </div>`
             },
             2: {
-                title: "Phase 2: Thema & Ziel definieren",
-                content: `<p><strong>Ziel:</strong> Das Coaching-Thema und gewünschte Ergebnisse klären.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Nach dem konkreten Anliegen fragen</p>
-                         <p>• SMART-Ziele formulieren helfen</p>
-                         <p>• Prioritäten und Dringlichkeit erfassen</p>
-                         <p>• Motivation und Interesse hinterfragen</p>
-                         <p>• Erfolg messbar machen</p>`
+                title: "Phase 2: Vertiefte Erfassung des „Schlüsselaffekts" mithilfe immersiver Bildarbeit",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>⏸️ Coach gibt Coachee Raum, die KI-Antwort auf sich wirken zu lassen</p>
+                         <p>❓ Coach fragt, was die Antwort innerlich macht und protokolliert wichtigste Aussagen</p>
+                         <p>📝 Coach protokolliert Reaktionen unter den Augen des Coachees</p>
+                         <p>🖼️ Coach zeigt mehrere Fotos mit geteiltem Bildschirm</p>
+                         <p>🎯 Coach bittet um Auswahl des Bildes, das den "Schlüsselaffekt" visualisiert</p>
+                         <p>👁️ Coach führt immersive Bildbetrachtung durch</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 2:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Vielen Dank für deine Ausführungen. Sie haben in mir spontan Folgendes ausgelöst:<br>
+                         [Coach protokolliert emotionale und kognitive Reaktionen]<br><br>
+                         
+                         Ich übernehme deinen „strukturierten Bericht der IST- und SOLL-Situation" mit folgenden Modifikationen:<br>
+                         [Änderungen einfügen]<br><br>
+                         
+                         Ich habe für meinen „Schlüsselaffekt" ein passendes Bild ausgewählt:<br>
+                         [Bildbeschreibung: Warum gewählt, was sehe ich, erlebensmäßiges Eintauchen, Blickrichtung, innere Worte]<br><br>
+                         
+                         Sage mir, welche Bedeutung das gewählte Bild für meine Coachingproblematik hat.
+                         </div>`
             },
             3: {
-                title: "Phase 3: Ist-Situation erfassen",
-                content: `<p><strong>Ziel:</strong> Die aktuelle Situation vollständig verstehen.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Detaillierte Situationsanalyse durchführen</p>
-                         <p>• Fakten von Interpretationen trennen</p>
-                         <p>• Emotionale Aspekte erfassen</p>
-                         <p>• Systemische Zusammenhänge erkunden</p>
-                         <p>• Bisherige Lösungsversuche erfragen</p>`
+                title: "Phase 3: Vertiefte Erfassung des Coachingziels mithilfe immersiver Bildarbeit",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>⏸️ Coach gibt Coachee Raum für KI-Antwort</p>
+                         <p>📝 Coach protokolliert emotionale und kognitive Reaktionen</p>
+                         <p>🖼️ Coach bietet mehrere Fotos für Ziel-Visualisierung an</p>
+                         <p>👁️ Coach führt immersive Betrachtung des Zielbildes durch</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 3:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Vielen Dank für deine Ausführungen. Sie haben in mir spontan folgendes ausgelöst:<br>
+                         [Coach protokolliert Reaktionen]<br><br>
+                         
+                         Ich übernehme deine präzisierte Beschreibung des „Schlüsselaffekts" mit folgenden Modifikationen:<br>
+                         [Änderungen einfügen]<br><br>
+                         
+                         Ich habe auch für mein Coachingziel ein passendes Bild ausgewählt:<br>
+                         [Bildbeschreibung: Warum gewählt, was sehe ich, erlebensmäßiges Eintauchen, Blickrichtung, innere Worte]<br><br>
+                         
+                         Sage mir, welche Bedeutung das gewählte Bild für meine Coachingproblematik hat.
+                         </div>`
             },
             4: {
-                title: "Phase 4: Hindernisse identifizieren",
-                content: `<p><strong>Ziel:</strong> Blockaden und Hindernisse aufdecken.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Innere und äußere Hindernisse erkunden</p>
-                         <p>• Glaubenssätze und Denkmuster hinterfragen</p>
-                         <p>• Ängste und Widerstände ansprechen</p>
-                         <p>• Systemische Blockaden identifizieren</p>
-                         <p>• Muster und Wiederholungen erkennen</p>`
+                title: "Phase 4: Rekonstruktion des „Teufelskreislaufs" mithilfe von Aufstellungsarbeit",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>⏸️ Coach gibt Raum für KI-Antwort</p>
+                         <p>📝 Coach protokolliert Reaktionen</p>
+                         <p>🧠 Coach erklärt Konzept des "Inneren Teams"</p>
+                         <p>🎭 Coach erklärt psychodramatisches Tiefeninterview</p>
+                         <p>🗣️ Coach führt psychodramatisches Tiefeninterview durch</p>
+                         <p>📋 Coach erstellt Transkript des Interviews</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 4:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Ich habe mit meinem Coach ein Tiefeninterview durchgeführt, das sich am Modell des Inneren Teams orientiert. Ziel: Klären, welche Persönlichkeitsanteile mein Coachingziel unterstützen und welche den „Schlüsselaffekt" verursachen.<br><br>
+                         
+                         [Coach fügt Transkript des Interviews ein]<br><br>
+                         
+                         Gehe davon aus, dass die Spannungen zwischen den Persönlichkeitsanteilen den Kernbereich der Coachingproblematik ausleuchten.<br><br>
+                         
+                         Rekonstruiere mithilfe des Textbausteins „Teufelskreislauf" den problemstabilisierenden Teufelskreislauf. Beziehe dich auf das Interview und alle Einzelinformationen.<br><br>
+                         
+                         Rekonstruiere den heimlichen Wunsch, der mich im Teufelskreislauf gefangen hält.
+                         </div>`
             },
             5: {
-                title: "Phase 5: Ressourcen aktivieren",
-                content: `<p><strong>Ziel:</strong> Stärken und Ressourcen des Klienten mobilisieren.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Persönliche Stärken und Fähigkeiten erfragen</p>
-                         <p>• Erfolgreiche Bewältigungsstrategien aus der Vergangenheit</p>
-                         <p>• Soziale und materielle Ressourcen erkunden</p>
-                         <p>• Werte und Motivation stärken</p>
-                         <p>• Positive Erfahrungen und Erfolge würdigen</p>`
+                title: "Phase 5: Rekonstruktion der zentralen Ausbalancierungsprobleme",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>⏸️ Coach gibt Raum für KI-Antwort</p>
+                         <p>📝 Coach protokolliert Reaktionen</p>
+                         <p>✅ Coach übernimmt Analyse mit Modifikationen</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 5:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Vielen Dank für deine Ausführungen. Sie haben in mir spontan folgendes ausgelöst:<br>
+                         [Coach protokolliert Reaktionen]<br><br>
+                         
+                         Auf dieser Grundlage übernehme ich deine Analyse mit folgenden Modifikationen:<br>
+                         [Änderungen einfügen]<br><br>
+                         
+                         Analysiere mithilfe des Textbausteins „Ausbalancierungsprobleme" die bisher zu wenig gestärkten Problemlösungsorientierungen, die meine Coachingproblematik verursachen.<br><br>
+                         
+                         Sage mir mithilfe des Textbausteins „Komplementärkräfte", welche Komplementärkräfte ich stärken müsste, um diese Ausbalancierungsprobleme besser auszubalancieren.
+                         </div>`
             },
             6: {
-                title: "Phase 6: Lösungsoptionen entwickeln",
-                content: `<p><strong>Ziel:</strong> Kreative Lösungsansätze gemeinsam erarbeiten.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Brainstorming verschiedener Optionen</p>
-                         <p>• Pro und Contra abwägen</p>
-                         <p>• Kreative und unkonventionelle Ideen fördern</p>
-                         <p>• Machbarkeit und Umsetzbarkeit prüfen</p>
-                         <p>• Prioritäten und Präferenzen erfragen</p>`
+                title: "Phase 6: Entwicklung einer Erfolgsimagination",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>⏸️ Coach gibt Raum für KI-Antwort</p>
+                         <p>📝 Coach protokolliert Reaktionen und übernimmt Analyse</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 6:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Gehe davon aus, dass es mir gelingt, meine Ausbalancierungsprobleme zu lösen, indem ich die notwendigen Komplementärkräfte hinreichend stärke.<br><br>
+                         
+                         Beschreibe in Ich-Form eine Erfolgssituation als Erfolgsimagination. Beschreibe alles sehr differenziert, lebensnah und persönlich, wie in einem Film: äußerlich beobachtbares und intrapsychisches.<br><br>
+                         
+                         Die Erlebenserzählung startet mit der ursprünglichen „Schlüsselsituation". Nimm Bezug auf die beiden gewählten Bilder für IST- und SOLL-Situation.<br><br>
+                         
+                         Erstelle zwei deutlich unterschiedliche Erlebnisbeschreibungen als Anregungen für zwei unterschiedliche Erfolgsimaginationen.
+                         </div>`
             },
             7: {
-                title: "Phase 7: Entscheidung & Planung",
-                content: `<p><strong>Ziel:</strong> Konkrete Schritte und Umsetzungsplan entwickeln.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Klare Entscheidung für einen Lösungsweg</p>
-                         <p>• Detaillierte Schritt-für-Schritt Planung</p>
-                         <p>• Zeitpläne und Meilensteine definieren</p>
-                         <p>• Erfolgs- und Fortschrittsmessung festlegen</p>
-                         <p>• Notfallpläne und Alternativen besprechen</p>`
+                title: "Phase 7: Identifikation der nächsten zielführenden Aktivitäten",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>⏸️ Coach gibt Raum für KI-Antwort</p>
+                         <p>📝 Coach protokolliert Reaktionen</p>
+                         <p>✅ Coach lässt Coachee bevorzugte Erfolgsimagination wählen</p>
+                         <p>📋 Coach protokolliert geplante Problemlösungsaktivitäten</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 7:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Ich bevorzuge die folgende Erfolgsimagination mit folgenden Modifikationen und werde sie in den nächsten Tagen für mein Mentaltraining nutzen:<br>
+                         [Coach kopiert gewählte Fassung und Änderungen]<br><br>
+                         
+                         In den nächsten Tagen will ich diese Erfolgsimagination umsetzen und die Komplementärkräfte stärken.<br><br>
+                         
+                         Biete mir drei – aber wirklich nur drei – geeignete Problemlösungshandlungen an. Sie müssen möglichst konkret sein und eng an die vorliegenden Informationen zu meiner Coachingproblematik anschließen.<br><br>
+                         
+                         Aufgrund deiner Anregungen plane ich für die nächsten Tage folgende Problemlösungsaktivitäten:<br>
+                         [Coach protokolliert Aktivitäten und innere Reaktionen]<br><br>
+                         
+                         Bitte speichere das ohne jeden Kommentar.
+                         </div>`
             },
             8: {
-                title: "Phase 8: Abschluss & Follow-up",
-                content: `<p><strong>Ziel:</strong> Session abschließen und weitere Schritte planen.</p>
-                         <p><strong>KI-Anweisungen:</strong></p>
-                         <p>• Zusammenfassung der wichtigsten Erkenntnisse</p>
-                         <p>• Commitment und Selbstverpflichtung einholen</p>
-                         <p>• Nächste Schritte und Follow-up planen</p>
-                         <p>• Feedback zur Session einholen</p>
-                         <p>• Wertschätzung und Ermutigung aussprechen</p>`
+                title: "Phase 8: Umsetzungsunterstützung",
+                content: `<p><strong>Coach-Handlungen:</strong></p>
+                         <p>❓ Coach fragt nach Umsetzungserfahrungen (Erfolge fokussieren)</p>
+                         <p>📝 Coach protokolliert wichtigstes Erfolgserlebnis</p>
+                         <p>❗ Coach fragt nach Misserfolgen</p>
+                         <p>📝 Coach protokolliert wichtigstes Misserfolgserlebnis</p>
+                         <p>⏸️ Coach gibt Raum für finale KI-Antwort</p>
+                         
+                         <p><strong>GPT-Prompt für Phase 8:</strong></p>
+                         <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 14px;">
+                         Bei der Umsetzung meiner geplanten Problemlösungsaktivitäten habe ich folgendes Erfolgserlebnis gehabt:<br>
+                         [Coach protokolliert Erfolgserlebnis und Stärkung der Komplementärkräfte]<br><br>
+                         
+                         Bei der Umsetzung habe ich folgendes Misserfolgserlebnis gehabt:<br>
+                         [Coach protokolliert Misserfolgserlebnis]<br><br>
+                         
+                         Sage mir, was ich mit Blick auf meine Erfolgsimagination und bisherige Erfolge lernen kann, um in ähnlichen Situationen erfolgreicher zu sein. Nutze dabei den Textbaustein „Komplementärkräfte".<br><br>
+                         
+                         Ich schließe mich deiner Analyse und den vorgeschlagenen Konsequenzen mit folgenden Modifikationen an:<br>
+                         [Änderungen einfügen]<br><br>
+                         
+                         Bitte speichere das ohne jeden Kommentar.
+                         </div>`
             }
         };
 
