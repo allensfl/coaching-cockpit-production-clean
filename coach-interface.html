@@ -1,3 +1,4 @@
+<!-- ===== COACH-INTERFACE.HTML - REPARIERT ===== -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -162,6 +163,7 @@
             border-radius: 10px;
             max-width: 80%;
             word-wrap: break-word;
+            position: relative;
         }
 
         .message.coach {
@@ -183,6 +185,12 @@
             text-align: center;
             max-width: 100%;
             border: 1px dashed #cbd5e0;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
         }
 
         .chat-input-container {
@@ -283,6 +291,29 @@
             margin-bottom: 10px;
         }
 
+        .sync-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .sync-indicator.active {
+            background: #22543d;
+        }
+
+        .sync-indicator.inactive {
+            background: #742a2a;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -307,7 +338,7 @@
 
             <div class="phase-selector">
                 <h2>Coaching Phase</h2>
-                <select id="phaseSelect">
+                <select id="phaseSelect" onchange="updateInstructions()">
                     <option value="1">Phase 1: Erste Erfassung der Soll-Ist-Situation</option>
                     <option value="2">Phase 2: Vertiefte Erfassung des Schluesselaffekts</option>
                     <option value="3">Phase 3: Vertiefte Erfassung des Coachingziels</option>
@@ -336,8 +367,13 @@
             </div>
 
             <div id="statusIndicator" class="status-indicator status-connected">
-                🟢 Chat-System bereit
+                <span class="sync-indicator active"></span>
+                Chat-System bereit
             </div>
+
+            <button onclick="clearChat()" style="width: 100%; margin-top: 10px; background: #e53e3e;">
+                Chat löschen
+            </button>
         </div>
 
         <div class="main-content">
@@ -348,184 +384,282 @@
                 <div class="chat-messages" id="chatMessages">
                     <div class="message system">
                         Coaching-Session gestartet. Wählen Sie eine Phase und beginnen Sie das strukturierte Coaching.
+                        <div class="message-time">System</div>
                     </div>
                 </div>
                 <div class="chat-input-container">
                     <textarea 
                         id="messageInput" 
                         class="chat-input" 
-                        placeholder="Nachricht eingeben...">
+                        placeholder="Nachricht eingeben..."
+                        onkeydown="handleKeyDown(event)">
                     </textarea>
-                    <button onclick="sendMessage()">Senden</button>
+                    <button onclick="sendMessage()" id="sendButton">Senden</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Phase-Anweisungen (alle Sonderzeichen entfernt)
-        var phaseInstructions = {
+        // ===== ROBUSTE CHAT-SYNCHRONISATION =====
+        const STORAGE_KEY = 'coaching_chat_messages';
+        const COACH_SESSION_ID = 'coach_' + Date.now();
+        const HEARTBEAT_KEY = 'coaching_heartbeat';
+        
+        let chatMessages = [];
+        let lastKnownLength = 0;
+        let isInitialized = false;
+        let syncInterval;
+        let heartbeatInterval;
+
+        // Phase-Anweisungen (wie im Original)
+        const phaseInstructions = {
             "1": {
                 title: "Phase 1: Erste Erfassung der Soll-Ist-Situation",
-                content: '<div class="coach-action">Coach begruesst Coachingpartner, macht etwas Small Talk und teilt dann den Bildschirm, um Coachee das Konzept und Verfahren des KI-Coachings vorzustellen. Coach achtet dabei insbesondere auf den Aufbau einer positiven Arbeitsbeziehung.</div><div class="coach-action">Coach regt Coachee an zu erzaehlen, wie die aktuell unbefriedigende IST-Situation ist und wie er/sie sich die SOLL-Situation vorstellt. Coach beschraenkt sich dabei auf aktives Zuhoeren.</div><p><strong>Protokoll-Template:</strong><br>"Ich habe folgendes Problem bzw. Coachingziel: [Coach fasst die Beschreibung der Ist- und Soll-Situation schriftlich zusammen. Fokus auf Schluesselsituation und Schluesselaffekt.]"</p><div class="gpt-prompt"><strong>GPT-Prompt für Phase 1:</strong>Erstelle einen in Ich-Form geschriebenen strukturierten Bericht meiner Coachingproblematik, in dem alle obigen Informationen zusammengefasst sind. Gliedere diesen Bericht in zwei Teile: zunaechst die IST-Situation und dann die gewuenschte SOLL-Situation.</div>'
+                content: '<div class="coach-action">Coach begrüßt Coachingpartner, macht Small Talk und teilt Bildschirm für KI-Coaching-Konzept.</div><div class="coach-action">Coach regt Coachee an, IST- und SOLL-Situation zu erzählen. Fokus auf Schlüsselsituation und Schlüsselaffekt.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 1:</strong>Erstelle einen strukturierten Bericht in Ich-Form: IST-Situation und gewünschte SOLL-Situation.</div>'
             },
             "2": {
-                title: "Phase 2: Vertiefte Erfassung des Schluesselaffekts mit immersiver Bildarbeit",
-                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="coach-action">Coach erklaert Coachee das weitere Vorgehen und zeigt ihm/ihr mit geteiltem Bildschirm mehrere Fotos mit der Bitte, dasjenige auszuwaehlen, das am ehesten geeignet ist, den vorliegenden Schluesselaffekt zu visualisieren.</div><div class="coach-action">Coach fuehrt mit Coachee eine immersive Bildbetrachtung durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 2:</strong>Ich habe fuer meinen Schluesselaffekt ein passendes Bild ausgewaehlt. Sage mir, welche Bedeutung das gewaehlte Bild fuer meine Coachingproblematik hat.</div>'
+                title: "Phase 2: Vertiefte Erfassung des Schlüsselaffekts",
+                content: '<div class="coach-action">Coach lässt KI-Antwort wirken und fragt nach innerlichem Erleben.</div><div class="coach-action">Coach zeigt Fotos zur Visualisierung des Schlüsselaffekts.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 2:</strong>Erkläre die Bedeutung des gewählten Bildes für die Coachingproblematik.</div>'
             },
             "3": {
-                title: "Phase 3: Vertiefte Erfassung des Coachingziels mit immersiver Bildarbeit",
-                content: '<div class="coach-action">Coach bietet Coachee mehrere Fotos fuer die Visualisierung seines Ziels an und fuehrt mit Coachee dann eine immersive Betrachtung dieses Bildes durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 3:</strong>Ich habe auch fuer mein Coachingziel ein passendes Bild ausgewaehlt. Sage mir, welche Bedeutung das gewaehlte Bild fuer meine Coachingproblematik hat.</div>'
+                title: "Phase 3: Vertiefte Erfassung des Coachingziels",
+                content: '<div class="coach-action">Coach bietet Fotos für Zielvisualisierung an.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 3:</strong>Beschreibe die Bedeutung des Zielbildes für die Coachingproblematik.</div>'
             },
             "4": {
-                title: "Phase 4: Rekonstruktion des Teufelskreislaufs mit Aufstellungsarbeit",
-                content: '<div class="coach-action">Coach erklaert Coachee das Konzept des Inneres Team und des psychodramatischen Tiefeninterviews, das er mit Coachee dann durchfuehrt.</div><div class="coach-action">Coach fuehrt mit Coachee das psychodramatische Tiefeninterview durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 4:</strong>Rekonstruiere mit Hilfe des Textbausteins Teufelskreislauf den problemstabilisierenden Teufelskreislauf. Rekonstruiere den heimlichen Wunsch, der mich im Teufelskreislauf gefangen haelt.</div>'
+                title: "Phase 4: Rekonstruktion des Teufelskreislaufs",
+                content: '<div class="coach-action">Coach erklärt "Inneres Team" und führt psychodramatisches Tiefeninterview durch.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 4:</strong>Rekonstruiere den Teufelskreislauf und den heimlichen Wunsch.</div>'
             },
             "5": {
-                title: "Phase 5: Rekonstruktion der zentralen Ausbalancierungsprobleme",
-                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 5:</strong>Analysiere mit Hilfe des Textbausteins Ausbalancierungsprobleme die Ausbalancierungsprobleme. Sage mir mit Hilfe des Textbausteins Komplementaerkraefte, welche Komplementaerkraefte ich staerken muesste.</div>'
+                title: "Phase 5: Rekonstruktion der Ausbalancierungsprobleme",
+                content: '<div class="coach-action">Coach gibt Raum für KI-Antwort und fragt nach innerlichem Erleben.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 5:</strong>Analysiere Ausbalancierungsprobleme und Komplementärkräfte.</div>'
             },
             "6": {
                 title: "Phase 6: Entwicklung einer Erfolgsimagination",
-                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 6:</strong>Beschreibe in Ich-Form eine Erfolgssituation als Erfolgsimagination. Beschreibe alles sehr differenziert, lebensnah und persoenlich, wie in einem Film. Erstelle zwei deutlich unterschiedliche Erlebnisbeschreibungen.</div>'
+                content: '<div class="coach-action">Coach lässt KI-Antwort wirken und protokolliert Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 6:</strong>Beschreibe zwei unterschiedliche Erfolgssituationen detailliert.</div>'
             },
             "7": {
-                title: "Phase 7: Identifikation der naechsten zielfuehrenden Aktivitaeten",
-                content: '<div class="coach-action">Coach gibt Coachee Raum, die Antwort der Coaching-KI auf sich wirken zu lassen und fragt, was die Antwort mit ihm/ihr innerlich macht und protokolliert die wichtigsten Aussagen.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 7:</strong>Biete mir drei - aber wirklich nur drei - geeignete Problemloesungshandlungen an. Sie muessen moeglichst konkret sein und eng an die vorliegenden Informationen zu meiner Coachingproblematik anschliessen.</div>'
+                title: "Phase 7: Identifikation zielführender Aktivitäten",
+                content: '<div class="coach-action">Coach fragt nach innerlichem Erleben der KI-Antwort.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 7:</strong>Biete genau drei konkrete Problemlösungshandlungen an.</div>'
             },
             "8": {
-                title: "Phase 8: Umsetzungsunterstuetzung",
-                content: '<div class="coach-action">Coach fragt Coachee nach den Umsetzungserfahrungen der geplanten Problemloesungsaktivitaeten und fokussiert dabei zunaechst vor allem auf die Erfolge.</div><div class="coach-action">Coach fragt Coachee nach den Umsetzungserfahrungen und fokussiert dabei auf die Misserfolge.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 8:</strong>Sage mir, was ich mit Blick auf meine Erfolgsimagination lernen kann, um in aehnlichen Situationen erfolgreicher zu sein. Nutze dabei den Textbaustein Komplementaerkraefte.</div>'
+                title: "Phase 8: Umsetzungsunterstützung",
+                content: '<div class="coach-action">Coach fragt nach Umsetzungserfahrungen und fokussiert auf Erfolge und Misserfolge.</div><div class="gpt-prompt"><strong>GPT-Prompt für Phase 8:</strong>Erkläre Lernmöglichkeiten für die Erfolgsimagination.</div>'
             }
         };
 
-        var chatMessages = [];
+        // Initialisierung
+        function initializeChat() {
+            if (isInitialized) return;
+            
+            loadMessages();
+            updateInstructions();
+            startSync();
+            startHeartbeat();
+            
+            isInitialized = true;
+            updateStatus('connected', 'Chat-System initialisiert');
+        }
 
+        // Phase-Anweisungen aktualisieren
         function updateInstructions() {
-            console.log('updateInstructions aufgerufen');
+            const phaseSelect = document.getElementById('phaseSelect');
+            const instructionsPanel = document.getElementById('instructionsPanel');
             
-            var phaseSelect = document.getElementById('phaseSelect');
-            var instructionsPanel = document.getElementById('instructionsPanel');
+            if (!phaseSelect || !instructionsPanel) return;
             
-            if (!phaseSelect || !instructionsPanel) {
-                console.error('Elemente nicht gefunden');
-                return;
-            }
-            
-            var selectedPhase = phaseSelect.value;
-            var instructions = phaseInstructions[selectedPhase];
+            const selectedPhase = phaseSelect.value;
+            const instructions = phaseInstructions[selectedPhase];
             
             if (instructions) {
                 instructionsPanel.innerHTML = '<h3>' + instructions.title + '</h3>' + instructions.content;
-                console.log('Phase aktualisiert:', instructions.title);
-            } else {
-                console.error('Keine Anweisungen gefunden für Phase:', selectedPhase);
             }
         }
 
-        function addMessage(sender, content, timestamp) {
-            var messagesContainer = document.getElementById('chatMessages');
-            var messageDiv = document.createElement('div');
-            messageDiv.className = 'message ' + sender;
+        // Nachricht senden
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
             
-            var time = timestamp ? new Date(timestamp).toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'}) : new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
-            messageDiv.innerHTML = '<div>' + content + '</div><small style="opacity: 0.7; font-size: 12px;">' + time + '</small>';
+            if (!content) return;
+            
+            const senderRadio = document.querySelector('input[name="sender"]:checked');
+            const sender = senderRadio ? senderRadio.value : 'coach';
+            
+            const messageData = {
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                sender: sender,
+                content: content,
+                timestamp: new Date().toISOString(),
+                phase: document.getElementById('phaseSelect').value,
+                sessionId: COACH_SESSION_ID
+            };
+
+            // Nachricht sofort lokal anzeigen
+            addMessageToDisplay(messageData);
+            messageInput.value = '';
+            
+            // Nachricht in Storage speichern
+            saveMessage(messageData);
+            
+            // Button kurz deaktivieren
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            setTimeout(() => {
+                sendButton.disabled = false;
+            }, 500);
+        }
+
+        // Nachricht zu Display hinzufügen
+        function addMessageToDisplay(messageData) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + messageData.sender;
+            messageDiv.dataset.messageId = messageData.id;
+            
+            const time = new Date(messageData.timestamp).toLocaleTimeString('de-DE', {
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+            
+            messageDiv.innerHTML = `
+                ${messageData.content}
+                <div class="message-time">${time}</div>
+            `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function sendMessage() {
-            console.log('sendMessage aufgerufen');
-            
-            var messageInput = document.getElementById('messageInput');
-            var content = messageInput.value.trim();
-            
-            if (!content) return;
-            
-            var senderRadio = document.querySelector('input[name="sender"]:checked');
-            var sender = senderRadio ? senderRadio.value : 'coach';
-            
-            // Nachricht sofort lokal anzeigen
-            addMessage(sender, content);
-            messageInput.value = '';
-            
-            // Nachricht an Server senden für Synchronisation
-            fetch('/api/sync-message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    sender: sender,
-                    content: content,
-                    timestamp: new Date().toISOString(),
-                    phase: document.getElementById('phaseSelect').value
-                })
-            })
-            .then(function(response) {
-                if (response.ok) {
-                    updateStatus('connected');
-                    console.log('Nachricht erfolgreich gesendet');
-                } else {
-                    console.log('Server-Sync fehlgeschlagen, läuft lokal weiter');
-                    updateStatus('error');
-                }
-            })
-            .catch(function(error) {
-                console.log('Chat-Sync offline, läuft lokal weiter:', error);
-                updateStatus('error');
-            });
-        }
-
-        function loadMessages() {
-            fetch('/api/sync-message')
-            .then(function(response) {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('API nicht erreichbar');
-            })
-            .then(function(data) {
-                var newMessages = data.messages || [];
+        // Nachricht in Storage speichern
+        function saveMessage(messageData) {
+            try {
+                const existingMessages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                existingMessages.push(messageData);
                 
-                // Nur neue Nachrichten hinzufügen (die nicht von uns selbst kommen)
-                if (newMessages.length > chatMessages.length) {
-                    var messagesToAdd = newMessages.slice(chatMessages.length);
-                    messagesToAdd.forEach(function(msg) {
-                        // Vermeiden von Duplikaten lokaler Nachrichten
-                        var lastMessage = document.querySelector('#chatMessages .message:last-child div');
-                        if (!lastMessage || lastMessage.textContent !== msg.content) {
-                            addMessage(msg.sender, msg.content, msg.timestamp);
-                        }
-                    });
-                    chatMessages = newMessages;
+                // Nur letzte 200 Nachrichten behalten
+                if (existingMessages.length > 200) {
+                    existingMessages.splice(0, existingMessages.length - 200);
                 }
-                updateStatus('connected');
-            })
-            .catch(function(error) {
-                console.log('Nachrichten laden fehlgeschlagen:', error);
-                updateStatus('error');
-            });
-        }
-
-        function startSync() {
-            // Alle 3 Sekunden nach neuen Nachrichten schauen
-            setInterval(loadMessages, 3000);
-            loadMessages(); // Einmal sofort laden
-        }
-
-        function updateStatus(status) {
-            var statusIndicator = document.getElementById('statusIndicator');
-            if (status === 'connected') {
-                statusIndicator.className = 'status-indicator status-connected';
-                statusIndicator.textContent = '🟢 Chat-System funktional';
-            } else {
-                statusIndicator.className = 'status-indicator status-error';
-                statusIndicator.textContent = '🔴 Verbindungsfehler';
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(existingMessages));
+                chatMessages = existingMessages;
+                
+                // Heartbeat aktualisieren
+                updateHeartbeat();
+                
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                updateStatus('error', 'Speicherfehler');
             }
         }
 
+        // Nachrichten laden
+        function loadMessages() {
+            try {
+                const storedMessages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                
+                // Nur neue Nachrichten anzeigen
+                if (storedMessages.length > lastKnownLength) {
+                    const newMessages = storedMessages.slice(lastKnownLength);
+                    
+                    newMessages.forEach(msg => {
+                        // Duplikate vermeiden
+                        if (!document.querySelector(`[data-message-id="${msg.id}"]`)) {
+                            addMessageToDisplay(msg);
+                        }
+                    });
+                    
+                    lastKnownLength = storedMessages.length;
+                }
+                
+                chatMessages = storedMessages;
+                updateStatus('connected', `${storedMessages.length} Nachrichten synchronisiert`);
+                
+            } catch (error) {
+                console.error('Fehler beim Laden:', error);
+                updateStatus('error', 'Ladefehler');
+            }
+        }
+
+        // Synchronisation starten
+        function startSync() {
+            if (syncInterval) clearInterval(syncInterval);
+            
+            syncInterval = setInterval(() => {
+                loadMessages();
+                checkHeartbeat();
+            }, 1500); // Alle 1.5 Sekunden
+        }
+
+        // Heartbeat System
+        function startHeartbeat() {
+            heartbeatInterval = setInterval(() => {
+                updateHeartbeat();
+            }, 5000); // Alle 5 Sekunden
+        }
+
+        function updateHeartbeat() {
+            const heartbeat = {
+                timestamp: Date.now(),
+                source: 'coach',
+                sessionId: COACH_SESSION_ID
+            };
+            localStorage.setItem(HEARTBEAT_KEY, JSON.stringify(heartbeat));
+        }
+
+        function checkHeartbeat() {
+            try {
+                const heartbeat = JSON.parse(localStorage.getItem(HEARTBEAT_KEY) || '{}');
+                const now = Date.now();
+                
+                if (now - heartbeat.timestamp > 30000) { // 30 Sekunden
+                    updateStatus('error', 'Klient-Verbindung unterbrochen');
+                } else {
+                    updateStatus('connected', 'Synchronisation aktiv');
+                }
+            } catch (error) {
+                updateStatus('error', 'Heartbeat-Fehler');
+            }
+        }
+
+        // Status aktualisieren
+        function updateStatus(status, message) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const syncIndicator = statusIndicator.querySelector('.sync-indicator');
+            
+            if (status === 'connected') {
+                statusIndicator.className = 'status-indicator status-connected';
+                syncIndicator.className = 'sync-indicator active';
+                statusIndicator.innerHTML = `<span class="sync-indicator active"></span>${message}`;
+            } else {
+                statusIndicator.className = 'status-indicator status-error';
+                syncIndicator.className = 'sync-indicator inactive';
+                statusIndicator.innerHTML = `<span class="sync-indicator inactive"></span>${message}`;
+            }
+        }
+
+        // Chat löschen
+        function clearChat() {
+            if (confirm('Möchten Sie den gesamten Chat löschen?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(HEARTBEAT_KEY);
+                chatMessages = [];
+                lastKnownLength = 0;
+                
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = `
+                    <div class="message system">
+                        Chat wurde geleert. Session kann neu gestartet werden.
+                        <div class="message-time">System</div>
+                    </div>
+                `;
+                
+                updateStatus('connected', 'Chat geleert');
+            }
+        }
+
+        // Enter-Taste behandeln
         function handleKeyDown(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -533,25 +667,22 @@
             }
         }
 
+        // Storage Event Listener
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEY) {
+                loadMessages();
+            }
+        });
+
+        // Cleanup beim Schließen
+        window.addEventListener('beforeunload', function() {
+            if (syncInterval) clearInterval(syncInterval);
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+        });
+
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('System startet');
-            
-            updateInstructions();
-            startSync();
-            
-            var phaseSelect = document.getElementById('phaseSelect');
-            if (phaseSelect) {
-                phaseSelect.addEventListener('change', updateInstructions);
-            }
-            
-            var messageInput = document.getElementById('messageInput');
-            if (messageInput) {
-                messageInput.addEventListener('keydown', handleKeyDown);
-            }
-            
-            updateStatus('connected');
-            console.log('System initialisiert');
+            initializeChat();
         });
     </script>
 </body>

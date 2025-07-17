@@ -1,3 +1,4 @@
+<!-- ===== KLIENT-INTERFACE.HTML - REPARIERT ===== -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -92,6 +93,7 @@
             margin-bottom: 20px;
             max-width: 80%;
             word-wrap: break-word;
+            position: relative;
         }
 
         .message.coach {
@@ -112,6 +114,18 @@
             border-radius: 15px;
             position: relative;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message.coach .message-bubble {
@@ -137,13 +151,13 @@
 
         .message-info {
             font-size: 12px;
-            margin-top: 5px;
+            margin-top: 8px;
             opacity: 0.7;
         }
 
         .message.coach .message-info {
             text-align: right;
-            color: white;
+            color: #4a5568;
         }
 
         .message.klient .message-info {
@@ -154,6 +168,28 @@
         .message.system .message-info {
             text-align: center;
             color: #718096;
+        }
+
+        .coach-indicator {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .klient-indicator {
+            background: rgba(113, 128, 150, 0.1);
+            color: #718096;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
         .chat-input-container {
@@ -218,6 +254,10 @@
             border-top: 1px solid #e2e8f0;
             text-align: center;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .status-connected {
@@ -228,34 +268,47 @@
             color: #742a2a;
         }
 
+        .sync-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .sync-indicator.active {
+            background: #22543d;
+        }
+
+        .sync-indicator.inactive {
+            background: #742a2a;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
         .typing-indicator {
             display: none;
             padding: 10px 20px;
             color: #718096;
             font-style: italic;
             font-size: 14px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+            margin: 10px 25px;
         }
 
-        .coach-indicator {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 10px;
+        .typing-indicator.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
         }
 
-        .klient-indicator {
-            background: rgba(113, 128, 150, 0.1);
-            color: #718096;
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 10px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @media (max-width: 768px) {
@@ -317,7 +370,7 @@
             </div>
 
             <div class="typing-indicator" id="typingIndicator">
-                Ihr Coach schreibt gerade...
+                💬 Ihr Coach schreibt gerade...
             </div>
 
             <div class="chat-input-container">
@@ -328,7 +381,7 @@
                         placeholder="Teilen Sie Ihre Gedanken mit Ihrem Coach..." 
                         onkeydown="handleKeyDown(event)">
                     </textarea>
-                    <button class="send-button" onclick="sendMessage()">
+                    <button class="send-button" onclick="sendMessage()" id="sendButton">
                         Senden
                     </button>
                 </div>
@@ -337,123 +390,248 @@
 
         <div class="status-bar">
             <span id="statusIndicator" class="status-connected">
-                🟢 Mit Coach verbunden - Nachrichten werden in Echtzeit übertragen
+                <span class="sync-indicator active"></span>
+                Mit Coach verbunden - Nachrichten werden in Echtzeit übertragen
             </span>
         </div>
     </div>
 
     <script>
+        // ===== ROBUSTE CHAT-SYNCHRONISATION FÜR KLIENT =====
+        const STORAGE_KEY = 'coaching_chat_messages';
+        const KLIENT_SESSION_ID = 'klient_' + Date.now();
+        const HEARTBEAT_KEY = 'coaching_heartbeat';
+        
         let chatMessages = [];
+        let lastKnownLength = 0;
+        let isInitialized = false;
         let syncInterval;
-        let lastMessageCount = 0;
+        let heartbeatInterval;
+        let typingTimeout;
 
-        function addMessage(sender, content, timestamp) {
+        // Initialisierung
+        function initializeChat() {
+            if (isInitialized) return;
+            
+            loadMessages();
+            startSync();
+            startHeartbeat();
+            setupInputResize();
+            
+            isInitialized = true;
+            updateStatus('connected', 'Chat-System bereit');
+        }
+
+        // Nachricht senden
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+            
+            if (!content) return;
+            
+            const messageData = {
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                sender: 'klient',
+                content: content,
+                timestamp: new Date().toISOString(),
+                sessionId: KLIENT_SESSION_ID
+            };
+
+            // Nachricht sofort lokal anzeigen
+            addMessageToDisplay(messageData);
+            messageInput.value = '';
+            resetTextareaHeight();
+            
+            // Nachricht in Storage speichern
+            saveMessage(messageData);
+            
+            // Button kurz deaktivieren
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            setTimeout(() => {
+                sendButton.disabled = false;
+            }, 500);
+        }
+
+        // Nachricht zu Display hinzufügen
+        function addMessageToDisplay(messageData) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            messageDiv.className = 'message ' + messageData.sender;
+            messageDiv.dataset.messageId = messageData.id;
             
-            const time = timestamp ? new Date(timestamp).toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'}) : new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+            const time = new Date(messageData.timestamp).toLocaleTimeString('de-DE', {
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
             
             let senderLabel = '';
-            if (sender === 'coach') {
+            if (messageData.sender === 'coach') {
                 senderLabel = '<div class="coach-indicator">💼 Ihr Coach</div>';
-            } else if (sender === 'klient') {
+            } else if (messageData.sender === 'klient') {
                 senderLabel = '<div class="klient-indicator">👤 Sie</div>';
             }
             
             messageDiv.innerHTML = `
                 ${senderLabel}
                 <div class="message-bubble">
-                    ${content}
+                    ${messageData.content}
                 </div>
                 <div class="message-info">${time}</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const content = messageInput.value.trim();
             
-            if (!content) return;
-            
-            try {
-                const response = await fetch('/api/klient-message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        sender: 'klient',
-                        content: content,
-                        timestamp: new Date().toISOString()
-                    })
-                });
-
-                if (response.ok) {
-                    addMessage('klient', content);
-                    messageInput.value = '';
-                    updateStatus('connected');
-                } else {
-                    throw new Error('Nachricht konnte nicht gesendet werden');
-                }
-            } catch (error) {
-                console.error('Fehler beim Senden:', error);
-                updateStatus('error');
-                addMessage('system', 'Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.');
+            // Typing-Indikator verstecken wenn neue Nachricht
+            if (messageData.sender === 'coach') {
+                hideTypingIndicator();
             }
         }
 
-        async function loadMessages() {
+        // Nachricht in Storage speichern
+        function saveMessage(messageData) {
             try {
-                const response = await fetch('/api/klient-message');
-                if (response.ok) {
-                    const data = await response.json();
-                    const newMessages = data.messages || [];
+                const existingMessages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                existingMessages.push(messageData);
+                
+                // Nur letzte 200 Nachrichten behalten
+                if (existingMessages.length > 200) {
+                    existingMessages.splice(0, existingMessages.length - 200);
+                }
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(existingMessages));
+                chatMessages = existingMessages;
+                
+                // Heartbeat aktualisieren
+                updateHeartbeat();
+                
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                updateStatus('error', 'Speicherfehler');
+            }
+        }
+
+        // Nachrichten laden
+        function loadMessages() {
+            try {
+                const storedMessages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                
+                // Nur neue Nachrichten anzeigen
+                if (storedMessages.length > lastKnownLength) {
+                    const newMessages = storedMessages.slice(lastKnownLength);
                     
-                    if (newMessages.length > chatMessages.length) {
-                        const messagesToAdd = newMessages.slice(chatMessages.length);
-                        messagesToAdd.forEach(msg => {
-                            if (msg.sender !== 'klient' || msg.content !== document.getElementById('messageInput').value.trim()) {
-                                addMessage(msg.sender, msg.content, msg.timestamp);
+                    newMessages.forEach(msg => {
+                        // Duplikate vermeiden
+                        if (!document.querySelector(`[data-message-id="${msg.id}"]`)) {
+                            addMessageToDisplay(msg);
+                            
+                            // Typing-Indikator anzeigen wenn Coach schreibt
+                            if (msg.sender === 'coach') {
+                                showTypingIndicator();
                             }
-                        });
-                        chatMessages = newMessages;
-                        
-                        // Zeige Typing-Indikator wenn Coach gerade schreibt
-                        if (newMessages.length > lastMessageCount && newMessages[newMessages.length - 1].sender === 'coach') {
-                            showTypingIndicator(false);
                         }
-                        lastMessageCount = newMessages.length;
-                    }
-                    updateStatus('connected');
-                } else {
-                    throw new Error('Nachrichten konnten nicht geladen werden');
+                    });
+                    
+                    lastKnownLength = storedMessages.length;
                 }
+                
+                chatMessages = storedMessages;
+                updateStatus('connected', `${storedMessages.length} Nachrichten synchronisiert`);
+                
             } catch (error) {
-                console.error('Fehler beim Laden der Nachrichten:', error);
-                updateStatus('error');
+                console.error('Fehler beim Laden:', error);
+                updateStatus('error', 'Ladefehler');
             }
         }
 
-        function updateStatus(status) {
+        // Typing-Indikator
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.classList.add('show');
+            
+            // Automatisch nach 5 Sekunden verstecken
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                hideTypingIndicator();
+            }, 5000);
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.classList.remove('show');
+            clearTimeout(typingTimeout);
+        }
+
+        // Synchronisation starten
+        function startSync() {
+            if (syncInterval) clearInterval(syncInterval);
+            
+            syncInterval = setInterval(() => {
+                loadMessages();
+                checkHeartbeat();
+            }, 1500); // Alle 1.5 Sekunden
+        }
+
+        // Heartbeat System
+        function startHeartbeat() {
+            heartbeatInterval = setInterval(() => {
+                updateHeartbeat();
+            }, 5000); // Alle 5 Sekunden
+        }
+
+        function updateHeartbeat() {
+            const heartbeat = {
+                timestamp: Date.now(),
+                source: 'klient',
+                sessionId: KLIENT_SESSION_ID
+            };
+            localStorage.setItem(HEARTBEAT_KEY, JSON.stringify(heartbeat));
+        }
+
+        function checkHeartbeat() {
+            try {
+                const heartbeat = JSON.parse(localStorage.getItem(HEARTBEAT_KEY) || '{}');
+                const now = Date.now();
+                
+                if (now - heartbeat.timestamp > 30000) { // 30 Sekunden
+                    updateStatus('error', 'Coach-Verbindung unterbrochen');
+                } else {
+                    updateStatus('connected', 'Nachrichten werden in Echtzeit übertragen');
+                }
+            } catch (error) {
+                updateStatus('error', 'Heartbeat-Fehler');
+            }
+        }
+
+        // Status aktualisieren
+        function updateStatus(status, message) {
             const statusIndicator = document.getElementById('statusIndicator');
+            
             if (status === 'connected') {
                 statusIndicator.className = 'status-connected';
-                statusIndicator.textContent = '🟢 Mit Coach verbunden - Nachrichten werden in Echtzeit übertragen';
+                statusIndicator.innerHTML = `<span class="sync-indicator active"></span>${message}`;
             } else {
                 statusIndicator.className = 'status-error';
-                statusIndicator.textContent = '🔴 Verbindungsfehler - Versuche Wiederverbindung...';
+                statusIndicator.innerHTML = `<span class="sync-indicator inactive"></span>${message}`;
             }
         }
 
-        function showTypingIndicator(show) {
-            const typingIndicator = document.getElementById('typingIndicator');
-            typingIndicator.style.display = show ? 'block' : 'none';
+        // Textarea Auto-Resize
+        function setupInputResize() {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
         }
 
+        function resetTextareaHeight() {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.style.height = 'auto';
+        }
+
+        // Enter-Taste behandeln
         function handleKeyDown(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -461,30 +639,22 @@
             }
         }
 
-        function startSync() {
-            syncInterval = setInterval(loadMessages, 1500);
-        }
-
-        function stopSync() {
-            if (syncInterval) {
-                clearInterval(syncInterval);
+        // Storage Event Listener
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEY) {
+                loadMessages();
             }
-        }
+        });
 
-        // Initialisierung beim Laden der Seite
+        // Cleanup beim Schließen
+        window.addEventListener('beforeunload', function() {
+            if (syncInterval) clearInterval(syncInterval);
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+        });
+
+        // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
-            loadMessages();
-            startSync();
-            
-            // Sync stoppen wenn Seite verlassen wird
-            window.addEventListener('beforeunload', stopSync);
-            
-            // Auto-resize für Textarea
-            const messageInput = document.getElementById('messageInput');
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-            });
+            initializeChat();
         });
     </script>
 </body>
