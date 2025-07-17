@@ -627,50 +627,56 @@
           </div>
 
           <div class="repo-categories">
-            <!-- Phase 1 -->
+            <!-- KI-Prompts Phase 1 -->
             <div class="repo-category">
-              <h3>🎯 Phase 1: Problem & Ziel</h3>
-              <div class="repo-prompts" id="phase1-repo-prompts">
+              <h3>🤖 KI-Prompts Phase 1</h3>
+              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Anweisungen AN die KI</p>
+              <div class="repo-prompts" id="kiPhase1-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
 
-            <!-- Phase 2 -->
+            <!-- KI-Prompts Phase 2 -->
             <div class="repo-category">
-              <h3>🔍 Phase 2: Problemanalyse</h3>
-              <div class="repo-prompts" id="phase2-repo-prompts">
+              <h3>🤖 KI-Prompts Phase 2</h3>
+              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Anweisungen AN die KI</p>
+              <div class="repo-prompts" id="kiPhase2-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
 
-            <!-- Phase 3 -->
+            <!-- KI-Prompts Phase 3 -->
             <div class="repo-category">
-              <h3>🚀 Phase 3: Lösungsstrategie</h3>
-              <div class="repo-prompts" id="phase3-repo-prompts">
+              <h3>🤖 KI-Prompts Phase 3</h3>
+              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Anweisungen AN die KI</p>
+              <div class="repo-prompts" id="kiPhase3-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
 
-            <!-- Solution Finder -->
+            <!-- Coach-Anweisungen -->
             <div class="repo-category">
-              <h3>⚡ Solution Finder</h3>
-              <div class="repo-prompts" id="solutionFinder-repo-prompts">
+              <h3>👨‍💼 Coach-Anweisungen</h3>
+              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">WIE der Coach vorgeht</p>
+              <div class="repo-prompts" id="coachAnweisungen-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
 
-            <!-- Spannungsfelder -->
+            <!-- Klienten-Fragen -->
             <div class="repo-category">
-              <h3>⚖️ Spannungsfelder</h3>
-              <div class="repo-prompts" id="spannungsfelder-repo-prompts">
+              <h3>❓ Klienten-Fragen</h3>
+              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Fragen AN den Klienten</p>
+              <div class="repo-prompts" id="klientenFragen-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
 
-            <!-- Interventionen -->
+            <!-- Spannungsfeld-Fragen -->
             <div class="repo-category">
-              <h3>🛠️ Interventionen</h3>
-              <div class="repo-prompts" id="interventionen-repo-prompts">
+              <h3>⚖️ Spannungsfeld-Fragen</h3>
+              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">40 Ruhestand-Spannungen</p>
+              <div class="repo-prompts" id="spannungsfeldFragen-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
@@ -681,169 +687,234 @@
   </div>
 
   <script>
-    // Triadische Prompts Datenbank
+    // Triadische Prompts Datenbank - 6 Kategorien
     const repositoryPrompts = {
-      // Phase 1: Problem- und Zielbeschreibung
-      phase1: [
+      // 1. KI-Prompts Phase 1 (Anweisungen AN die KI)
+      kiPhase1: [
         {
           code: 'T1',
-          name: 'Problembeschreibung Starter',
+          name: 'Problem-Start für KI',
           prompt: 'Ich habe folgendes Problem: [PROBLEM BESCHREIBEN]'
         },
         {
           code: 'T2',
-          name: 'Ist-Soll-Bericht',
+          name: 'KI-Anweisung: Ist-Soll-Bericht',
           prompt: 'Erstelle einen in Ich-Form geschriebenen Bericht, in dem alle bisher vorliegenden Informationen der Problem- und Zielbeschreibung zusammengefasst sind. Gliedere diesen Bericht in zwei Teile, indem Du zunächst die vorliegende Ist-Situation und dann die von mir gewünschte Soll-Situation beschreibst. Nimm – soweit möglich – in jedem der beiden Teile auf folgende Aspekte Bezug, nämlich auf die vorliegenden äußeren Rahmenbedingungen und äußerlichen Ressourcen einschließlich meiner körperlichen Bedingungen, auf meine psychischen Prozesse (wie z.B. Gefühle, motivationale Impulse und Gedanken), die durch die vorliegende Coachingproblematik bei mir aktuell ausgelöst werden, auf meine beobachtbaren Verhaltensweisen, die durch die vorliegende Coachingproblematik bei mir aktuell ausgelöst werden, und auf die faktischen Folgen, die meine beobachtbaren Verhaltensweisen bei meinen Mitmenschen und bei mir selbst verursachen.'
         },
         {
           code: 'T3',
-          name: 'Bildanalyse',
+          name: 'KI-Anweisung: Bildanalyse',
           prompt: 'Ich habe folgendes Bild gewählt: [Bildbeschreibung in Ich-Form]. Was sagt dieses Bild über mein Coaching-Ziel aus? In welcher Beziehung stehen Bild und Zielbeschreibung zueinander?'
         },
         {
           code: 'T4',
-          name: 'Ausbalancierungsproblem identifizieren',
+          name: 'KI-Anweisung: Ausbalancierungsproblem identifizieren',
           prompt: 'Identifiziere aus dem Textbaustein Ausbalancierungsprobleme dasjenige Ausbalancierungsproblem, dass du auf der Grundlage der vorliegenden Informationen zu meinem Coaching Problem und Ziel am klarsten erkennen kannst. Welche Fragen müsste ich beantworten, damit noch sicherer zu klären ist, ob es sich tatsächlich um das von dir identifizierte Ausbalancierungsproblem handelt?'
         }
       ],
 
-      // Phase 2: Problemanalyse
-      phase2: [
-        {
-          code: 'T5',
-          name: 'Schlüsselsituation & Schlüsselaffekt',
-          prompt: 'Identifiziere die Schlüsselsituation und den Schlüsselaffekt - die unbewusste, emotionale Kernproblematik. Affekte sind das "Auge des Taifuns" und somit das Kernproblem jeder Coaching-Problematik.'
-        },
+      // 2. KI-Prompts Phase 2 (Anweisungen AN die KI)
+      kiPhase2: [
         {
           code: 'T7A',
-          name: 'Bremse-Rolle übernehmen',
+          name: 'KI-Anweisung: Als Bremse agieren',
           prompt: 'Versetze dich bitte in die Bremse, die in dem obigen Transkript erwähnt wird und trage noch weitere Argumente vor, die dagegen sprechen, mein Coachingziel zu verfolgen. Lass dich bei dieser Aufgabe von dem Textbaustein Ausbalancierungsprobleme sowie durch die anderen hochgeladenen Textbausteine inspirieren.'
         },
         {
           code: 'T7B',
-          name: 'Ranking der Ausbalancierungsdimensionen',
+          name: 'KI-Anweisung: Dimensionen-Ranking',
           prompt: 'Analysiere das obige Transkript sowie alle momentan vorliegenden Informationen zu meiner Coachingproblematik mit Hilfe des Textbausteins Ausbalancierungsprobleme und erstelle mit Blick auf die 18 Ausbalancierungsdimensionen, die in diesem Textbaustein beschrieben sind, ein Ranking der Ausbalancierungsdimensionen. Das heißt, setze diejenige Ausbalancierungsdimension auf Rangplatz 1, die für meinen Schlüsselaffekt und mein gesamtes Coachingproblem am wichtigsten ist, und diejenige, die am wenigsten wichtig ist, auf Rangplatz 18.'
         },
         {
           code: 'T7C',
-          name: 'Kausalzusammenhang der Ursachen',
+          name: 'KI-Anweisung: Kausalzusammenhänge',
           prompt: 'Gehe bitte von dieser Rangpositionierung aus und kläre, wie die Probleme, die den Ausbalancierungsdimensionen zugrunde liegen, ursächlich zusammenhängen. Also das gesamte Kausalgefüge zwischen diesen drei Dimensionen und die entsprechenden Problematiken sollte verdeutlicht werden.'
         }
       ],
 
-      // Phase 3: Lösungsstrategie
-      phase3: [
+      // 3. KI-Prompts Phase 3 (Anweisungen AN die KI)
+      kiPhase3: [
         {
           code: 'T8',
-          name: 'Übergeordnetes Lern- und Entwicklungsziel',
+          name: 'KI-Anweisung: Entwicklungsziel formulieren',
           prompt: 'Formuliere auf Basis der bisherigen Erkenntnisse ein übergeordnetes Lern- und Entwicklungsziel für mich.'
         },
         {
           code: 'T10',
-          name: 'Analyse der Umsetzungswiderstände',
+          name: 'KI-Anweisung: Widerstandsanalyse',
           prompt: 'Analysiere dieses Transkript. Welche realitätsprägenden Überzeugungen und inneren Regeln stecken hinter den Aussagen der Widerstände? Was hemmt die Umsetzung meines Entwicklungsziels?'
         },
         {
           code: 'T11',
-          name: 'Erfolgsimagination erstellen',
+          name: 'KI-Anweisung: Erfolgsimagination',
           prompt: 'Orientiere dich bei dieser Aufgabe an dem Textbaustein Ausbalancierungsprobleme, da ist Coaching-diagnostisches Wissen hinterlegt. Gehe dabei im Einzelnen folgendermaßen vor: Beziehe dich auf die Komplementärkräfte, die dort auch genau beschrieben sind, und das jeweilige Ideal einer optimalen Ausbalancierung, die in diesem Textbaustein mit Bezug auf die Ausbalancierungsprobleme beschrieben ist. Beschreibe die positiven Veränderungen in einer in Ich-Form verfassten persönlichen Erlebenserzählung, die ich jetzt sofort als Erfolgsimagination nutzen will. Beschreibe in dieser Erfolgsimagination alles sehr differenziert, lebensnah und persönlich und zwar so, dass man es sich wie in einem Film alles ganz konkret vorstellen kann - also alles was äußerlich beobachtbar passiert und alles was intrapsychisch in mir passiert. Die Erlebenserzählung startet mit der Schlüsselsituation, die sich nicht verändert hat. Lege also die Beschreibung der Schlüsselsituation zugrunde, die ich dir zu Beginn dieses Chats mitgeteilt habe. Anschließend beschreibst du in dem persönlichen Erlebensbericht in Ich-Form den deutlich veränderten Schlüsselaffekt. Beziehe dich dabei auf die am Anfang unseres Chats dir mitgeteilte Beschreibung des Bildes, das für mich eine Visualisierung meines Ziels darstellt, und erstelle in diesem Sinne zwei deutlich unterschiedliche Erlebensbeschreibungen.'
         }
       ],
 
-      // Solution Finder Standard-Prompts
-      solutionFinder: [
+      // 4. Coach-Anweisungen (WIE der Coach vorgeht)
+      coachAnweisungen: [
         {
-          code: 'SF1',
-          name: 'Coaching Solution Finder',
-          prompt: 'Ich habe folgendes Problem: [PROBLEM]. Bitte spiegle das Problem in eigenen Worten und identifiziere erste positive Eigenschaften oder Fähigkeiten, die für die Lösung hilfreich sind.'
+          code: 'C1',
+          name: 'Teamchef einführen',
+          prompt: 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen - das ist der Teil, der dieses Ziel erreichen will. Wählen Sie eine Figur oder einen Gegenstand, der diesen Teil repräsentiert und stellen Sie ihn hier auf. Was sagt dieser Teamchef? Lassen Sie ihn sprechen: "Ich will, dass wir..."'
         },
         {
-          code: 'ZIEL',
-          name: 'Zielformulierung',
-          prompt: 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten.'
+          code: 'C2',
+          name: 'Bremse aufdecken',
+          prompt: 'Und da ist bestimmt auch ein Teil in Ihnen, der Bedenken hat oder bremst. Spüren Sie ihn? Was sagt diese innere Stimme? Wählen Sie auch dafür eine Figur.'
         },
         {
-          code: 'SKALA',
-          name: 'Skalenarbeit',
-          prompt: 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel? Und wie schwierig schätzen Sie es ein?'
+          code: 'C3',
+          name: 'Interview mit Bremse',
+          prompt: 'Ich möchte gerne mit der Bremse sprechen. Können Sie in diese Rolle hineinspüren? ... Hallo Bremse, ich habe Ihre Bedenken gehört. Was genau macht Ihnen Sorgen an dem Vorhaben des Teamchefs?'
         },
         {
-          code: 'TEAM',
-          name: 'Inneres Team',
-          prompt: 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen. Welche Stimmen hören Sie zu diesem Thema? Beschreiben Sie die verschiedenen Anteile.'
+          code: 'C4',
+          name: 'Interview mit Unterstützer',
+          prompt: 'Jetzt wende ich mich an den Unterstützer. Können Sie in diese Rolle wechseln? ... Du hast das Gespräch mit der Bremse mitgehört. Wie siehst du das, was sie sagt?'
         },
         {
-          code: 'DIALOG',
-          name: 'Dialogische Exploration',
-          prompt: 'Hallo [ANTEIL], ich habe Ihre Bedenken gehört. Können Sie mir mehr darüber erzählen, was Sie beschäftigt?'
+          code: 'C5',
+          name: 'Abrüstung einleiten',
+          prompt: 'Stellen Sie sich vor, beide Anteile legen ihre Waffen nieder. Die Bremse muss nicht mehr so übervorsichtig sein, der Unterstützer nicht mehr so drängend. Was würde dann möglich?'
         },
         {
-          code: 'TRANSFORM',
-          name: 'Transformation',
-          prompt: 'Wie können beide Anteile ihre Waffen niederlegen und eine neue, integrierte Haltung entwickeln?'
+          code: 'C6',
+          name: 'Neue Haltung entwickeln',
+          prompt: 'Wie könnte eine Haltung aussehen, die das Beste von beiden vereint? Etwas wie: "Ich gehe [vorsichtig/mutig] vor und bleibe dabei [achtsam/pragmatisch]"?'
         }
       ],
 
-      // Spannungsfelder
-      spannungsfelder: [
+      // 5. Klienten-Fragen (Solution Finder Fragen AN den Klienten)
+      klientenFragen: [
+        {
+          code: 'F1',
+          name: 'Zielformulierung',
+          prompt: 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten. Schreiben Sie es so auf, als würden Sie es einem guten Freund erklären.'
+        },
+        {
+          code: 'F2',
+          name: 'Wichtigkeits-Skala',
+          prompt: 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel? 0 bedeutet "völlig unwichtig", 10 bedeutet "absolut entscheidend für mein Leben".'
+        },
+        {
+          code: 'F3',
+          name: 'Schwierigkeits-Skala',
+          prompt: 'Und wie schwierig schätzen Sie es ein, dieses Ziel zu erreichen? 0 wäre "kinderleicht", 10 wäre "scheint unmöglich".'
+        },
+        {
+          code: 'F4',
+          name: 'Vertiefung Wichtigkeit/Schwierigkeit',
+          prompt: 'Was genau macht es so wichtig/schwierig für Sie? Erzählen Sie mir mehr davon.'
+        },
+        {
+          code: 'F5',
+          name: 'Unterstützer identifizieren',
+          prompt: 'Welcher Anteil in Ihnen unterstützt dieses Ziel? Was sagt er? Auch für ihn wählen Sie bitte eine Figur.'
+        },
+        {
+          code: 'F6',
+          name: 'Bremse benennen',
+          prompt: 'Wenn Sie die Haltung der Bremse in 2-3 Worten beschreiben müssten - wie würden Sie sie nennen? Etwas wie "Übervorsichtige Sicherheitswächterin" oder "Perfektionismus-fixierte Selbstblockade"?'
+        },
+        {
+          code: 'F7',
+          name: 'Positiver Kern der Bremse',
+          prompt: 'Die Bremse ist nicht "böse" oder "falsch". Sie übertreibt nur, weil sie etwas Wichtiges schützen will. Was könnte das sein? Was ist der gute Kern in ihrer Haltung?'
+        },
+        {
+          code: 'F8',
+          name: 'Ersten Schritt definieren',
+          prompt: 'Was ist der allererste, kleinste Schritt, den Sie diese Woche machen können? Etwas, was Sie definitiv schaffen und was in Richtung Ihrer neuen Balance geht?'
+        }
+      ],
+
+      // 6. Spannungsfeld-Fragen (40 Ruhestand-Spannungen)
+      spannungsfeldFragen: [
         {
           code: 'SP1',
           name: 'Zeit: Gegenwart ↔ Zukunft',
-          prompt: 'Wie erleben Sie den Umgang mit Zeit - neigen Sie zur Gegenwartsfixierung oder zur übermäßigen Zukunftsplanung?'
+          prompt: 'Wie erleben Sie aktuell den Umgang mit Ihrer Zeit - eher als Festhalten am Moment oder als ständige Zukunftsplanung?'
+        },
+        {
+          code: 'SP20',
+          name: 'Vergangenheit ↔ Zukunftsangst',
+          prompt: 'Merken Sie, dass Sie öfter in Erinnerungen schwelgen oder sich Sorgen um das machen, was kommen könnte?'
+        },
+        {
+          code: 'SP21',
+          name: 'Zeitsouveränität ↔ Zeitlosigkeit',
+          prompt: 'Erleben Sie Ihre neue Zeitfreiheit eher als Geschenk oder als Last?'
         },
         {
           code: 'SP23',
           name: 'Beruf: Überidentifikation ↔ Verachtung',
-          prompt: 'Überwiegt bei der Arbeit eher Stolz und Überidentifikation oder Verbitterung und Verachtung?'
+          prompt: 'Wenn Sie an Ihre Arbeitszeit denken - überwiegt Stolz, Verbitterung oder etwas anderes?'
         },
         {
           code: 'SP24',
           name: 'Status: Fixierung ↔ Bedeutungslosigkeit',
-          prompt: 'Erleben Sie eine Fixierung auf Status und Bedeutung oder ein Gefühl von Bedeutungslosigkeit?'
+          prompt: 'Vermissen Sie Ihren früheren Status - die Anerkennung, die Wichtigkeit?'
         },
         {
           code: 'SP25',
           name: 'Leistung: Zwang ↔ Antriebslosigkeit',
-          prompt: 'Stehen Sie unter Leistungszwang oder leiden Sie unter Antriebslosigkeit?'
+          prompt: 'Haben Sie manchmal das Gefühl, Sie müssten auch im Ruhestand "produktiv" sein?'
+        },
+        {
+          code: 'SP26',
+          name: 'Rollen: Festhalten ↔ Beziehungsabbruch',
+          prompt: 'In welchen Beziehungen erleben Sie Veränderungsdruck - wo wird anders mit Ihnen umgegangen?'
         },
         {
           code: 'SP27',
           name: 'Sozial: Einsamkeit ↔ Rückzug',
-          prompt: 'Leiden Sie unter Einsamkeit oder neigen Sie zum sozialen Rückzug?'
+          prompt: 'Schwanken Sie zwischen dem Bedürfnis nach Gesellschaft und dem Wunsch nach Ruhe?'
+        },
+        {
+          code: 'SP28',
+          name: 'Familie: Großeltern-Überforderung ↔ Verweigerung',
+          prompt: 'Wie erleben Sie die Erwartungen Ihrer Familie an Sie als Großmutter/Großvater?'
+        },
+        {
+          code: 'SP29',
+          name: 'Finanzen: Sparsamkeit ↔ Verschwendungsangst',
+          prompt: 'Wie erleben Sie aktuell Entscheidungen rund ums Geld - eher als Knausern oder als Angst vor Ausgaben?'
+        },
+        {
+          code: 'SP31',
+          name: 'Wohnen: Ortsverbundenheit ↔ Rastlosigkeit',
+          prompt: 'Erleben Sie Ihren aktuellen Wohnort als perfekt passend oder als einengend?'
+        },
+        {
+          code: 'SP33',
+          name: 'Sinn: Vermächtnis-Druck ↔ Resignation',
+          prompt: 'Beschäftigt Sie die Frage, was von Ihrem Leben bleiben wird?'
         },
         {
           code: 'SP36',
           name: 'Gesundheit: Fixierung ↔ Vernachlässigung',
-          prompt: 'Fixieren Sie sich übermäßig auf Gesundheit oder vernachlässigen Sie sie?'
-        }
-      ],
-
-      // Coaching-Interventionen
-      interventionen: [
-        {
-          code: 'RESIST',
-          name: 'Widerstand',
-          prompt: 'Ich spüre Widerstand gegen diese Methode. Was brauchen Sie, um sich darauf einlassen zu können?'
+          prompt: 'Wie viel Raum nehmen Gesundheitsthemen in Ihrem Leben ein?'
         },
         {
-          code: 'EMO',
-          name: 'Emotionen',
-          prompt: 'Ich sehe, dass Sie bewegt sind. Möchten Sie mir erzählen, was gerade in Ihnen vorgeht?'
+          code: 'SP37',
+          name: 'Endlichkeit: Sterbeangst ↔ Lebensmüdigkeit',
+          prompt: 'Wie präsent ist das Thema Endlichkeit in Ihrem Leben?'
         },
         {
-          code: 'KERN',
-          name: 'Positive Kerne',
-          prompt: 'Was ist der positive Kern in beiden Anteilen? Welchen Wert vertritt jeder von ihnen?'
+          code: 'SP38',
+          name: 'Alter: Jugendlichkeit ↔ Vorzeitiges Altern',
+          prompt: 'Wie stehen Sie zu den sichtbaren Zeichen des Älterwerdens?'
         },
         {
-          code: 'TIEF',
-          name: 'Oberflächlich',
-          prompt: 'Ich habe das Gefühl, wir bleiben an der Oberfläche. Können Sie tiefer gehen?'
+          code: 'SP39',
+          name: 'Lernen: Verweigerung ↔ Unstete Optimierung',
+          prompt: 'Wie stehen Sie zu neuen Herausforderungen oder Lernmöglichkeiten?'
         },
         {
-          code: 'RESSOURCE',
-          name: 'Ressourcen',
-          prompt: 'Welche Stärken und Ressourcen haben Sie bereits, die bei dieser Herausforderung helfen?'
+          code: 'SP40',
+          name: 'Routine: Gefangenschaft ↔ Planlose Experimente',
+          prompt: 'Wie erleben Sie Ihre täglichen Gewohnheiten - als Sicherheit oder als Käfig?'
         }
       ]
     };
