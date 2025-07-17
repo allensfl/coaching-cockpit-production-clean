@@ -5,6 +5,7 @@
   "dependencies": {
     "@sendgrid/mail": "^8.1.5",
     "@supabase/supabase-js": "^2.38.0",
+    "openai": "^5.10.1",
     "resend": "^3.2.0",
     "stripe": "^18.3.0"
   },
