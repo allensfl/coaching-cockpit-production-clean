@@ -297,6 +297,7 @@
             padding: 15px;
             overflow-y: auto;
             background: white;
+            max-height: 300px; /* Maximale Höhe begrenzen */
         }
         
         .ki-message {
@@ -438,7 +439,7 @@
                     <div class="message-content">Hallo Maria, schön dass Sie da sind! Wie geht es Ihnen heute?</div>
                 </div>
                 <div class="message coachee">
-                    <div class="message-header">Maria - 14:24</div>
+                    <div class="message-header">Coachee - 14:24</div>
                     <div class="message-content">Hallo! Mir geht es gut, ich bin gespannt auf unser Gespräch zum Ruhestand.</div>
                 </div>
                 <div class="message coach">
@@ -448,7 +449,7 @@
             </div>
             
             <div class="typing-indicator" id="typingIndicator">
-                Maria schreibt...
+                Coachee schreibt...
             </div>
             
             <div class="chat-input">
@@ -620,6 +621,42 @@
             setupEventListeners();
             renderPrompts();
             updatePhaseIndicator();
+            loadSessionParameters();
+        }
+
+        function loadSessionParameters() {
+            // URL-Parameter laden
+            const params = new URLSearchParams(window.location.search);
+            const coach = params.get('coach');
+            const coachee = params.get('coachee');
+            const topic = params.get('topic');
+            const phase = params.get('phase');
+
+            // Session-Info aktualisieren
+            if (coach) {
+                document.querySelector('.session-info span:nth-child(1)').innerHTML = `Coach: <strong>${coach}</strong>`;
+            }
+            if (coachee) {
+                document.querySelector('.session-info span:nth-child(2)').innerHTML = `Coachee: <strong>${coachee}</strong>`;
+                // Auch im Typing-Indikator aktualisieren
+                document.getElementById('typingIndicator').textContent = `${coachee} schreibt...`;
+            }
+            if (topic) {
+                document.querySelector('.session-info span:nth-child(3)').innerHTML = `Session: <strong>${topic}</strong>`;
+            }
+            if (phase) {
+                changePhase(parseInt(phase));
+            }
+        }
+
+        function getSessionTopic() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('topic') || 'Ruhestandscoaching';
+        }
+
+        function getCoacheeName() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('coachee') || 'Coachee';
         }
 
         function setupEventListeners() {
@@ -702,7 +739,9 @@
                 minute: '2-digit' 
             });
             
-            const senderName = sender === 'coach' ? 'Coach' : 'Maria';
+            // Dynamischen Coachee-Namen aus URL-Parameter holen
+            const coacheeName = getCoacheeName();
+            const senderName = sender === 'coach' ? 'Coach' : coacheeName;
             
             messageElement.innerHTML = `
                 <div class="message-header">${senderName} - ${time}</div>
@@ -714,6 +753,8 @@
         }
 
         function showTypingIndicator() {
+            const coacheeName = getCoacheeName();
+            typingIndicator.textContent = `${coacheeName} schreibt...`;
             typingIndicator.style.display = 'block';
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -723,6 +764,9 @@
         }
 
         function simulateCoacheeResponse(coachMessage) {
+            // Coachee-Name aus URL-Parameter holen
+            const coacheeName = getCoacheeName();
+            
             // Simple response simulation based on keywords
             let response = '';
             
@@ -734,6 +778,8 @@
                 response = 'Ja, das beschäftigt mich sehr. Ich kann mir gar nicht vorstellen, wie mein Tag ohne Arbeit aussehen soll.';
             } else if (coachMessage.toLowerCase().includes('angst') || coachMessage.toLowerCase().includes('sorge')) {
                 response = 'Meine größte Angst ist, dass ich mich nutzlos fühlen könnte. Die Arbeit gibt mir so viel Sinn.';
+            } else if (coachMessage.toLowerCase().includes('beschäftigt')) {
+                response = 'Vor allem die Ungewissheit beschäftigt mich. Ich weiß nicht, wie mein Leben dann aussehen wird.';
             } else {
                 response = 'Das ist ein wichtiger Punkt. Ich muss darüber nachdenken.';
             }
@@ -785,23 +831,42 @@
             }, 1000);
         }
 
-        function generateKIResponse(prompt) {
-            // Simple KI response generation based on prompt type
-            if (prompt.category === 'ruhestand') {
-                return `Für ${prompt.title} empfehle ich folgende Fragen:
-                
+        async function generateKIResponse(prompt) {
+            try {
+                const response = await fetch('/api/ki-assistant', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: `Coach möchte Prompt verwenden: "${prompt.text}" - Kategorie: ${prompt.category}`,
+                        context: `Coaching-Thema: ${getSessionTopic()}, Coachee: ${getCoacheeName()}`,
+                        phase: currentPhase,
+                        promptKey: prompt.title
+                    })
+                });
+
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('KI-API Fehler:', error);
+                // Fallback response
+                if (prompt.category === 'ruhestand') {
+                    return `Für ${prompt.title} empfehle ich folgende Fragen:
+                    
 1. "Auf einer Skala von 1-10, wie bereit fühlen Sie sich?"
 2. "Was sind Ihre 3 größten Bedenken?"
 3. "Welche positiven Aspekte sehen Sie?"
 4. "Was brauchen Sie noch, um sich bereit zu fühlen?"
 
 Achten Sie auf emotionale Reaktionen und gehen Sie behutsam vor.`;
-            } else {
-                return `Für ${prompt.title} verwenden Sie diese Struktur:
-                
+                } else {
+                    return `Für ${prompt.title} verwenden Sie diese Struktur:
+                    
 ${prompt.text}
 
 Passen Sie die Variablen [in Klammern] an die Situation an und stellen Sie offene Fragen.`;
+                }
             }
         }
 
@@ -830,31 +895,49 @@ Passen Sie die Variablen [in Klammern] an die Situation an und stellen Sie offen
             }, 1500);
         }
 
-        function generateGenericKIResponse(question) {
-            // Simple response generation based on keywords
-            if (question.toLowerCase().includes('widerstand')) {
-                return `Bei Widerstand empfehle ich:
-                
+        async function generateGenericKIResponse(question) {
+            try {
+                const response = await fetch('/api/ki-assistant', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: question,
+                        context: `Coaching-Thema: ${getSessionTopic()}, Coachee: ${getCoacheeName()}`,
+                        phase: currentPhase
+                    })
+                });
+
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('KI-API Fehler:', error);
+                // Fallback responses
+                if (question.toLowerCase().includes('widerstand')) {
+                    return `Bei Widerstand empfehle ich:
+                    
 1. Widerstand würdigen: "Ich merke, dass das schwierig ist..."
 2. Nachfragen: "Was genau macht Ihnen Sorgen?"
 3. Kleine Schritte: "Was wäre ein kleiner erster Schritt?"
 4. Ressourcen aktivieren: "Womit haben Sie früher ähnliche Situationen gemeistert?"`;
-            } else if (question.toLowerCase().includes('emotion')) {
-                return `Für emotionale Momente:
-                
+                } else if (question.toLowerCase().includes('emotion')) {
+                    return `Für emotionale Momente:
+                    
 1. Raum geben: "Nehmen Sie sich die Zeit, die Sie brauchen..."
 2. Validieren: "Es ist völlig verständlich, dass Sie sich so fühlen..."
 3. Nachfragen: "Was genau löst diese Emotion aus?"
 4. Ressourcen: "Wie gehen Sie normalerweise mit solchen Gefühlen um?"`;
-            } else {
-                return `Für diese Situation empfehle ich:
-                
+                } else {
+                    return `Für diese Situation empfehle ich:
+                    
 1. Aktiv zuhören und nachfragen
 2. Offene Fragen stellen
 3. Ressourcen des Coachees aktivieren
 4. Kleine, machbare Schritte entwickeln
 
 Möchten Sie einen spezifischen Prompt aus der Bibliothek verwenden?`;
+                }
             }
         }
 
