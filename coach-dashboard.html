@@ -3,453 +3,886 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Dashboard - KI-Online.Coach</title>
+    <title>Coach Dashboard - Triadisches KI-Coaching</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: white;
+            color: #333;
         }
-
-        .dashboard-container {
+        
+        .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-
-        /* Trial Banner Styles */
-        .banner {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 15px 20px;
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
             margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .coach-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
         }
-
-        .banner.trial {
-            border-left-color: #FFD700;
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .banner.active {
-            border-left-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
-        }
-
-        .banner.urgent {
-            border-left-color: #f44336;
-            background: rgba(244, 67, 54, 0.1);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        .banner-text {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .banner-button {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
+        
+        .coach-name {
+            font-size: 18px;
+            font-weight: 600;
             color: #333;
-            border: none;
+        }
+        
+        .trial-info {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease;
         }
-
-        .banner-button:hover {
-            transform: translateY(-2px);
+        
+        .trial-info.expired {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        
+        .dashboard-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            padding: 25px;
+        
+        .stat-item {
             text-align: center;
-            transition: transform 0.3s ease;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
+        
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #FFD700;
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        /* Triadisches System Section */
+        .triadische-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .triadische-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .triadische-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+        
+        .triadische-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
             margin-bottom: 10px;
         }
-
-        .stat-label {
-            font-size: 1rem;
+        
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
             opacity: 0.8;
         }
-
-        .section-title {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            text-align: center;
+        
+        .triadische-actions {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
         }
-
-        .client-section {
-            margin-top: 50px;
-        }
-
-        .add-client-btn {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+        
+        .triadische-btn {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 600;
             cursor: pointer;
-            margin-bottom: 20px;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-
-        .add-client-btn:hover {
+        
+        .triadische-btn:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.5);
             transform: translateY(-2px);
         }
-
-        .client-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        
+        .triadische-btn.primary {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            border-color: white;
         }
-
-        .client-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            padding: 20px;
-            transition: transform 0.3s ease;
+        
+        .triadische-btn.primary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-
-        .client-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .client-card h3 {
-            margin-bottom: 10px;
-            color: #FFD700;
-        }
-
-        .client-card p {
-            margin-bottom: 5px;
-            opacity: 0.8;
-        }
-
-        .tools-section {
-            margin-top: 50px;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .tool-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
+        
+        .recent-sessions {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
             padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .session-info {
+            flex: 1;
+        }
+        
+        .session-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .session-meta {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .session-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-action {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
-
-        .tool-card:hover {
+        
+        .quick-action:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         }
-
-        .tool-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .tool-title {
-            font-size: 1.2rem;
+        
+        .quick-action-icon {
+            font-size: 32px;
             margin-bottom: 10px;
-            color: #FFD700;
         }
-
-        .tool-description {
-            opacity: 0.8;
-            font-size: 0.9rem;
+        
+        .quick-action-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
         }
-
+        
+        .quick-action-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
         @media (max-width: 768px) {
-            .banner {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .triadische-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .triadische-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
-            
-            .header h1 {
-                font-size: 2rem;
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Dynamic Banner -->
-        <div id="statusBanner" class="banner trial">
-            <div class="banner-text">
-                <span id="bannerText">🕐 Noch 12 Tage Trial • Testen Sie alle Features kostenlos</span>
-            </div>
-            <button class="banner-button" onclick="goToUpgrade()">Jetzt upgraden</button>
-        </div>
-
+    <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>Coach Dashboard</h1>
-            <p>Willkommen in Ihrem KI-gestützten Coaching Cockpit</p>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Aktive Klienten</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">24</div>
-                <div class="stat-label">Coaching Sessions</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">89%</div>
-                <div class="stat-label">Zufriedenheitsrate</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">12h</div>
-                <div class="stat-label">Gesparte Zeit</div>
-            </div>
-        </div>
-
-        <!-- Coaching Tools -->
-        <div class="tools-section">
-            <h2 class="section-title">Coaching Tools</h2>
-            <div class="tools-grid">
-                <div class="tool-card" onclick="openKIChat()">
-                    <div class="tool-icon">🤖</div>
-                    <div class="tool-title">KI-Chat System</div>
-                    <div class="tool-description">8-Phasen Ruhestandscoaching mit KI-Unterstützung</div>
-                </div>
-                <div class="tool-card" onclick="openAnalytics()">
-                    <div class="tool-icon">📊</div>
-                    <div class="tool-title">Analytics</div>
-                    <div class="tool-description">Detaillierte Fortschrittsdaten Ihrer Klienten</div>
-                </div>
-                <div class="tool-card" onclick="openSessionNotes()">
-                    <div class="tool-icon">📝</div>
-                    <div class="tool-title">Session Notes</div>
-                    <div class="tool-description">Digitale Notizen und Dokumentation</div>
-                </div>
-                <div class="tool-card" onclick="openCalendar()">
-                    <div class="tool-icon">📅</div>
-                    <div class="tool-title">Terminplanung</div>
-                    <div class="tool-description">Intelligente Kalender-Integration</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Client Management Section -->
-        <div class="client-section">
-            <h2 class="section-title">Klienten-Management</h2>
-            <button class="add-client-btn" onclick="inviteClient()">
-                + Neuen Klienten einladen
-            </button>
+            <h1>🧠 Coach Dashboard</h1>
+            <p>Triadisches KI-Coaching System - Professionelle Unterstützung für Lebensübergänge</p>
             
-            <div class="client-grid">
-                <div class="client-card">
-                    <h3>Max Mustermann</h3>
-                    <p><strong>Coaching-Typ:</strong> Ruhestandsplanung</p>
-                    <p><strong>Letzte Session:</strong> Vor 2 Tagen</p>
-                    <p><strong>Fortschritt:</strong> Phase 3/8</p>
-                    <p><strong>Status:</strong> <span style="color: #4CAF50;">Aktiv</span></p>
+            <div class="coach-info">
+                <div class="coach-name">Willkommen, Coach Flavien</div>
+                <div class="trial-info">14 Tage Trial aktiv</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="quick-action" onclick="startTriadischeSession()">
+                <div class="quick-action-icon">🚀</div>
+                <div class="quick-action-title">Neue Session</div>
+                <div class="quick-action-desc">Triadisches Coaching starten</div>
+            </div>
+            <div class="quick-action" onclick="openPromptDatabase()">
+                <div class="quick-action-icon">📚</div>
+                <div class="quick-action-title">Prompt-Datenbank</div>
+                <div class="quick-action-desc">Coaching-Prompts verwalten</div>
+            </div>
+            <div class="quick-action" onclick="openClientManagement()">
+                <div class="quick-action-icon">👥</div>
+                <div class="quick-action-title">Klienten</div>
+                <div class="quick-action-desc">Klientenverwaltung</div>
+            </div>
+            <div class="quick-action" onclick="openReports()">
+                <div class="quick-action-icon">📊</div>
+                <div class="quick-action-title">Berichte</div>
+                <div class="quick-action-desc">Session-Auswertungen</div>
+            </div>
+        </div>
+
+        <!-- Triadisches System Section -->
+        <div class="triadische-section">
+            <div class="triadische-title">
+                🧠 Triadisches KI-Coaching System
+            </div>
+            <div class="triadische-subtitle">
+                Revolutionäre Coaching-Methode mit KI-Unterstützung für optimale Ergebnisse
+            </div>
+            
+            <div class="triadische-features">
+                <div class="feature-item">
+                    <div class="feature-icon">💬</div>
+                    <div class="feature-title">Gemeinsamer Chat</div>
+                    <div class="feature-desc">Coach + Coachee in einem Raum</div>
                 </div>
-                <div class="client-card">
-                    <h3>Anna Schmidt</h3>
-                    <p><strong>Coaching-Typ:</strong> Lebensübergang</p>
-                    <p><strong>Letzte Session:</strong> Vor 1 Woche</p>
-                    <p><strong>Fortschritt:</strong> Phase 5/8</p>
-                    <p><strong>Status:</strong> <span style="color: #4CAF50;">Aktiv</span></p>
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-title">KI-Assistent</div>
+                    <div class="feature-desc">Private Unterstützung für Coach</div>
                 </div>
-                <div class="client-card">
-                    <h3>Peter Weber</h3>
-                    <p><strong>Coaching-Typ:</strong> Finanzplanung</p>
-                    <p><strong>Letzte Session:</strong> Vor 3 Tagen</p>
-                    <p><strong>Fortschritt:</strong> Phase 2/8</p>
-                    <p><strong>Status:</strong> <span style="color: #4CAF50;">Aktiv</span></p>
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">8-Phasen-System</div>
+                    <div class="feature-desc">Strukturierter Coaching-Prozess</div>
+                </div>
+            </div>
+            
+            <div class="triadische-actions">
+                <button class="triadische-btn primary" onclick="startTriadischeSession()">
+                    🚀 Neue Triadische Session starten
+                </button>
+                <button class="triadische-btn" onclick="openPromptDatabase()">
+                    📚 Prompt-Datenbank
+                </button>
+                <button class="triadische-btn" onclick="openSessionHistory()">
+                    📋 Session-Verlauf
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Session Statistics -->
+            <div class="dashboard-card">
+                <div class="card-title">
+                    📊 Session-Statistiken
+                </div>
+                <div class="card-subtitle">
+                    Ihre Coaching-Aktivitäten diese Woche
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Klienten</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24h</div>
+                        <div class="stat-label">Coaching-Zeit</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openReports()">
+                        📈 Detaillierte Berichte
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        📤 Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Client Management -->
+            <div class="dashboard-card">
+                <div class="card-title">
+                    👥 Klienten-Management
+                </div>
+                <div class="card-subtitle">
+                    Verwalten Sie Ihre Coaching-Klienten
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Aktive Klienten</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Neue diese Woche</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">4.8</div>
+                        <div class="stat-label">⭐ Bewertung</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="addNewClient()">
+                        ➕ Neuer Klient
+                    </button>
+                    <button class="btn btn-secondary" onclick="openClientManagement()">
+                        📋 Alle Klienten
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Sessions -->
+        <div class="recent-sessions">
+            <div class="card-title">
+                🕐 Aktuelle Sessions
+            </div>
+            <div class="card-subtitle">
+                Ihre letzten Coaching-Sessions im Überblick
+            </div>
+            
+            <div class="session-item">
+                <div class="session-info">
+                    <div class="session-title">Maria K. - Ruhestandscoaching</div>
+                    <div class="session-meta">Heute 14:30 • Phase 6/8 • 45 min</div>
+                </div>
+                <div class="session-actions">
+                    <button class="btn btn-primary btn-sm" onclick="continueSession('session-1')">
+                        ▶️ Fortsetzen
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="viewSessionDetails('session-1')">
+                        📄 Details
+                    </button>
+                </div>
+            </div>
+            
+            <div class="session-item">
+                <div class="session-info">
+                    <div class="session-title">Thomas B. - Karrierewechsel</div>
+                    <div class="session-meta">Gestern 16:00 • Abgeschlossen • 60 min</div>
+                </div>
+                <div class="session-actions">
+                    <button class="btn btn-success btn-sm" onclick="scheduleFollowUp('session-2')">
+                        📅 Follow-up
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="viewSessionDetails('session-2')">
+                        📄 Details
+                    </button>
+                </div>
+            </div>
+            
+            <div class="session-item">
+                <div class="session-info">
+                    <div class="session-title">Anna S. - Lebensübergang</div>
+                    <div class="session-meta">Mo 10:00 • Phase 3/8 • 50 min</div>
+                </div>
+                <div class="session-actions">
+                    <button class="btn btn-primary btn-sm" onclick="continueSession('session-3')">
+                        ▶️ Fortsetzen
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="viewSessionDetails('session-3')">
+                        📄 Details
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- New Session Modal -->
+    <div id="newSessionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newSessionModal')">&times;</span>
+            <h2>🚀 Neue Triadische Session</h2>
+            
+            <form id="newSessionForm">
+                <div class="form-group">
+                    <label for="coacheeName">Name des Coachees</label>
+                    <input type="text" id="coacheeName" required placeholder="z.B. Maria Müller">
+                </div>
+                
+                <div class="form-group">
+                    <label for="coachingTopic">Coaching-Thema</label>
+                    <select id="coachingTopic" required>
+                        <option value="">Bitte wählen...</option>
+                        <option value="Ruhestandscoaching">Ruhestandscoaching</option>
+                        <option value="Karrierewechsel">Karrierewechsel</option>
+                        <option value="Lebensübergang">Lebensübergang</option>
+                        <option value="Führungskräfte-Coaching">Führungskräfte-Coaching</option>
+                        <option value="Work-Life-Balance">Work-Life-Balance</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sessionDuration">Geplante Dauer</label>
+                    <select id="sessionDuration">
+                        <option value="45">45 Minuten</option>
+                        <option value="60">60 Minuten</option>
+                        <option value="90">90 Minuten</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sessionNotes">Notizen (optional)</label>
+                    <textarea id="sessionNotes" rows="3" placeholder="Besondere Hinweise oder Vorbereitung..."></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newSessionModal')">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        🚀 Session starten
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
     <script>
-        // Current coach data
-        function getCurrentCoach() {
-            const storedCoach = localStorage.getItem('currentCoach');
-            if (storedCoach) {
-                return JSON.parse(storedCoach);
-            }
+        // Session Management
+        function startTriadischeSession() {
+            document.getElementById('newSessionModal').style.display = 'block';
+        }
+
+        function openPromptDatabase() {
+            window.open('/prompt-database.html', '_blank', 'width=1200,height=800');
+        }
+
+        function openClientManagement() {
+            showNotification('Klienten-Management wird geöffnet...', 'success');
+            // Hier würde zur Klienten-Verwaltung weitergeleitet
+        }
+
+        function openReports() {
+            showNotification('Berichte werden geladen...', 'success');
+            // Hier würden die Berichte geöffnet
+        }
+
+        function openSessionHistory() {
+            showNotification('Session-Verlauf wird geladen...', 'success');
+            // Hier würde der Session-Verlauf geöffnet
+        }
+
+        function addNewClient() {
+            showNotification('Neuer Klient wird hinzugefügt...', 'success');
+            // Hier würde ein Formular für neuen Klienten geöffnet
+        }
+
+        function continueSession(sessionId) {
+            showNotification('Session wird fortgesetzt...', 'success');
+            // Hier würde die Session-Fortsetzung implementiert
+        }
+
+        function viewSessionDetails(sessionId) {
+            showNotification('Session-Details werden geladen...', 'success');
+            // Hier würden die Session-Details geöffnet
+        }
+
+        function scheduleFollowUp(sessionId) {
+            showNotification('Follow-up wird geplant...', 'success');
+            // Hier würde ein Follow-up-Termin geplant
+        }
+
+        function exportData() {
+            showNotification('Daten werden exportiert...', 'success');
+            // Hier würde der Datenexport starten
+        }
+
+        // Modal Management
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // New Session Form Handler
+        document.getElementById('newSessionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            // Default coach data
-            return {
-                id: '0db62df4-8471-46b9-a47c-37c86bfb61cd',
-                email: 'info@allenspach-coaching.ch',
-                plan: 'trial',
-                trialDaysLeft: 12
+            const formData = {
+                coach: 'Flavien',
+                coachee: document.getElementById('coacheeName').value,
+                topic: document.getElementById('coachingTopic').value,
+                duration: document.getElementById('sessionDuration').value,
+                notes: document.getElementById('sessionNotes').value,
+                phase: 1,
+                sessionId: generateSessionId()
             };
+            
+            if (!formData.coachee || !formData.topic) {
+                showNotification('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+                return;
+            }
+            
+            // Session in Database speichern (hier würde Supabase-Integration stehen)
+            saveSessionToDatabase(formData);
+            
+            // Triadisches System öffnen
+            const params = new URLSearchParams(formData);
+            const url = `/triadisches-coaching.html?${params}`;
+            window.open(url, '_blank', 'width=1400,height=900');
+            
+            // Modal schließen und Erfolg anzeigen
+            closeModal('newSessionModal');
+            showNotification(`Session mit ${formData.coachee} erfolgreich gestartet!`, 'success');
+            
+            // Form zurücksetzen
+            document.getElementById('newSessionForm').reset();
+        });
+
+        // Utility Functions
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
         }
 
-        // Set current coach
-        function setCurrentCoach(coachData) {
-            localStorage.setItem('currentCoach', JSON.stringify(coachData));
-        }
-
-        // Update banner based on plan status
-        function updateBanner() {
-            const coach = getCurrentCoach();
-            const banner = document.getElementById('statusBanner');
-            const bannerText = document.getElementById('bannerText');
-            const button = banner.querySelector('.banner-button');
-
-            if (coach.plan === 'trial') {
-                banner.className = 'banner trial';
-                bannerText.innerHTML = `🕐 Noch ${coach.trialDaysLeft} Tage Trial • Testen Sie alle Features kostenlos`;
-                button.style.display = 'block';
-                button.textContent = 'Jetzt upgraden';
-            } else if (coach.plan === 'basic') {
-                banner.className = 'banner active';
-                bannerText.innerHTML = '✅ Basic Plan aktiv • Bis zu 10 Klienten';
-                button.style.display = 'none';
-            } else if (coach.plan === 'professional') {
-                banner.className = 'banner active';
-                bannerText.innerHTML = '✅ Professional Plan aktiv • Bis zu 50 Klienten';
-                button.style.display = 'none';
-            } else if (coach.plan === 'premium') {
-                banner.className = 'banner active';
-                bannerText.innerHTML = '✅ Premium Plan aktiv • Unbegrenzte Klienten';
-                button.style.display = 'none';
-            } else if (coach.plan === 'expired') {
-                banner.className = 'banner urgent';
-                bannerText.innerHTML = '⚠️ Trial abgelaufen • Upgraden Sie jetzt um fortzufahren';
-                button.style.display = 'block';
-                button.textContent = 'Jetzt upgraden';
+        function saveSessionToDatabase(sessionData) {
+            try {
+                // Hier würde die Supabase-Integration stehen
+                console.log('Session wird gespeichert:', sessionData);
+                
+                // Beispiel für Supabase-Integration:
+                /*
+                const { data, error } = await supabase
+                    .from('triadische_sessions')
+                    .insert([{
+                        coach_name: sessionData.coach,
+                        coachee_name: sessionData.coachee,
+                        topic: sessionData.topic,
+                        duration: sessionData.duration,
+                        notes: sessionData.notes,
+                        current_phase: sessionData.phase,
+                        session_id: sessionData.sessionId
+                    }]);
+                */
+                
+                return true;
+            } catch (error) {
+                console.error('Fehler beim Speichern der Session:', error);
+                showNotification('Fehler beim Speichern der Session', 'error');
+                return false;
             }
         }
 
-        // Navigation functions
-        function goToUpgrade() {
-            window.location.href = 'upgrade.html';
-        }
-
-        function openKIChat() {
-            window.location.href = 'chat.html';
-        }
-
-        function openAnalytics() {
-            alert('Analytics-Feature wird in Professional/Premium verfügbar sein!');
-        }
-
-        function openSessionNotes() {
-            alert('Session Notes-Feature wird bald verfügbar!');
-        }
-
-        function openCalendar() {
-            alert('Kalender-Integration wird bald verfügbar!');
-        }
-
-        // Invite client function
-        function inviteClient() {
-            const email = prompt('Email-Adresse des Klienten:');
-            if (email) {
-                alert(`Einladung wird an ${email} gesendet!`);
-                // Here you would implement the actual client invitation logic
-            }
-        }
-
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎯 Coach Dashboard loaded');
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
             
-            // Set default coach if none exists
-            if (!localStorage.getItem('currentCoach')) {
-                setCurrentCoach(getCurrentCoach());
-            }
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
             
-            // Update banner based on current plan
-            updateBanner();
-            
-            // Simulate trial countdown (for demo)
-            setInterval(() => {
-                const coach = getCurrentCoach();
-                if (coach.plan === 'trial' && coach.trialDaysLeft > 0) {
-                    coach.trialDaysLeft--;
-                    if (coach.trialDaysLeft === 0) {
-                        coach.plan = 'expired';
-                    }
-                    setCurrentCoach(coach);
-                    updateBanner();
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
                 }
-            }, 60000); // Update every minute (for demo, would be daily in real app)
+            });
+        }
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hier könnten Dashboard-Daten geladen werden
+            console.log('Dashboard initialisiert');
         });
     </script>
 </body>
-</html>// Cleanup completed Mo  7 Jul 2025 11:18:56 CEST
+</html>

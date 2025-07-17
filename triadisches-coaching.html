@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triadisches KI-Coaching System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 10px 20px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .session-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status.online {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status.offline {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: calc(100vh - 60px);
+            gap: 0;
+        }
+        
+        .left-panel {
+            background: white;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e1e5e9;
+        }
+        
+        .right-panel {
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #e1e5e9;
+        }
+        
+        .chat-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .phase-indicator {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message.coach {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message.coachee {
+            background: #f1f3f4;
+            color: #333;
+        }
+        
+        .message.system {
+            background: #e3f2fd;
+            color: #1565c0;
+            text-align: center;
+            margin: 10px auto;
+            font-style: italic;
+            max-width: 60%;
+        }
+        
+        .message-header {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        
+        .message-content {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .typing-indicator {
+            padding: 10px 20px;
+            font-style: italic;
+            color: #666;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+            background: white;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 14px;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .ki-assistant {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .ki-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .prompt-library {
+            padding: 15px;
+            border-bottom: 1px solid #e1e5e9;
+            background: white;
+        }
+        
+        .prompt-search {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .prompt-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .category-btn {
+            padding: 4px 8px;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .prompt-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .prompt-item {
+            padding: 8px 10px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+        
+        .prompt-item:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+        
+        .prompt-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .prompt-preview {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .ki-conversation {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: white;
+        }
+        
+        .ki-message {
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .ki-message.coach-to-ki {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .ki-message.ki-response {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .ki-input {
+            padding: 15px;
+            border-top: 1px solid #e1e5e9;
+            background: white;
+        }
+        
+        .ki-input-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .ki-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .ki-btn {
+            padding: 8px 12px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .ki-btn.primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .ki-btn.secondary {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .phase-controls {
+            padding: 15px;
+            border-top: 1px solid #e1e5e9;
+            background: #f8f9fa;
+        }
+        
+        .phase-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .phase-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .phase-btn {
+            padding: 6px 10px;
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .phase-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .right-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 Triadisches KI-Coaching System</h1>
+        <div class="session-info">
+            <span>Coach: <strong>Flavien</strong></span>
+            <span>Coachee: <strong>Maria K.</strong></span>
+            <span>Session: <strong>Ruhestand #3</strong></span>
+            <span class="status online">🟢 Live</span>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Gemeinsamer Chatraum -->
+        <div class="left-panel">
+            <div class="chat-header">
+                <h2 class="chat-title">💬 Gemeinsamer Coaching-Raum</h2>
+                <div class="phase-indicator">Phase 2: Situationsanalyse</div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    <div class="message-content">Coaching-Session gestartet. Beide Teilnehmer sind verbunden.</div>
+                </div>
+                <div class="message coach">
+                    <div class="message-header">Coach - 14:23</div>
+                    <div class="message-content">Hallo Maria, schön dass Sie da sind! Wie geht es Ihnen heute?</div>
+                </div>
+                <div class="message coachee">
+                    <div class="message-header">Maria - 14:24</div>
+                    <div class="message-content">Hallo! Mir geht es gut, ich bin gespannt auf unser Gespräch zum Ruhestand.</div>
+                </div>
+                <div class="message coach">
+                    <div class="message-header">Coach - 14:25</div>
+                    <div class="message-content">Perfekt! Lassen Sie uns heute gemeinsam schauen, wo Sie aktuell stehen. Können Sie mir kurz beschreiben, was Sie am meisten beschäftigt?</div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                Maria schreibt...
+            </div>
+            
+            <div class="chat-input">
+                <div class="input-container">
+                    <textarea 
+                        class="input-field" 
+                        id="messageInput" 
+                        placeholder="Ihre Nachricht an Maria..."
+                        rows="1"></textarea>
+                    <button class="send-btn" id="sendButton">Senden</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- KI-Assistenten-Bereich -->
+        <div class="right-panel">
+            <div class="ki-assistant">
+                <div class="ki-header">
+                    🤖 KI-Assistent für Coach
+                </div>
+                
+                <!-- Prompt Library -->
+                <div class="prompt-library">
+                    <input type="text" class="prompt-search" placeholder="Prompt suchen..." id="promptSearch">
+                    <div class="prompt-categories">
+                        <span class="category-btn active" data-category="all">Alle</span>
+                        <span class="category-btn" data-category="ruhestand">Ruhestand</span>
+                        <span class="category-btn" data-category="beruf">Beruf</span>
+                        <span class="category-btn" data-category="transition">Übergang</span>
+                        <span class="category-btn" data-category="beziehung">Beziehung</span>
+                    </div>
+                    <div class="prompt-list" id="promptList">
+                        <div class="prompt-item" data-prompt="ruhestand-01">
+                            <div class="prompt-title">Ruhestand Bereitschaft</div>
+                            <div class="prompt-preview">Bereitschaft für Ruhestand analysieren...</div>
+                        </div>
+                        <div class="prompt-item" data-prompt="ruhestand-02">
+                            <div class="prompt-title">Soziale Kontakte</div>
+                            <div class="prompt-preview">Soziales Netzwerk im Ruhestand...</div>
+                        </div>
+                        <div class="prompt-item" data-prompt="ruhestand-03">
+                            <div class="prompt-title">Tagesstruktur</div>
+                            <div class="prompt-preview">Neue Tagesstruktur entwickeln...</div>
+                        </div>
+                        <div class="prompt-item" data-prompt="beruf-01">
+                            <div class="prompt-title">Jobwechsel</div>
+                            <div class="prompt-preview">Berufswechsel analysieren...</div>
+                        </div>
+                        <div class="prompt-item" data-prompt="transition-01">
+                            <div class="prompt-title">Lebensübergang</div>
+                            <div class="prompt-preview">Übergang bewältigen...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KI Conversation -->
+                <div class="ki-conversation" id="kiConversation">
+                    <div class="ki-message ki-response">
+                        <strong>KI-Assistent:</strong> Bereit für Ruhestand-Coaching Session. Welche Unterstützung benötigen Sie?
+                    </div>
+                    <div class="ki-message coach-to-ki">
+                        <strong>Coach:</strong> Coachee zeigt Unsicherheit bezüglich sozialer Kontakte im Ruhestand. Welche Fragen soll ich stellen?
+                    </div>
+                    <div class="ki-message ki-response">
+                        <strong>KI-Assistent:</strong> Hier sind 3 kraftvolle Fragen für soziale Kontakte im Ruhestand:
+                        <br><br>
+                        1. "Welche Ihrer aktuellen Beziehungen basieren hauptsächlich auf der Arbeit?"
+                        <br>
+                        2. "Was haben Sie außerhalb der Arbeit für soziale Aktivitäten?"
+                        <br>
+                        3. "Welche neuen Kontakte möchten Sie im Ruhestand knüpfen?"
+                    </div>
+                </div>
+                
+                <!-- KI Input -->
+                <div class="ki-input">
+                    <textarea 
+                        class="ki-input-field" 
+                        id="kiInputField" 
+                        placeholder="Frage an KI-Assistent (z.B. Coachee zeigt Widerstand gegen...")"></textarea>
+                    <div class="ki-actions">
+                        <button class="ki-btn primary" id="askKiBtn">🤖 KI fragen</button>
+                        <button class="ki-btn secondary" id="sendToChatBtn">💬 An Chat senden</button>
+                    </div>
+                </div>
+                
+                <!-- Phase Controls -->
+                <div class="phase-controls">
+                    <div class="phase-title">🎯 Coaching-Phasen</div>
+                    <div class="phase-buttons">
+                        <span class="phase-btn" data-phase="1">Begrüßung</span>
+                        <span class="phase-btn active" data-phase="2">Situation</span>
+                        <span class="phase-btn" data-phase="3">Ziele</span>
+                        <span class="phase-btn" data-phase="4">Hindernisse</span>
+                        <span class="phase-btn" data-phase="5">Lösungen</span>
+                        <span class="phase-btn" data-phase="6">Schritte</span>
+                        <span class="phase-btn" data-phase="7">Reflexion</span>
+                        <span class="phase-btn" data-phase="8">Abschluss</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Prompt Database
+        const promptDatabase = {
+            'ruhestand-01': {
+                title: 'Ruhestand Bereitschaft',
+                category: 'ruhestand',
+                text: 'Ruhestand in [Zeitraum]: Bereitschaft 1-10? Hauptsorgen: [Bedenken]. Was fehlt noch zur Bereitschaft?',
+                usage: 'Erste Einschätzung der Ruhestandsbereitschaft'
+            },
+            'ruhestand-02': {
+                title: 'Soziale Kontakte',
+                category: 'ruhestand',
+                text: 'Soziale Kontakte: [Aktuelle Situation]. Arbeitsbasierte vs. private Kontakte. Welche Strategien für neue Kontakte?',
+                usage: 'Soziales Netzwerk im Ruhestand analysieren'
+            },
+            'ruhestand-03': {
+                title: 'Tagesstruktur',
+                category: 'ruhestand',
+                text: 'Tagesstruktur ohne Arbeit: [Sorgen]. Hobbies: [Aktuelle]. Welche neuen Strukturen sind denkbar?',
+                usage: 'Neue Tagesroutine entwickeln'
+            },
+            'beruf-01': {
+                title: 'Jobwechsel',
+                category: 'beruf',
+                text: 'Jobwechsel: [Branche] → [Ziel]. Ängste: [Hauptsorge]. 5 Entscheidungsfragen?',
+                usage: 'Berufswechsel analysieren'
+            },
+            'transition-01': {
+                title: 'Lebensübergang',
+                category: 'transition',
+                text: 'Übergang: [Von] → [Nach]. Verluste: [Was geht verloren]. Gewinne: [Was kommt dazu]. Wie gestalten?',
+                usage: 'Lebensübergänge bewältigen'
+            }
+        };
+
+        // Phase Descriptions
+        const phaseDescriptions = {
+            1: 'Begrüßung und Rapport aufbauen',
+            2: 'Aktuelle Situation erfassen',
+            3: 'Ziele und Wünsche klären',
+            4: 'Hindernisse identifizieren',
+            5: 'Lösungsoptionen entwickeln',
+            6: 'Konkrete Schritte planen',
+            7: 'Reflexion und Erkenntnisse',
+            8: 'Abschluss und nächste Schritte'
+        };
+
+        let currentPhase = 2;
+        let messageCounter = 0;
+
+        // DOM Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const promptSearch = document.getElementById('promptSearch');
+        const promptList = document.getElementById('promptList');
+        const kiConversation = document.getElementById('kiConversation');
+        const kiInputField = document.getElementById('kiInputField');
+        const askKiBtn = document.getElementById('askKiBtn');
+        const sendToChatBtn = document.getElementById('sendToChatBtn');
+
+        // Initialize
+        function init() {
+            setupEventListeners();
+            renderPrompts();
+            updatePhaseIndicator();
+        }
+
+        function setupEventListeners() {
+            // Chat input
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            messageInput.addEventListener('input', () => {
+                adjustTextareaHeight(messageInput);
+            });
+
+            sendButton.addEventListener('click', sendMessage);
+
+            // Prompt search
+            promptSearch.addEventListener('input', filterPrompts);
+
+            // Category buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterPrompts();
+                });
+            });
+
+            // Phase buttons
+            document.querySelectorAll('.phase-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const phase = parseInt(btn.dataset.phase);
+                    changePhase(phase);
+                });
+            });
+
+            // KI buttons
+            askKiBtn.addEventListener('click', askKI);
+            sendToChatBtn.addEventListener('click', sendKIResponseToChat);
+
+            // Prompt clicks
+            promptList.addEventListener('click', (e) => {
+                const promptItem = e.target.closest('.prompt-item');
+                if (promptItem) {
+                    selectPrompt(promptItem.dataset.prompt);
+                }
+            });
+        }
+
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage('coach', message);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+
+            // Simulate coachee response
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    simulateCoacheeResponse(message);
+                }, 1500);
+            }, 500);
+        }
+
+        function addMessage(sender, content) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString('de-DE', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const senderName = sender === 'coach' ? 'Coach' : 'Maria';
+            
+            messageElement.innerHTML = `
+                <div class="message-header">${senderName} - ${time}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function simulateCoacheeResponse(coachMessage) {
+            // Simple response simulation based on keywords
+            let response = '';
+            
+            if (coachMessage.toLowerCase().includes('bereitschaft')) {
+                response = 'Ehrlich gesagt, ich bin noch nicht sicher, ob ich wirklich bereit bin. Es fühlt sich so... final an.';
+            } else if (coachMessage.toLowerCase().includes('kontakte') || coachMessage.toLowerCase().includes('sozial')) {
+                response = 'Das ist tatsächlich eine meiner größten Sorgen. Viele meiner Kontakte sind über die Arbeit entstanden.';
+            } else if (coachMessage.toLowerCase().includes('struktur') || coachMessage.toLowerCase().includes('tag')) {
+                response = 'Ja, das beschäftigt mich sehr. Ich kann mir gar nicht vorstellen, wie mein Tag ohne Arbeit aussehen soll.';
+            } else if (coachMessage.toLowerCase().includes('angst') || coachMessage.toLowerCase().includes('sorge')) {
+                response = 'Meine größte Angst ist, dass ich mich nutzlos fühlen könnte. Die Arbeit gibt mir so viel Sinn.';
+            } else {
+                response = 'Das ist ein wichtiger Punkt. Ich muss darüber nachdenken.';
+            }
+            
+            addMessage('coachee', response);
+        }
+
+        function renderPrompts() {
+            const search = promptSearch.value.toLowerCase();
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            
+            promptList.innerHTML = '';
+            
+            Object.entries(promptDatabase).forEach(([key, prompt]) => {
+                const matchesSearch = !search || 
+                    prompt.title.toLowerCase().includes(search) ||
+                    prompt.text.toLowerCase().includes(search);
+                
+                const matchesCategory = activeCategory === 'all' || prompt.category === activeCategory;
+                
+                if (matchesSearch && matchesCategory) {
+                    const promptElement = document.createElement('div');
+                    promptElement.className = 'prompt-item';
+                    promptElement.dataset.prompt = key;
+                    promptElement.innerHTML = `
+                        <div class="prompt-title">${prompt.title}</div>
+                        <div class="prompt-preview">${prompt.usage}</div>
+                    `;
+                    promptList.appendChild(promptElement);
+                }
+            });
+        }
+
+        function filterPrompts() {
+            renderPrompts();
+        }
+
+        function selectPrompt(promptKey) {
+            const prompt = promptDatabase[promptKey];
+            if (!prompt) return;
+
+            // Add to KI conversation
+            addKIMessage('coach-to-ki', `Verwende diesen Prompt: "${prompt.text}"`);
+            
+            // Simulate KI response
+            setTimeout(() => {
+                const kiResponse = generateKIResponse(prompt);
+                addKIMessage('ki-response', kiResponse);
+            }, 1000);
+        }
+
+        function generateKIResponse(prompt) {
+            // Simple KI response generation based on prompt type
+            if (prompt.category === 'ruhestand') {
+                return `Für ${prompt.title} empfehle ich folgende Fragen:
+                
+1. "Auf einer Skala von 1-10, wie bereit fühlen Sie sich?"
+2. "Was sind Ihre 3 größten Bedenken?"
+3. "Welche positiven Aspekte sehen Sie?"
+4. "Was brauchen Sie noch, um sich bereit zu fühlen?"
+
+Achten Sie auf emotionale Reaktionen und gehen Sie behutsam vor.`;
+            } else {
+                return `Für ${prompt.title} verwenden Sie diese Struktur:
+                
+${prompt.text}
+
+Passen Sie die Variablen [in Klammern] an die Situation an und stellen Sie offene Fragen.`;
+            }
+        }
+
+        function addKIMessage(type, content) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `ki-message ${type}`;
+            
+            const prefix = type === 'coach-to-ki' ? 'Coach:' : 'KI-Assistent:';
+            messageElement.innerHTML = `<strong>${prefix}</strong> ${content}`;
+            
+            kiConversation.appendChild(messageElement);
+            kiConversation.scrollTop = kiConversation.scrollHeight;
+        }
+
+        function askKI() {
+            const question = kiInputField.value.trim();
+            if (!question) return;
+
+            addKIMessage('coach-to-ki', question);
+            kiInputField.value = '';
+
+            // Simulate KI response
+            setTimeout(() => {
+                const response = generateGenericKIResponse(question);
+                addKIMessage('ki-response', response);
+            }, 1500);
+        }
+
+        function generateGenericKIResponse(question) {
+            // Simple response generation based on keywords
+            if (question.toLowerCase().includes('widerstand')) {
+                return `Bei Widerstand empfehle ich:
+                
+1. Widerstand würdigen: "Ich merke, dass das schwierig ist..."
+2. Nachfragen: "Was genau macht Ihnen Sorgen?"
+3. Kleine Schritte: "Was wäre ein kleiner erster Schritt?"
+4. Ressourcen aktivieren: "Womit haben Sie früher ähnliche Situationen gemeistert?"`;
+            } else if (question.toLowerCase().includes('emotion')) {
+                return `Für emotionale Momente:
+                
+1. Raum geben: "Nehmen Sie sich die Zeit, die Sie brauchen..."
+2. Validieren: "Es ist völlig verständlich, dass Sie sich so fühlen..."
+3. Nachfragen: "Was genau löst diese Emotion aus?"
+4. Ressourcen: "Wie gehen Sie normalerweise mit solchen Gefühlen um?"`;
+            } else {
+                return `Für diese Situation empfehle ich:
+                
+1. Aktiv zuhören und nachfragen
+2. Offene Fragen stellen
+3. Ressourcen des Coachees aktivieren
+4. Kleine, machbare Schritte entwickeln
+
+Möchten Sie einen spezifischen Prompt aus der Bibliothek verwenden?`;
+            }
+        }
+
+        function sendKIResponseToChat() {
+            const lastKIMessage = kiConversation.querySelector('.ki-message.ki-response:last-child');
+            if (!lastKIMessage) return;
+
+            const content = lastKIMessage.textContent.replace('KI-Assistent: ', '');
+            addMessage('coach', content);
+        }
+
+        function changePhase(phase) {
+            currentPhase = phase;
+            
+            // Update phase buttons
+            document.querySelectorAll('.phase-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.phase) === phase) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            updatePhaseIndicator();
+            
+            // Add system message
+            addSystemMessage(`Phase ${phase}: ${phaseDescriptions[phase]}`);
+        }
+
+        function updatePhaseIndicator() {
+            const indicator = document.querySelector('.phase-indicator');
+            indicator.textContent = `Phase ${currentPhase}: ${phaseDescriptions[currentPhase]}`;
+        }
+
+        function addSystemMessage(content) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message system';
+            messageElement.innerHTML = `<div class="message-content">${content}</div>`;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
