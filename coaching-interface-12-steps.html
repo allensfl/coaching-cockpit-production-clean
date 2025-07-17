@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>12-Schritte KI-Coaching Interface</title>
+  <title>Triadisches KI-Coaching Interface</title>
   <style>
     * {
       margin: 0;
@@ -543,7 +543,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>12-Schritte KI-Coaching Interface</h1>
+      <h1>Triadisches KI-Coaching Interface</h1>
       <div class="session-info">
         <span>Session: #12345</span>
         <span>•</span>
@@ -551,8 +551,8 @@
         <span>•</span>
         <span>Auto-Save: <span id="saveStatus">Gespeichert</span></span>
         <span>•</span>
-        <button id="repositoryBtn" onclick="openRepository()" style="background: #667eea; color: white; border: none; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em;">
-          📚 Repository
+        <button id="repositoryBtn" onclick="openRepository()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 1em; font-weight: 600;">
+          📚 Triadisches Repository
         </button>
       </div>
     </div>
@@ -561,9 +561,9 @@
       <div class="progress-header">
         <h2>Coaching-Fortschritt</h2>
         <div class="phase-indicator">
-          <div class="phase-label phase-a">Phase A: Diagnose</div>
-          <div class="phase-label phase-b">Phase B: Lösung</div>
-          <div class="phase-label phase-c">Phase C: Transfer</div>
+          <div class="phase-label phase-a">Phase 1: Problem & Ziel</div>
+          <div class="phase-label phase-b">Phase 2: Problemanalyse</div>
+          <div class="phase-label phase-c">Phase 3: Lösungsstrategie</div>
         </div>
       </div>
       
@@ -585,7 +585,7 @@
           <div class="chat-messages" id="chatMessages">
             <div class="message coach">
               <div class="message-sender">Coach</div>
-              <div>Willkommen! Lassen Sie uns mit Ihrem Anliegen beginnen.</div>
+              <div>Willkommen zum triadischen KI-Coaching! Lassen Sie uns gemeinsam mit Ihrem Anliegen beginnen.</div>
             </div>
           </div>
           <div class="chat-input">
@@ -597,7 +597,7 @@
         <div class="assistant-panel">
           <h3>🤖 KI-Assistent</h3>
           <div class="assistant-suggestions" id="assistantSuggestions">
-            <p><strong>Schritt-spezifische Unterstützung</strong></p>
+            <p><strong>Triadische Prompts für aktuellen Schritt</strong></p>
             <div id="currentStepSuggestions">
               <!-- Suggestions werden hier dynamisch eingefügt -->
             </div>
@@ -614,23 +614,47 @@
     <div id="repositoryModal" class="modal" style="display: none;">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>📚 Solution Finder Repository</h2>
+          <h2>📚 Triadisches Coaching Repository</h2>
           <span class="close" onclick="closeRepository()">&times;</span>
         </div>
         <div class="modal-body">
           <div class="usage-tip">
-            💡 <strong>Klicke auf einen Code um ihn zu kopieren und direkt hier im Chat zu verwenden!</strong>
+            💡 <strong>Klicke auf einen Prompt-Code um ihn zu kopieren und direkt im Chat zu verwenden!</strong>
           </div>
           
           <div class="search-bar">
-            <input type="text" id="repoSearchInput" placeholder="Suche nach Code oder Stichwort... (z.B. SF1, Ziel, Spannung)">
+            <input type="text" id="repoSearchInput" placeholder="Suche nach Code oder Stichwort... (z.B. T1, T7A, Bremse)">
           </div>
 
           <div class="repo-categories">
-            <!-- Standard Prompts -->
+            <!-- Phase 1 -->
             <div class="repo-category">
-              <h3>📋 Standard Coaching Prompts</h3>
-              <div class="repo-prompts" id="standard-repo-prompts">
+              <h3>🎯 Phase 1: Problem & Ziel</h3>
+              <div class="repo-prompts" id="phase1-repo-prompts">
+                <!-- Wird dynamisch gefüllt -->
+              </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="repo-category">
+              <h3>🔍 Phase 2: Problemanalyse</h3>
+              <div class="repo-prompts" id="phase2-repo-prompts">
+                <!-- Wird dynamisch gefüllt -->
+              </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="repo-category">
+              <h3>🚀 Phase 3: Lösungsstrategie</h3>
+              <div class="repo-prompts" id="phase3-repo-prompts">
+                <!-- Wird dynamisch gefüllt -->
+              </div>
+            </div>
+
+            <!-- Solution Finder -->
+            <div class="repo-category">
+              <h3>⚡ Solution Finder</h3>
+              <div class="repo-prompts" id="solutionFinder-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
@@ -638,7 +662,7 @@
             <!-- Spannungsfelder -->
             <div class="repo-category">
               <h3>⚖️ Spannungsfelder</h3>
-              <div class="repo-prompts" id="spannungen-repo-prompts">
+              <div class="repo-prompts" id="spannungsfelder-repo-prompts">
                 <!-- Wird dynamisch gefüllt -->
               </div>
             </div>
@@ -657,51 +681,170 @@
   </div>
 
   <script>
-    // Repository-Funktionen
+    // Triadische Prompts Datenbank
     const repositoryPrompts = {
-      standard: [
-        { code: 'SF1', name: 'Coaching Solution Finder', prompt: 'Ich habe folgendes Problem: [PROBLEM]. Bitte spiegle das Problem in eigenen Worten und identifiziere erste positive Eigenschaften oder Fähigkeiten, die für die Lösung hilfreich sind.' },
-        { code: 'ZIEL', name: 'Zielformulierung', prompt: 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten.' },
-        { code: 'SKALA', name: 'Skalenarbeit', prompt: 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel? Und wie schwierig schätzen Sie es ein?' },
-        { code: 'TEAM', name: 'Inneres Team', prompt: 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen. Welche Stimmen hören Sie zu diesem Thema? Beschreiben Sie die verschiedenen Anteile.' },
-        { code: 'DIALOG', name: 'Dialogische Exploration', prompt: 'Hallo [ANTEIL], ich habe Ihre Bedenken gehört. Können Sie mir mehr darüber erzählen, was Sie beschäftigt?' },
-        { code: 'NAMEN', name: 'Antipoden benennen', prompt: 'Wie würden Sie diese beiden gegensätzlichen Anteile benennen? Geben Sie ihnen präzise Namen.' },
-        { code: 'TRANSFORM', name: 'Transformation', prompt: 'Wie können beide Anteile ihre Waffen niederlegen und eine neue, integrierte Haltung entwickeln?' },
-        { code: 'STÄRKEN', name: 'Teamchef stärken', prompt: 'Welche Lern- und Entwicklungsziele kann sich der Teamchef setzen, um stärker zu werden?' },
-        { code: 'INTEGRATION', name: 'Integration', prompt: 'Wie können Sie diese Lösung in den vier Bereichen verankern: Gedanken, Gefühle, Körper und Handeln?' },
-        { code: 'PLAN', name: 'Handlungsplanung', prompt: 'Was sind die ersten konkreten Schritte? Welche Hindernisse könnten auftreten und wie begegnen Sie diesen?' },
-        { code: 'VISION', name: 'Erfolgsvision', prompt: 'Stellen Sie sich vor, Sie haben Ihr Ziel erreicht. Beschreiben Sie diese kraftvolle Vision der Zielerreichung.' },
-        { code: 'UMSETZUNG', name: 'Umsetzung', prompt: 'Wie setzen Sie den Plan konkret um? Welche Unterstützung brauchen Sie und wann ist das Follow-up?' }
+      // Phase 1: Problem- und Zielbeschreibung
+      phase1: [
+        {
+          code: 'T1',
+          name: 'Problembeschreibung Starter',
+          prompt: 'Ich habe folgendes Problem: [PROBLEM BESCHREIBEN]'
+        },
+        {
+          code: 'T2',
+          name: 'Ist-Soll-Bericht',
+          prompt: 'Erstelle einen in Ich-Form geschriebenen Bericht, in dem alle bisher vorliegenden Informationen der Problem- und Zielbeschreibung zusammengefasst sind. Gliedere diesen Bericht in zwei Teile, indem Du zunächst die vorliegende Ist-Situation und dann die von mir gewünschte Soll-Situation beschreibst. Nimm – soweit möglich – in jedem der beiden Teile auf folgende Aspekte Bezug, nämlich auf die vorliegenden äußeren Rahmenbedingungen und äußerlichen Ressourcen einschließlich meiner körperlichen Bedingungen, auf meine psychischen Prozesse (wie z.B. Gefühle, motivationale Impulse und Gedanken), die durch die vorliegende Coachingproblematik bei mir aktuell ausgelöst werden, auf meine beobachtbaren Verhaltensweisen, die durch die vorliegende Coachingproblematik bei mir aktuell ausgelöst werden, und auf die faktischen Folgen, die meine beobachtbaren Verhaltensweisen bei meinen Mitmenschen und bei mir selbst verursachen.'
+        },
+        {
+          code: 'T3',
+          name: 'Bildanalyse',
+          prompt: 'Ich habe folgendes Bild gewählt: [Bildbeschreibung in Ich-Form]. Was sagt dieses Bild über mein Coaching-Ziel aus? In welcher Beziehung stehen Bild und Zielbeschreibung zueinander?'
+        },
+        {
+          code: 'T4',
+          name: 'Ausbalancierungsproblem identifizieren',
+          prompt: 'Identifiziere aus dem Textbaustein Ausbalancierungsprobleme dasjenige Ausbalancierungsproblem, dass du auf der Grundlage der vorliegenden Informationen zu meinem Coaching Problem und Ziel am klarsten erkennen kannst. Welche Fragen müsste ich beantworten, damit noch sicherer zu klären ist, ob es sich tatsächlich um das von dir identifizierte Ausbalancierungsproblem handelt?'
+        }
       ],
-      spannungen: [
-        { code: 'SP1', name: 'Zeit: Gegenwart ↔ Zukunft', prompt: 'Wie erleben Sie den Umgang mit Zeit - neigen Sie zur Gegenwartsfixierung oder zur übermäßigen Zukunftsplanung?' },
-        { code: 'SP20', name: 'Identität: Festlegung ↔ Diffusion', prompt: 'Spüren Sie eher eine starre Festlegung auf eine Rolle oder eine verwirrende Identitätsdiffusion?' },
-        { code: 'SP23', name: 'Beruf: Überidentifikation ↔ Verachtung', prompt: 'Überwiegt bei der Arbeit eher Stolz und Überidentifikation oder Verbitterung und Verachtung?' },
-        { code: 'SP24', name: 'Status: Fixierung ↔ Bedeutungslosigkeit', prompt: 'Erleben Sie eine Fixierung auf Status und Bedeutung oder ein Gefühl von Bedeutungslosigkeit?' },
-        { code: 'SP25', name: 'Leistung: Zwang ↔ Antriebslosigkeit', prompt: 'Stehen Sie unter Leistungszwang oder leiden Sie unter Antriebslosigkeit?' },
-        { code: 'SP26', name: 'Partnerschaft: Verschmelzung ↔ Distanz', prompt: 'In der Partnerschaft - neigen Sie zur Verschmelzung oder zur übermäßigen Distanz?' },
-        { code: 'SP27', name: 'Sozial: Einsamkeit ↔ Rückzug', prompt: 'Leiden Sie unter Einsamkeit oder neigen Sie zum sozialen Rückzug?' },
-        { code: 'SP28', name: 'Familie: Abhängigkeit ↔ Ablösung', prompt: 'In der Familie - erleben Sie übermäßige Abhängigkeit oder radikale Ablösung?' },
-        { code: 'SP33', name: 'Spiritualität: Suche ↔ Ablehnung', prompt: 'Sind Sie auf spiritueller Suche oder lehnen Sie Spiritualität ab?' },
-        { code: 'SP36', name: 'Gesundheit: Fixierung ↔ Vernachlässigung', prompt: 'Fixieren Sie sich übermäßig auf Gesundheit oder vernachlässigen Sie sie?' },
-        { code: 'SP37', name: 'Körper: Kontrolle ↔ Vernachlässigung', prompt: 'Stehen Sie unter Körperkontrolle oder vernachlässigen Sie Ihren Körper?' },
-        { code: 'SP38', name: 'Endlichkeit: Verdrängung ↔ Fixierung', prompt: 'Verdrängen Sie die Endlichkeit oder fixieren Sie sich darauf?' },
-        { code: 'SP39', name: 'Sinn: Sinnsuche ↔ Sinnleere', prompt: 'Befinden Sie sich in intensiver Sinnsuche oder erleben Sie Sinnleere?' },
-        { code: 'SP40', name: 'Entwicklung: Wachstum ↔ Stagnation', prompt: 'Streben Sie nach ständigem Wachstum oder erleben Sie Stagnation?' }
+
+      // Phase 2: Problemanalyse
+      phase2: [
+        {
+          code: 'T5',
+          name: 'Schlüsselsituation & Schlüsselaffekt',
+          prompt: 'Identifiziere die Schlüsselsituation und den Schlüsselaffekt - die unbewusste, emotionale Kernproblematik. Affekte sind das "Auge des Taifuns" und somit das Kernproblem jeder Coaching-Problematik.'
+        },
+        {
+          code: 'T7A',
+          name: 'Bremse-Rolle übernehmen',
+          prompt: 'Versetze dich bitte in die Bremse, die in dem obigen Transkript erwähnt wird und trage noch weitere Argumente vor, die dagegen sprechen, mein Coachingziel zu verfolgen. Lass dich bei dieser Aufgabe von dem Textbaustein Ausbalancierungsprobleme sowie durch die anderen hochgeladenen Textbausteine inspirieren.'
+        },
+        {
+          code: 'T7B',
+          name: 'Ranking der Ausbalancierungsdimensionen',
+          prompt: 'Analysiere das obige Transkript sowie alle momentan vorliegenden Informationen zu meiner Coachingproblematik mit Hilfe des Textbausteins Ausbalancierungsprobleme und erstelle mit Blick auf die 18 Ausbalancierungsdimensionen, die in diesem Textbaustein beschrieben sind, ein Ranking der Ausbalancierungsdimensionen. Das heißt, setze diejenige Ausbalancierungsdimension auf Rangplatz 1, die für meinen Schlüsselaffekt und mein gesamtes Coachingproblem am wichtigsten ist, und diejenige, die am wenigsten wichtig ist, auf Rangplatz 18.'
+        },
+        {
+          code: 'T7C',
+          name: 'Kausalzusammenhang der Ursachen',
+          prompt: 'Gehe bitte von dieser Rangpositionierung aus und kläre, wie die Probleme, die den Ausbalancierungsdimensionen zugrunde liegen, ursächlich zusammenhängen. Also das gesamte Kausalgefüge zwischen diesen drei Dimensionen und die entsprechenden Problematiken sollte verdeutlicht werden.'
+        }
       ],
+
+      // Phase 3: Lösungsstrategie
+      phase3: [
+        {
+          code: 'T8',
+          name: 'Übergeordnetes Lern- und Entwicklungsziel',
+          prompt: 'Formuliere auf Basis der bisherigen Erkenntnisse ein übergeordnetes Lern- und Entwicklungsziel für mich.'
+        },
+        {
+          code: 'T10',
+          name: 'Analyse der Umsetzungswiderstände',
+          prompt: 'Analysiere dieses Transkript. Welche realitätsprägenden Überzeugungen und inneren Regeln stecken hinter den Aussagen der Widerstände? Was hemmt die Umsetzung meines Entwicklungsziels?'
+        },
+        {
+          code: 'T11',
+          name: 'Erfolgsimagination erstellen',
+          prompt: 'Orientiere dich bei dieser Aufgabe an dem Textbaustein Ausbalancierungsprobleme, da ist Coaching-diagnostisches Wissen hinterlegt. Gehe dabei im Einzelnen folgendermaßen vor: Beziehe dich auf die Komplementärkräfte, die dort auch genau beschrieben sind, und das jeweilige Ideal einer optimalen Ausbalancierung, die in diesem Textbaustein mit Bezug auf die Ausbalancierungsprobleme beschrieben ist. Beschreibe die positiven Veränderungen in einer in Ich-Form verfassten persönlichen Erlebenserzählung, die ich jetzt sofort als Erfolgsimagination nutzen will. Beschreibe in dieser Erfolgsimagination alles sehr differenziert, lebensnah und persönlich und zwar so, dass man es sich wie in einem Film alles ganz konkret vorstellen kann - also alles was äußerlich beobachtbar passiert und alles was intrapsychisch in mir passiert. Die Erlebenserzählung startet mit der Schlüsselsituation, die sich nicht verändert hat. Lege also die Beschreibung der Schlüsselsituation zugrunde, die ich dir zu Beginn dieses Chats mitgeteilt habe. Anschließend beschreibst du in dem persönlichen Erlebensbericht in Ich-Form den deutlich veränderten Schlüsselaffekt. Beziehe dich dabei auf die am Anfang unseres Chats dir mitgeteilte Beschreibung des Bildes, das für mich eine Visualisierung meines Ziels darstellt, und erstelle in diesem Sinne zwei deutlich unterschiedliche Erlebensbeschreibungen.'
+        }
+      ],
+
+      // Solution Finder Standard-Prompts
+      solutionFinder: [
+        {
+          code: 'SF1',
+          name: 'Coaching Solution Finder',
+          prompt: 'Ich habe folgendes Problem: [PROBLEM]. Bitte spiegle das Problem in eigenen Worten und identifiziere erste positive Eigenschaften oder Fähigkeiten, die für die Lösung hilfreich sind.'
+        },
+        {
+          code: 'ZIEL',
+          name: 'Zielformulierung',
+          prompt: 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten.'
+        },
+        {
+          code: 'SKALA',
+          name: 'Skalenarbeit',
+          prompt: 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel? Und wie schwierig schätzen Sie es ein?'
+        },
+        {
+          code: 'TEAM',
+          name: 'Inneres Team',
+          prompt: 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen. Welche Stimmen hören Sie zu diesem Thema? Beschreiben Sie die verschiedenen Anteile.'
+        },
+        {
+          code: 'DIALOG',
+          name: 'Dialogische Exploration',
+          prompt: 'Hallo [ANTEIL], ich habe Ihre Bedenken gehört. Können Sie mir mehr darüber erzählen, was Sie beschäftigt?'
+        },
+        {
+          code: 'TRANSFORM',
+          name: 'Transformation',
+          prompt: 'Wie können beide Anteile ihre Waffen niederlegen und eine neue, integrierte Haltung entwickeln?'
+        }
+      ],
+
+      // Spannungsfelder
+      spannungsfelder: [
+        {
+          code: 'SP1',
+          name: 'Zeit: Gegenwart ↔ Zukunft',
+          prompt: 'Wie erleben Sie den Umgang mit Zeit - neigen Sie zur Gegenwartsfixierung oder zur übermäßigen Zukunftsplanung?'
+        },
+        {
+          code: 'SP23',
+          name: 'Beruf: Überidentifikation ↔ Verachtung',
+          prompt: 'Überwiegt bei der Arbeit eher Stolz und Überidentifikation oder Verbitterung und Verachtung?'
+        },
+        {
+          code: 'SP24',
+          name: 'Status: Fixierung ↔ Bedeutungslosigkeit',
+          prompt: 'Erleben Sie eine Fixierung auf Status und Bedeutung oder ein Gefühl von Bedeutungslosigkeit?'
+        },
+        {
+          code: 'SP25',
+          name: 'Leistung: Zwang ↔ Antriebslosigkeit',
+          prompt: 'Stehen Sie unter Leistungszwang oder leiden Sie unter Antriebslosigkeit?'
+        },
+        {
+          code: 'SP27',
+          name: 'Sozial: Einsamkeit ↔ Rückzug',
+          prompt: 'Leiden Sie unter Einsamkeit oder neigen Sie zum sozialen Rückzug?'
+        },
+        {
+          code: 'SP36',
+          name: 'Gesundheit: Fixierung ↔ Vernachlässigung',
+          prompt: 'Fixieren Sie sich übermäßig auf Gesundheit oder vernachlässigen Sie sie?'
+        }
+      ],
+
+      // Coaching-Interventionen
       interventionen: [
-        { code: 'RESIST', name: 'Widerstand', prompt: 'Ich spüre Widerstand gegen diese Methode. Was brauchen Sie, um sich darauf einlassen zu können?' },
-        { code: 'DOM', name: 'Anteil dominant', prompt: 'Ein Anteil scheint sehr dominant zu sein. Können wir den anderen Stimmen auch Raum geben?' },
-        { code: 'TIEF', name: 'Oberflächlich', prompt: 'Ich habe das Gefühl, wir bleiben an der Oberfläche. Können Sie tiefer gehen?' },
-        { code: 'EMO', name: 'Emotionen', prompt: 'Ich sehe, dass Sie bewegt sind. Möchten Sie mir erzählen, was gerade in Ihnen vorgeht?' },
-        { code: 'KERN', name: 'Positive Kerne', prompt: 'Was ist der positive Kern in beiden Anteilen? Welchen Wert vertritt jeder von ihnen?' },
-        { code: 'SPANNUNG', name: 'Grundspannung', prompt: 'Können Sie das Muster dahinter erkennen? Welche Grundspannung zeigt sich hier?' },
-        { code: 'RESSOURCE', name: 'Ressourcen', prompt: 'Welche Stärken und Ressourcen haben Sie bereits, die bei dieser Herausforderung helfen?' },
-        { code: 'AUSNAHME', name: 'Ausnahmen', prompt: 'Gab es Momente, in denen das Problem nicht da war? Erzählen Sie mir davon.' },
-        { code: 'HYPOTHETISCH', name: 'Hypothetische Fragen', prompt: 'Angenommen, Sie wachen morgen auf und das Problem ist gelöst - was wäre anders?' },
-        { code: 'VERSCHLIMMERUNG', name: 'Verschlimmerung', prompt: 'Was müssten Sie tun, um das Problem zu verschlimmern? (Paradoxe Intervention)' },
-        { code: 'NORMALISIERUNG', name: 'Normalisierung', prompt: 'Das was Sie erleben ist völlig normal und verständlich. Viele Menschen in Ihrer Situation...' },
-        { code: 'REFRAMING', name: 'Reframing', prompt: 'Lassen Sie uns das aus einer anderen Perspektive betrachten. Was könnte der positive Aspekt sein?' }
+        {
+          code: 'RESIST',
+          name: 'Widerstand',
+          prompt: 'Ich spüre Widerstand gegen diese Methode. Was brauchen Sie, um sich darauf einlassen zu können?'
+        },
+        {
+          code: 'EMO',
+          name: 'Emotionen',
+          prompt: 'Ich sehe, dass Sie bewegt sind. Möchten Sie mir erzählen, was gerade in Ihnen vorgeht?'
+        },
+        {
+          code: 'KERN',
+          name: 'Positive Kerne',
+          prompt: 'Was ist der positive Kern in beiden Anteilen? Welchen Wert vertritt jeder von ihnen?'
+        },
+        {
+          code: 'TIEF',
+          name: 'Oberflächlich',
+          prompt: 'Ich habe das Gefühl, wir bleiben an der Oberfläche. Können Sie tiefer gehen?'
+        },
+        {
+          code: 'RESSOURCE',
+          name: 'Ressourcen',
+          prompt: 'Welche Stärken und Ressourcen haben Sie bereits, die bei dieser Herausforderung helfen?'
+        }
       ]
     };
 
@@ -709,169 +852,166 @@
     const steps = [
       {
         id: 1,
-        title: 'Problem & Ziel',
+        title: 'Einleitung & Problembeschreibung',
         phase: 'a',
         tasks: [
           '🎯 Coach und Klient sprechen zunächst persönlich',
           '📋 Coach zeigt Prompt-Repository als Landkarte',
-          '🤝 Gemeinsam ersten Prompt ("Coaching Solution Finder") auswählen',
-          '✍️ Klient schildert Anliegen, Coach protokolliert Kernaussagen',
-          '❓ Coach stellt klärende Rückfragen und fasst prägnant zusammen',
-          '✅ Vergewissern: "Ist das richtig so?"',
-          '🤖 Zusammenfassung in Prompt einfügen und an ChatGPT senden',
-          '💬 KI reagiert mit freundlicher Begrüßung und spiegelt Problem',
-          '⭐ KI identifiziert positive Eigenschaften für Lösungsarbeit'
+          '🤝 Gemeinsam ersten Prompt (T1) auswählen',
+          '✍️ Klient schildert Anliegen, Coach protokolliert',
+          '🤖 KI gibt ressourcenorientiertes, positives Feedback',
+          '⭐ KI identifiziert erste Fähigkeiten und Stärken',
+          '💬 Beziehungsaufbau zur Maschine durch KI-Lob'
         ]
       },
       {
         id: 2,
-        title: 'Skalenarbeit',
+        title: 'Ist-Soll-Analyse',
         phase: 'a',
         tasks: [
-          '📊 Wichtigkeitsskala einführen: "Auf einer Skala von 0-10..."',
-          '🎯 Ziel-Wichtigkeit erfragen und bewerten lassen',
-          '📈 Schwierigkeitsskala parallel einsetzen',
-          '💡 Unterschied zwischen Wichtigkeit und Schwierigkeit erklären',
-          '🔍 Bei hoher Wichtigkeit: "Was macht es so wichtig?"',
-          '⚡ Bei hoher Schwierigkeit: "Was macht es so schwer?"',
-          '📝 Werte dokumentieren und mit Klient besprechen',
-          '🎨 Visuelle Darstellung der Skalen erstellen'
+          '📊 Prompt T2 verwenden für strukturierte Analyse',
+          '🔍 Äußere Rahmenbedingungen erfassen',
+          '🧠 Psychische Prozesse dokumentieren',
+          '👀 Beobachtbare Verhaltensweisen identifizieren',
+          '📈 Faktische Folgen analysieren',
+          '📝 Ist-Situation vollständig beschreiben',
+          '🎯 Soll-Situation klar formulieren'
         ]
       },
       {
         id: 3,
-        title: 'Inneres Team',
+        title: 'Bildarbeit & Visualisierung',
         phase: 'a',
         tasks: [
-          '👥 Konzept des "Inneren Teams" erklären',
-          '👑 Teamchef-Rolle einführen und charakterisieren',
-          '🗣️ Verschiedene Stimmen im Klient identifizieren',
-          '✋ Unterstützende Anteile sammeln und benennen',
-          '🛑 Bremsende/kritische Anteile erkennen',
-          '⚖️ Balance zwischen Unterstützern und Bremsern finden',
-          '🎭 Jedem Anteil eine "Stimme" und Charakteristik geben',
-          '📋 Vollständige Team-Aufstellung dokumentieren'
+          '🖼️ Klient wählt Bild für Coaching-Ziel',
+          '📝 Bildbeschreibung in Ich-Form erstellen',
+          '🤖 Prompt T3 für Bildanalyse verwenden',
+          '🔗 Beziehung zwischen Bild und Ziel klären',
+          '💡 Bedeutung für Coachingproblematik erarbeiten',
+          '🎨 Visuelle Verankerung des Ziels',
+          '📋 Erkenntnisse dokumentieren'
         ]
       },
       {
         id: 4,
-        title: 'Dialogische Exploration',
+        title: 'Diagnostik & Ausbalancierungsprobleme',
         phase: 'a',
         tasks: [
-          '💬 Mit jedem Anteil einzeln "sprechen"',
-          '🎯 Unterstützer-Interview: "Was motiviert Sie?"',
-          '🔍 Bremser-Interview: "Was sind Ihre Bedenken?"',
-          '❓ Vertiefende Fragen zu Ängsten und Sorgen',
-          '👂 Aktives Zuhören und Würdigung aller Stimmen',
-          '🤝 Verständnis für jeden Anteil entwickeln',
-          '📝 Kernaussagen jedes Anteils festhalten',
-          '🎨 Emotionale Landkarte des inneren Teams erstellen'
+          '🔍 Prompt T4 für Problemidentifikation nutzen',
+          '📚 Textbaustein Ausbalancierungsprobleme verwenden',
+          '🎯 Klarestes Ausbalancierungsproblem identifizieren',
+          '❓ Klärende Fragen entwickeln',
+          '🧩 Vorsichtige Diagnostik einleiten',
+          '📝 Problematik präziser formulieren',
+          '✅ Diagnose validieren'
         ]
       },
       {
         id: 5,
-        title: 'Antipoden benennen',
-        phase: 'a',
+        title: 'Schlüsselsituation & Schlüsselaffekt',
+        phase: 'b',
         tasks: [
-          '⚖️ Hauptgegensätze im inneren Team identifizieren',
-          '🏷️ Präzise Namen für Gegenspieler finden',
-          '💪 Stärken beider Pole herausarbeiten',
-          '⚠️ Schwächen und Risiken beider Seiten erkennen',
-          '🎭 Charakteristika der Antipoden beschreiben',
-          '🔄 Dynamik zwischen den Polen verstehen',
-          '📊 Intensität des Konflikts bewerten'
+          '🔍 Prompt T5 für Kernproblem-Identifikation',
+          '💭 Schlüsselsituationen identifizieren',
+          '😢 Schlüsselaffekt aufdecken',
+          '🌪️ "Auge des Taifuns" finden',
+          '🧠 Unbewusste emotionale Kernproblematik',
+          '📝 Affekt als Kernproblem verstehen',
+          '🎯 Diagnostische Grundlage schaffen'
         ]
       },
       {
         id: 6,
-        title: 'Grundspannung',
-        phase: 'a',
+        title: 'Tiefenpsychologisches Interview',
+        phase: 'b',
         tasks: [
-          '🧩 Muster hinter dem Konflikt erkennen',
-          '📚 Grundspannung aus 19 Spannungsfeldern zuordnen',
-          '🔍 Tiefere Bedeutung der Spannung verstehen',
-          '🎯 Kernthema des Klienten identifizieren',
-          '💡 Zusammenhang zu anderen Lebensbereichen erkennen',
-          '📝 Grundspannung präzise formulieren'
+          '🎙️ Interview mit Klient durchführen',
+          '📝 Vollständiges Transkript erstellen',
+          '🤖 Transkript für KI-Analyse vorbereiten',
+          '💬 Alle relevanten Aspekte erfassen',
+          '🧠 Tiefere Einsichten gewinnen',
+          '📋 Für nächsten Schritt dokumentieren'
         ]
       },
       {
         id: 7,
-        title: 'Positive Kerne',
+        title: 'KI-Auswertung & Ursachenanalyse',
         phase: 'b',
         tasks: [
-          '💎 Wertvolle Aspekte in beiden Anteilen finden',
-          '🌟 Positive Absichten hinter "negativen" Anteilen',
-          '🤝 Würdigung aller Teile des inneren Teams',
-          '⚖️ Balance zwischen den Polen anstreben',
-          '🏆 Stärken beider Seiten hervorheben',
-          '🔄 Synergie-Potentiale identifizieren'
+          '🛑 Prompt T7A: KI als Bremse versetzen',
+          '💭 Weitere Gegenargumente sammeln',
+          '📊 Prompt T7B: Ranking der 18 Dimensionen',
+          '🔗 Prompt T7C: Kausalzusammenhänge klären',
+          '🧩 Ursachenmodell entwickeln',
+          '📈 Wichtigste Dimensionen priorisieren',
+          '🎯 Klares Problemverständnis schaffen'
         ]
       },
       {
         id: 8,
-        title: 'Transformation',
-        phase: 'b',
+        title: 'Übergeordnetes Entwicklungsziel',
+        phase: 'c',
         tasks: [
-          '🕊️ Abrüstung der Gegenspieler einleiten',
-          '🤝 Neue integrierte Haltung entwickeln',
-          '🎯 Gemeinsames Ziel der Anteile definieren',
-          '🌱 Wachstumsperspektive für beide Pole',
-          '⚖️ Ausgewogene Lösung erarbeiten',
-          '🔄 Transformation der Spannung in Stärke'
+          '🎯 Prompt T8 für Zielformulierung nutzen',
+          '🔍 "Ziel hinter dem Ziel" identifizieren',
+          '📈 Überdauernde Persönlichkeitsentwicklung',
+          '🔗 Verbindung zur Problemdiagnostik',
+          '🌱 Langfristige Entwicklung planen',
+          '💡 Tiefere Erkenntnisse integrieren'
         ]
       },
       {
         id: 9,
-        title: 'Teamchef stärken',
-        phase: 'b',
+        title: 'Lösungsstrategie entwickeln',
+        phase: 'c',
         tasks: [
-          '👑 Rolle des Teamchefs definieren und stärken',
-          '📈 Lern- und Entwicklungsziele setzen',
-          '💪 Kompetenzen des Teamchefs ausbauen',
-          '🎯 Führungsqualitäten entwickeln',
-          '🤝 Koordination zwischen den Anteilen verbessern',
-          '📋 Konkreten Entwicklungsplan erstellen'
+          '🛠️ Praxisgerechte Lösung erarbeiten',
+          '🎯 Strategie aus Diagnostik ableiten',
+          '📋 Konkrete Schritte definieren',
+          '🔄 Umsetzbarkeit prüfen',
+          '💪 Ressourcen identifizieren',
+          '📝 Strategie dokumentieren'
         ]
       },
       {
         id: 10,
-        title: 'Integration',
-        phase: 'b',
+        title: 'Widerstandsanalyse',
+        phase: 'c',
         tasks: [
-          '🧠 Gedanken-Ebene: Neue Denkweisen verankern',
-          '❤️ Gefühls-Ebene: Emotionale Integration',
-          '🏃 Körper-Ebene: Körperliche Verankerung',
-          '🎯 Handlungs-Ebene: Konkrete Verhaltensänderungen',
-          '📝 Schriftliche Verankerung in allen 4 Bereichen',
-          '🔄 Ganzheitliche Integration sicherstellen'
+          '🤖 Prompt T10 für Widerstandsanalyse',
+          '🧠 Realitätsprägende Überzeugungen identifizieren',
+          '📋 Innere Regeln rekonstruieren',
+          '😨 Sorgen und Ängste aufdecken',
+          '🚧 Umsetzungshindernisse verstehen',
+          '💭 Denkweisen analysieren',
+          '🔓 Überwindungsstrategien entwickeln'
         ]
       },
       {
         id: 11,
-        title: 'Handlungsplanung',
+        title: 'Erfolgsimagination',
         phase: 'c',
         tasks: [
-          '🎯 Erste konkrete Schritte definieren',
-          '⚠️ Mögliche Hindernisse antizipieren',
-          '🛠️ Strategien gegen Hindernisse entwickeln',
-          '📅 Zeitplan für Umsetzung erstellen',
-          '📊 Erfolgsmessung definieren',
-          '🔄 Anpassungsstrategien vorbereiten'
+          '🎬 Prompt T11 für Erlebenserzählung nutzen',
+          '📚 Textbaustein Ausbalancierungsprobleme verwenden',
+          '⚖️ Komplementärkräfte integrieren',
+          '🎯 Optimale Ausbalancierung beschreiben',
+          '🎭 Persönliche Ich-Form-Erzählung',
+          '🎥 Filmische, konkrete Vorstellung',
+          '🔄 Umkonditionierung ermöglichen'
         ]
       },
       {
         id: 12,
-        title: 'Erfolgsvision & Umsetzung',
+        title: 'Integration & Abschluss',
         phase: 'c',
         tasks: [
-          '🌟 Kraftvolle Vision der Zielerreichung entwickeln',
-          '🎨 Lebendige Imagination des Erfolgs',
-          '📋 Konkreten Umsetzungsplan erstellen',
-          '🤝 Unterstützungsstrukturen definieren',
-          '📅 Follow-up Termine vereinbaren',
-          '🎯 Nächste Schritte klar definieren',
-          '💪 Motivation und Commitment stärken'
+          '🔄 Alle Erkenntnisse zusammenführen',
+          '📋 Vollständige Dokumentation',
+          '🎯 Nächste Schritte definieren',
+          '📅 Follow-up planen',
+          '💪 Motivation stärken',
+          '🎉 Erfolg würdigen'
         ]
       }
     ];
@@ -891,11 +1031,6 @@
       steps.forEach(step => {
         taskStatus[step.id] = step.tasks.map(() => false);
       });
-      
-      // Auto-Save Setup
-      setInterval(() => {
-        document.getElementById('saveStatus').textContent = 'Gespeichert ✓';
-      }, 30000);
     }
 
     // Schritt laden
@@ -1004,22 +1139,22 @@
     function updateAssistantSuggestions(step) {
       const suggestions = document.getElementById('currentStepSuggestions');
       const stepSuggestions = {
-        1: ['Wie erkläre ich den Solution Finder?', 'Tipps für aktives Zuhören', 'Problemspiegelung verbessern'],
-        2: ['Skalenarbeit einführen', 'Unterschied Wichtigkeit/Schwierigkeit', 'Motivation bei niedriger Wichtigkeit'],
-        3: ['Inneres Team Konzept erklären', 'Teamchef-Rolle stärken', 'Anteile identifizieren'],
-        4: ['Dialogtechniken mit Anteilen', 'Widerstand begegnen', 'Tiefere Exploration'],
-        5: ['Antipoden klar benennen', 'Positive Aspekte finden', 'Polarität verstehen'],
-        6: ['Grundspannung erkennen', 'Muster identifizieren', 'Spannungsfelder zuordnen'],
-        7: ['Positive Kerne identifizieren', 'Wertschätzung vermitteln', 'Stärken hervorheben'],
-        8: ['Transformation einleiten', 'Integration fördern', 'Neue Haltung entwickeln'],
-        9: ['Teamchef stärken', 'Führungsrolle definieren', 'Kompetenzen ausbauen'],
-        10: ['4-Ebenen-Integration', 'Ganzheitliche Verankerung', 'Nachhaltigkeit sichern'],
-        11: ['Handlungsplanung', 'Hindernisse antizipieren', 'Umsetzungsstrategien'],
-        12: ['Erfolgsvision entwickeln', 'Motivation stärken', 'Follow-up planen']
+        1: ['Verwende T1 für Problembeschreibung', 'Wie gebe ich positives Feedback?', 'Beziehungsaufbau zur KI'],
+        2: ['T2 für Ist-Soll-Analyse nutzen', 'Strukturierte Problemerfassung', 'Rahmenbedingungen dokumentieren'],
+        3: ['T3 für Bildanalyse verwenden', 'Visualisierung des Ziels', 'Bildbeschreibung anleiten'],
+        4: ['T4 für Ausbalancierungsprobleme', 'Diagnostik einleiten', 'Textbausteine nutzen'],
+        5: ['T5 für Schlüsselaffekt finden', 'Auge des Taifuns identifizieren', 'Emotionale Kernproblematik'],
+        6: ['Tiefenpsychologisches Interview', 'Vollständiges Transkript', 'Alle Aspekte erfassen'],
+        7: ['T7A: KI als Bremse', 'T7B: Dimensionen-Ranking', 'T7C: Kausalzusammenhänge'],
+        8: ['T8: Übergeordnetes Ziel', 'Ziel hinter dem Ziel', 'Persönlichkeitsentwicklung'],
+        9: ['Praxisgerechte Lösung', 'Aus Diagnostik ableiten', 'Umsetzbarkeit prüfen'],
+        10: ['T10: Widerstandsanalyse', 'Innere Regeln finden', 'Überzeugungen identifizieren'],
+        11: ['T11: Erfolgsimagination', 'Erlebenserzählung erstellen', 'Komplementärkräfte nutzen'],
+        12: ['Integration aller Erkenntnisse', 'Vollständige Dokumentation', 'Follow-up planen']
       };
 
       suggestions.innerHTML = `
-        <p><strong>Vorschläge für Schritt ${step.id}:</strong></p>
+        <p><strong>Triadische Prompts für Schritt ${step.id}:</strong></p>
         ${stepSuggestions[step.id].map(suggestion => `
           <div class="suggestion" onclick="selectSuggestion('${suggestion}')">${suggestion}</div>
         `).join('')}
@@ -1115,22 +1250,22 @@
       
       **source: "ki_assistant"** → Coach-Unterstützung
       - Fachliche Beratung und Methodenerklärung
-      - Konkrete Handlungsempfehlungen
-      - Prompt-Vorschläge
+      - Konkrete Handlungsempfehlungen für triadisches Coaching
+      - Prompt-Vorschläge und Anwendungshilfen
       
       **source: "coaching_dialog"** → Coachee-Dialog
       - Empathische, direkte Kommunikation
-      - Lösungsorientierte Fragen
-      - Unterstützung des Coachees
+      - Ressourcenorientiertes, positives Feedback
+      - Lösungsorientierte Fragen und Unterstützung
       
       **Aktueller Schritt: ${step}/12**
       **Nachrichten-Quelle: ${source}**
       
-      **Solution Finder Expertise:** Du kennst Innere Team-Aufstellungen, 19 Grundspannungen, 
-      Skalenarbeit, positive Kerne, Transformation und Integration.
+      **Triadisches Coaching Expertise:** Du kennst die 12 Schritte des triadischen KI-Coachings, 
+      Ausbalancierungsprobleme, Schlüsselaffekte, Komplementärkräfte und Erfolgsimagination.
       
-      **WICHTIG:** Nutze dein Fachwissen aus dem Solution Finder aktiv und verwende 
-      die exakten Formulierungen und Methoden.`;
+      **WICHTIG:** Nutze dein Fachwissen aus dem triadischen System und den Textbausteinen 
+      zu Ausbalancierungsproblemen aktiv.`;
       
       return basePrompt;
     }
