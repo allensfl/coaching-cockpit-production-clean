@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>12-Schritte KI-Coaching Interface</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      position: relative;
+    }
+
+    .header h1 {
+      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .session-info {
+      color: #666;
+      font-size: 1.1em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .progress-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .progress-header h2 {
+      color: #333;
+      font-size: 1.5em;
+    }
+
+    .phase-indicator {
+      display: flex;
+      gap: 10px;
+    }
+
+    .phase-label {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+
+    .phase-a { background: #e3f2fd; color: #1976d2; }
+    .phase-b { background: #f3e5f5; color: #7b1fa2; }
+    .phase-c { background: #e8f5e8; color: #388e3c; }
+
+    .progress-bar {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .progress-step {
+      background: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      padding: 15px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .progress-step.completed {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+
+    .progress-step.active {
+      background: #cce5ff;
+      border-color: #007bff;
+      color: #004085;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+    }
+
+    .progress-step.pending {
+      background: #f8f9fa;
+      border-color: #dee2e6;
+      color: #6c757d;
+    }
+
+    .step-number {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+
+    .step-title {
+      font-size: 0.8em;
+      line-height: 1.2;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      height: calc(100vh - 280px);
+    }
+
+    .left-panel {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .chat-panel, .assistant-panel {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    .step-content h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.4em;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .task-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .task-item {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .task-item:hover {
+      background: #e9ecef;
+    }
+
+    .task-item.completed {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      opacity: 0.8;
+    }
+
+    .task-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #007bff;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .task-checkbox.checked {
+      background: #007bff;
+      color: white;
+    }
+
+    .task-text {
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .task-text.completed {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    .progress-indicator {
+      background: #e9ecef;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #007bff, #28a745);
+      height: 8px;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    .nav-button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-button.prev {
+      background: #6c757d;
+      color: white;
+    }
+
+    .nav-button.next {
+      background: #007bff;
+      color: white;
+    }
+
+    .nav-button.next.completed {
+      background: #28a745;
+    }
+
+    .nav-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .nav-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .chat-messages {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+
+    .message.coach {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+
+    .message.coachee {
+      background: #f3e5f5;
+      border-left: 4px solid #9c27b0;
+      margin-left: auto;
+    }
+
+    .message.ai {
+      background: #e8f5e8;
+      border-left: 4px solid #4caf50;
+    }
+
+    .message-sender {
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      outline: none;
+    }
+
+    .chat-input button {
+      padding: 12px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .assistant-suggestions {
+      margin-bottom: 20px;
+    }
+
+    .suggestion {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .suggestion:hover {
+      background: #e9ecef;
+      border-color: #007bff;
+    }
+
+    .suggestion.clicked {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .close {
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: #666;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .usage-tip {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #1976d2;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .repo-categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .repo-category {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .repo-category h3 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 1.2em;
+    }
+
+    .repo-prompt-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .repo-prompt-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .repo-prompt-card.copied {
+      background: #d4edda;
+      border-color: #28a745;
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .repo-prompt-code {
+      background: #667eea;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .repo-prompt-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .repo-prompt-text {
+      color: #666;
+      font-size: 0.9em;
+      line-height: 1.4;
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-bar input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+      }
+      
+      .right-panel {
+        grid-template-rows: 1fr;
+        grid-template-columns: 1fr;
+      }
+      
+      .progress-bar {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>12-Schritte KI-Coaching Interface</h1>
+      <div class="session-info">
+        <span>Session: #12345</span>
+        <span>•</span>
+        <span id="currentDateTime">17.07.2025, 14:30</span>
+        <span>•</span>
+        <span>Auto-Save: <span id="saveStatus">Gespeichert</span></span>
+        <span>•</span>
+        <button id="repositoryBtn" onclick="openRepository()" style="background: #667eea; color: white; border: none; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em;">
+          📚 Repository
+        </button>
+      </div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-header">
+        <h2>Coaching-Fortschritt</h2>
+        <div class="phase-indicator">
+          <div class="phase-label phase-a">Phase A: Diagnose</div>
+          <div class="phase-label phase-b">Phase B: Lösung</div>
+          <div class="phase-label phase-c">Phase C: Transfer</div>
+        </div>
+      </div>
+      
+      <div class="progress-bar" id="progressBar">
+        <!-- Schritte werden hier dynamisch eingefügt -->
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="left-panel">
+        <div class="step-content" id="stepContent">
+          <!-- Schritt-Inhalte werden hier dynamisch eingefügt -->
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="chat-panel">
+          <h3>💬 Coaching-Dialog</h3>
+          <div class="chat-messages" id="chatMessages">
+            <div class="message coach">
+              <div class="message-sender">Coach</div>
+              <div>Willkommen! Lassen Sie uns mit Ihrem Anliegen beginnen.</div>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="coachingInput" placeholder="Nachricht eingeben..." onkeypress="if(event.key==='Enter') sendCoachingMessage()">
+            <button onclick="sendCoachingMessage()">Senden</button>
+          </div>
+        </div>
+
+        <div class="assistant-panel">
+          <h3>🤖 KI-Assistent</h3>
+          <div class="assistant-suggestions" id="assistantSuggestions">
+            <p><strong>Schritt-spezifische Unterstützung</strong></p>
+            <div id="currentStepSuggestions">
+              <!-- Suggestions werden hier dynamisch eingefügt -->
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="assistantInput" placeholder="Frage an KI-Assistent..." onkeypress="if(event.key==='Enter') sendAssistantMessage()">
+            <button onclick="sendAssistantMessage()">Fragen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Repository Modal -->
+    <div id="repositoryModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📚 Solution Finder Repository</h2>
+          <span class="close" onclick="closeRepository()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="usage-tip">
+            💡 <strong>Klicke auf einen Code um ihn zu kopieren und direkt hier im Chat zu verwenden!</strong>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" id="repoSearchInput" placeholder="Suche nach Code oder Stichwort... (z.B. SF1, Ziel, Spannung)">
+          </div>
+
+          <div class="repo-categories">
+            <!-- Standard Prompts -->
+            <div class="repo-category">
+              <h3>📋 Standard Coaching Prompts</h3>
+              <div class="repo-prompts" id="standard-repo-prompts">
+                <!-- Wird dynamisch gefüllt -->
+              </div>
+            </div>
+
+            <!-- Spannungsfelder -->
+            <div class="repo-category">
+              <h3>⚖️ Spannungsfelder</h3>
+              <div class="repo-prompts" id="spannungen-repo-prompts">
+                <!-- Wird dynamisch gefüllt -->
+              </div>
+            </div>
+
+            <!-- Interventionen -->
+            <div class="repo-category">
+              <h3>🛠️ Interventionen</h3>
+              <div class="repo-prompts" id="interventionen-repo-prompts">
+                <!-- Wird dynamisch gefüllt -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Repository-Funktionen
+    const repositoryPrompts = {
+      standard: [
+        { code: 'SF1', name: 'Coaching Solution Finder', prompt: 'Ich habe folgendes Problem: [PROBLEM]. Bitte spiegle das Problem in eigenen Worten und identifiziere erste positive Eigenschaften oder Fähigkeiten, die für die Lösung hilfreich sind.' },
+        { code: 'ZIEL', name: 'Zielformulierung', prompt: 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten.' },
+        { code: 'SKALA', name: 'Skalenarbeit', prompt: 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel? Und wie schwierig schätzen Sie es ein?' },
+        { code: 'TEAM', name: 'Inneres Team', prompt: 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen. Welche Stimmen hören Sie zu diesem Thema? Beschreiben Sie die verschiedenen Anteile.' },
+        { code: 'DIALOG', name: 'Dialogische Exploration', prompt: 'Hallo [ANTEIL], ich habe Ihre Bedenken gehört. Können Sie mir mehr darüber erzählen, was Sie beschäftigt?' },
+        { code: 'NAMEN', name: 'Antipoden benennen', prompt: 'Wie würden Sie diese beiden gegensätzlichen Anteile benennen? Geben Sie ihnen präzise Namen.' },
+        { code: 'TRANSFORM', name: 'Transformation', prompt: 'Wie können beide Anteile ihre Waffen niederlegen und eine neue, integrierte Haltung entwickeln?' },
+        { code: 'STÄRKEN', name: 'Teamchef stärken', prompt: 'Welche Lern- und Entwicklungsziele kann sich der Teamchef setzen, um stärker zu werden?' },
+        { code: 'INTEGRATION', name: 'Integration', prompt: 'Wie können Sie diese Lösung in den vier Bereichen verankern: Gedanken, Gefühle, Körper und Handeln?' },
+        { code: 'PLAN', name: 'Handlungsplanung', prompt: 'Was sind die ersten konkreten Schritte? Welche Hindernisse könnten auftreten und wie begegnen Sie diesen?' },
+        { code: 'VISION', name: 'Erfolgsvision', prompt: 'Stellen Sie sich vor, Sie haben Ihr Ziel erreicht. Beschreiben Sie diese kraftvolle Vision der Zielerreichung.' },
+        { code: 'UMSETZUNG', name: 'Umsetzung', prompt: 'Wie setzen Sie den Plan konkret um? Welche Unterstützung brauchen Sie und wann ist das Follow-up?' }
+      ],
+      spannungen: [
+        { code: 'SP1', name: 'Zeit: Gegenwart ↔ Zukunft', prompt: 'Wie erleben Sie den Umgang mit Zeit - neigen Sie zur Gegenwartsfixierung oder zur übermäßigen Zukunftsplanung?' },
+        { code: 'SP20', name: 'Identität: Festlegung ↔ Diffusion', prompt: 'Spüren Sie eher eine starre Festlegung auf eine Rolle oder eine verwirrende Identitätsdiffusion?' },
+        { code: 'SP23', name: 'Beruf: Überidentifikation ↔ Verachtung', prompt: 'Überwiegt bei der Arbeit eher Stolz und Überidentifikation oder Verbitterung und Verachtung?' },
+        { code: 'SP24', name: 'Status: Fixierung ↔ Bedeutungslosigkeit', prompt: 'Erleben Sie eine Fixierung auf Status und Bedeutung oder ein Gefühl von Bedeutungslosigkeit?' },
+        { code: 'SP25', name: 'Leistung: Zwang ↔ Antriebslosigkeit', prompt: 'Stehen Sie unter Leistungszwang oder leiden Sie unter Antriebslosigkeit?' },
+        { code: 'SP26', name: 'Partnerschaft: Verschmelzung ↔ Distanz', prompt: 'In der Partnerschaft - neigen Sie zur Verschmelzung oder zur übermäßigen Distanz?' },
+        { code: 'SP27', name: 'Sozial: Einsamkeit ↔ Rückzug', prompt: 'Leiden Sie unter Einsamkeit oder neigen Sie zum sozialen Rückzug?' },
+        { code: 'SP28', name: 'Familie: Abhängigkeit ↔ Ablösung', prompt: 'In der Familie - erleben Sie übermäßige Abhängigkeit oder radikale Ablösung?' },
+        { code: 'SP33', name: 'Spiritualität: Suche ↔ Ablehnung', prompt: 'Sind Sie auf spiritueller Suche oder lehnen Sie Spiritualität ab?' },
+        { code: 'SP36', name: 'Gesundheit: Fixierung ↔ Vernachlässigung', prompt: 'Fixieren Sie sich übermäßig auf Gesundheit oder vernachlässigen Sie sie?' },
+        { code: 'SP37', name: 'Körper: Kontrolle ↔ Vernachlässigung', prompt: 'Stehen Sie unter Körperkontrolle oder vernachlässigen Sie Ihren Körper?' },
+        { code: 'SP38', name: 'Endlichkeit: Verdrängung ↔ Fixierung', prompt: 'Verdrängen Sie die Endlichkeit oder fixieren Sie sich darauf?' },
+        { code: 'SP39', name: 'Sinn: Sinnsuche ↔ Sinnleere', prompt: 'Befinden Sie sich in intensiver Sinnsuche oder erleben Sie Sinnleere?' },
+        { code: 'SP40', name: 'Entwicklung: Wachstum ↔ Stagnation', prompt: 'Streben Sie nach ständigem Wachstum oder erleben Sie Stagnation?' }
+      ],
+      interventionen: [
+        { code: 'RESIST', name: 'Widerstand', prompt: 'Ich spüre Widerstand gegen diese Methode. Was brauchen Sie, um sich darauf einlassen zu können?' },
+        { code: 'DOM', name: 'Anteil dominant', prompt: 'Ein Anteil scheint sehr dominant zu sein. Können wir den anderen Stimmen auch Raum geben?' },
+        { code: 'TIEF', name: 'Oberflächlich', prompt: 'Ich habe das Gefühl, wir bleiben an der Oberfläche. Können Sie tiefer gehen?' },
+        { code: 'EMO', name: 'Emotionen', prompt: 'Ich sehe, dass Sie bewegt sind. Möchten Sie mir erzählen, was gerade in Ihnen vorgeht?' },
+        { code: 'KERN', name: 'Positive Kerne', prompt: 'Was ist der positive Kern in beiden Anteilen? Welchen Wert vertritt jeder von ihnen?' },
+        { code: 'SPANNUNG', name: 'Grundspannung', prompt: 'Können Sie das Muster dahinter erkennen? Welche Grundspannung zeigt sich hier?' },
+        { code: 'RESSOURCE', name: 'Ressourcen', prompt: 'Welche Stärken und Ressourcen haben Sie bereits, die bei dieser Herausforderung helfen?' },
+        { code: 'AUSNAHME', name: 'Ausnahmen', prompt: 'Gab es Momente, in denen das Problem nicht da war? Erzählen Sie mir davon.' },
+        { code: 'HYPOTHETISCH', name: 'Hypothetische Fragen', prompt: 'Angenommen, Sie wachen morgen auf und das Problem ist gelöst - was wäre anders?' },
+        { code: 'VERSCHLIMMERUNG', name: 'Verschlimmerung', prompt: 'Was müssten Sie tun, um das Problem zu verschlimmern? (Paradoxe Intervention)' },
+        { code: 'NORMALISIERUNG', name: 'Normalisierung', prompt: 'Das was Sie erleben ist völlig normal und verständlich. Viele Menschen in Ihrer Situation...' },
+        { code: 'REFRAMING', name: 'Reframing', prompt: 'Lassen Sie uns das aus einer anderen Perspektive betrachten. Was könnte der positive Aspekt sein?' }
+      ]
+    };
+
+    // 12-Schritte Konfiguration
+    const steps = [
+      {
+        id: 1,
+        title: 'Problem & Ziel',
+        phase: 'a',
+        tasks: [
+          '🎯 Coach und Klient sprechen zunächst persönlich',
+          '📋 Coach zeigt Prompt-Repository als Landkarte',
+          '🤝 Gemeinsam ersten Prompt ("Coaching Solution Finder") auswählen',
+          '✍️ Klient schildert Anliegen, Coach protokolliert Kernaussagen',
+          '❓ Coach stellt klärende Rückfragen und fasst prägnant zusammen',
+          '✅ Vergewissern: "Ist das richtig so?"',
+          '🤖 Zusammenfassung in Prompt einfügen und an ChatGPT senden',
+          '💬 KI reagiert mit freundlicher Begrüßung und spiegelt Problem',
+          '⭐ KI identifiziert positive Eigenschaften für Lösungsarbeit'
+        ]
+      },
+      {
+        id: 2,
+        title: 'Skalenarbeit',
+        phase: 'a',
+        tasks: [
+          '📊 Wichtigkeitsskala einführen: "Auf einer Skala von 0-10..."',
+          '🎯 Ziel-Wichtigkeit erfragen und bewerten lassen',
+          '📈 Schwierigkeitsskala parallel einsetzen',
+          '💡 Unterschied zwischen Wichtigkeit und Schwierigkeit erklären',
+          '🔍 Bei hoher Wichtigkeit: "Was macht es so wichtig?"',
+          '⚡ Bei hoher Schwierigkeit: "Was macht es so schwer?"',
+          '📝 Werte dokumentieren und mit Klient besprechen',
+          '🎨 Visuelle Darstellung der Skalen erstellen'
+        ]
+      },
+      {
+        id: 3,
+        title: 'Inneres Team',
+        phase: 'a',
+        tasks: [
+          '👥 Konzept des "Inneren Teams" erklären',
+          '👑 Teamchef-Rolle einführen und charakterisieren',
+          '🗣️ Verschiedene Stimmen im Klient identifizieren',
+          '✋ Unterstützende Anteile sammeln und benennen',
+          '🛑 Bremsende/kritische Anteile erkennen',
+          '⚖️ Balance zwischen Unterstützern und Bremsern finden',
+          '🎭 Jedem Anteil eine "Stimme" und Charakteristik geben',
+          '📋 Vollständige Team-Aufstellung dokumentieren'
+        ]
+      },
+      {
+        id: 4,
+        title: 'Dialogische Exploration',
+        phase: 'a',
+        tasks: [
+          '💬 Mit jedem Anteil einzeln "sprechen"',
+          '🎯 Unterstützer-Interview: "Was motiviert Sie?"',
+          '🔍 Bremser-Interview: "Was sind Ihre Bedenken?"',
+          '❓ Vertiefende Fragen zu Ängsten und Sorgen',
+          '👂 Aktives Zuhören und Würdigung aller Stimmen',
+          '🤝 Verständnis für jeden Anteil entwickeln',
+          '📝 Kernaussagen jedes Anteils festhalten',
+          '🎨 Emotionale Landkarte des inneren Teams erstellen'
+        ]
+      },
+      {
+        id: 5,
+        title: 'Antipoden benennen',
+        phase: 'a',
+        tasks: [
+          '⚖️ Hauptgegensätze im inneren Team identifizieren',
+          '🏷️ Präzise Namen für Gegenspieler finden',
+          '💪 Stärken beider Pole herausarbeiten',
+          '⚠️ Schwächen und Risiken beider Seiten erkennen',
+          '🎭 Charakteristika der Antipoden beschreiben',
+          '🔄 Dynamik zwischen den Polen verstehen',
+          '📊 Intensität des Konflikts bewerten'
+        ]
+      },
+      {
+        id: 6,
+        title: 'Grundspannung',
+        phase: 'a',
+        tasks: [
+          '🧩 Muster hinter dem Konflikt erkennen',
+          '📚 Grundspannung aus 19 Spannungsfeldern zuordnen',
+          '🔍 Tiefere Bedeutung der Spannung verstehen',
+          '🎯 Kernthema des Klienten identifizieren',
+          '💡 Zusammenhang zu anderen Lebensbereichen erkennen',
+          '📝 Grundspannung präzise formulieren'
+        ]
+      },
+      {
+        id: 7,
+        title: 'Positive Kerne',
+        phase: 'b',
+        tasks: [
+          '💎 Wertvolle Aspekte in beiden Anteilen finden',
+          '🌟 Positive Absichten hinter "negativen" Anteilen',
+          '🤝 Würdigung aller Teile des inneren Teams',
+          '⚖️ Balance zwischen den Polen anstreben',
+          '🏆 Stärken beider Seiten hervorheben',
+          '🔄 Synergie-Potentiale identifizieren'
+        ]
+      },
+      {
+        id: 8,
+        title: 'Transformation',
+        phase: 'b',
+        tasks: [
+          '🕊️ Abrüstung der Gegenspieler einleiten',
+          '🤝 Neue integrierte Haltung entwickeln',
+          '🎯 Gemeinsames Ziel der Anteile definieren',
+          '🌱 Wachstumsperspektive für beide Pole',
+          '⚖️ Ausgewogene Lösung erarbeiten',
+          '🔄 Transformation der Spannung in Stärke'
+        ]
+      },
+      {
+        id: 9,
+        title: 'Teamchef stärken',
+        phase: 'b',
+        tasks: [
+          '👑 Rolle des Teamchefs definieren und stärken',
+          '📈 Lern- und Entwicklungsziele setzen',
+          '💪 Kompetenzen des Teamchefs ausbauen',
+          '🎯 Führungsqualitäten entwickeln',
+          '🤝 Koordination zwischen den Anteilen verbessern',
+          '📋 Konkreten Entwicklungsplan erstellen'
+        ]
+      },
+      {
+        id: 10,
+        title: 'Integration',
+        phase: 'b',
+        tasks: [
+          '🧠 Gedanken-Ebene: Neue Denkweisen verankern',
+          '❤️ Gefühls-Ebene: Emotionale Integration',
+          '🏃 Körper-Ebene: Körperliche Verankerung',
+          '🎯 Handlungs-Ebene: Konkrete Verhaltensänderungen',
+          '📝 Schriftliche Verankerung in allen 4 Bereichen',
+          '🔄 Ganzheitliche Integration sicherstellen'
+        ]
+      },
+      {
+        id: 11,
+        title: 'Handlungsplanung',
+        phase: 'c',
+        tasks: [
+          '🎯 Erste konkrete Schritte definieren',
+          '⚠️ Mögliche Hindernisse antizipieren',
+          '🛠️ Strategien gegen Hindernisse entwickeln',
+          '📅 Zeitplan für Umsetzung erstellen',
+          '📊 Erfolgsmessung definieren',
+          '🔄 Anpassungsstrategien vorbereiten'
+        ]
+      },
+      {
+        id: 12,
+        title: 'Erfolgsvision & Umsetzung',
+        phase: 'c',
+        tasks: [
+          '🌟 Kraftvolle Vision der Zielerreichung entwickeln',
+          '🎨 Lebendige Imagination des Erfolgs',
+          '📋 Konkreten Umsetzungsplan erstellen',
+          '🤝 Unterstützungsstrukturen definieren',
+          '📅 Follow-up Termine vereinbaren',
+          '🎯 Nächste Schritte klar definieren',
+          '💪 Motivation und Commitment stärken'
+        ]
+      }
+    ];
+
+    // Globale Variablen
+    let currentStep = 1;
+    let taskStatus = {};
+    let chatHistory = [];
+
+    // Initialisierung
+    function init() {
+      loadStep(currentStep);
+      updateProgressBar();
+      updateDateTime();
+      
+      // Task Status initialisieren
+      steps.forEach(step => {
+        taskStatus[step.id] = step.tasks.map(() => false);
+      });
+      
+      // Auto-Save Setup
+      setInterval(() => {
+        document.getElementById('saveStatus').textContent = 'Gespeichert ✓';
+      }, 30000);
+    }
+
+    // Schritt laden
+    function loadStep(stepNumber) {
+      currentStep = stepNumber;
+      const step = steps.find(s => s.id === stepNumber);
+      if (!step) return;
+
+      const stepContent = document.getElementById('stepContent');
+      stepContent.innerHTML = `
+        <h3>Schritt ${step.id}: ${step.title}</h3>
+        <div class="progress-indicator">
+          <div class="progress-bar-fill" style="width: ${getStepProgress(step.id)}%"></div>
+          <div>${getCompletedTasks(step.id)} von ${step.tasks.length} Aufgaben erledigt</div>
+        </div>
+        <ul class="task-list">
+          ${step.tasks.map((task, index) => `
+            <li class="task-item ${taskStatus[step.id] && taskStatus[step.id][index] ? 'completed' : ''}">
+              <div class="task-checkbox ${taskStatus[step.id] && taskStatus[step.id][index] ? 'checked' : ''}" 
+                   onclick="toggleTask(${step.id}, ${index})">
+                ${taskStatus[step.id] && taskStatus[step.id][index] ? '✓' : ''}
+              </div>
+              <div class="task-text ${taskStatus[step.id] && taskStatus[step.id][index] ? 'completed' : ''}">
+                ${task}
+              </div>
+            </li>
+          `).join('')}
+        </ul>
+        <div class="navigation-buttons">
+          <button class="nav-button prev" onclick="previousStep()" ${stepNumber === 1 ? 'disabled' : ''}>
+            ← Zurück
+          </button>
+          <button class="nav-button next ${isStepCompleted(step.id) ? 'completed' : ''}" 
+                  onclick="nextStep()" ${stepNumber === steps.length ? 'disabled' : ''}>
+            ${stepNumber === steps.length ? 'Fertig!' : 'Weiter →'}
+          </button>
+        </div>
+      `;
+
+      updateAssistantSuggestions(step);
+    }
+
+    // Progress Bar aktualisieren
+    function updateProgressBar() {
+      const progressBar = document.getElementById('progressBar');
+      progressBar.innerHTML = steps.map(step => `
+        <div class="progress-step ${getStepStatus(step.id)}" onclick="loadStep(${step.id})">
+          <div class="step-number">${step.id}</div>
+          <div class="step-title">${step.title}</div>
+        </div>
+      `).join('');
+    }
+
+    // Schritt-Status ermitteln
+    function getStepStatus(stepId) {
+      if (stepId < currentStep) return 'completed';
+      if (stepId === currentStep) return 'active';
+      return 'pending';
+    }
+
+    // Task Status umschalten
+    function toggleTask(stepId, taskIndex) {
+      if (!taskStatus[stepId]) {
+        taskStatus[stepId] = steps.find(s => s.id === stepId).tasks.map(() => false);
+      }
+      taskStatus[stepId][taskIndex] = !taskStatus[stepId][taskIndex];
+      loadStep(currentStep);
+      updateProgressBar();
+    }
+
+    // Schritt-Fortschritt berechnen
+    function getStepProgress(stepId) {
+      if (!taskStatus[stepId]) return 0;
+      const completed = taskStatus[stepId].filter(status => status).length;
+      const total = taskStatus[stepId].length;
+      return Math.round((completed / total) * 100);
+    }
+
+    // Erledigte Aufgaben zählen
+    function getCompletedTasks(stepId) {
+      if (!taskStatus[stepId]) return 0;
+      return taskStatus[stepId].filter(status => status).length;
+    }
+
+    // Schritt als erledigt prüfen
+    function isStepCompleted(stepId) {
+      return getStepProgress(stepId) === 100;
+    }
+
+    // Navigation
+    function nextStep() {
+      if (currentStep < steps.length) {
+        loadStep(currentStep + 1);
+        updateProgressBar();
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 1) {
+        loadStep(currentStep - 1);
+        updateProgressBar();
+      }
+    }
+
+    // KI-Assistent Vorschläge
+    function updateAssistantSuggestions(step) {
+      const suggestions = document.getElementById('currentStepSuggestions');
+      const stepSuggestions = {
+        1: ['Wie erkläre ich den Solution Finder?', 'Tipps für aktives Zuhören', 'Problemspiegelung verbessern'],
+        2: ['Skalenarbeit einführen', 'Unterschied Wichtigkeit/Schwierigkeit', 'Motivation bei niedriger Wichtigkeit'],
+        3: ['Inneres Team Konzept erklären', 'Teamchef-Rolle stärken', 'Anteile identifizieren'],
+        4: ['Dialogtechniken mit Anteilen', 'Widerstand begegnen', 'Tiefere Exploration'],
+        5: ['Antipoden klar benennen', 'Positive Aspekte finden', 'Polarität verstehen'],
+        6: ['Grundspannung erkennen', 'Muster identifizieren', 'Spannungsfelder zuordnen'],
+        7: ['Positive Kerne identifizieren', 'Wertschätzung vermitteln', 'Stärken hervorheben'],
+        8: ['Transformation einleiten', 'Integration fördern', 'Neue Haltung entwickeln'],
+        9: ['Teamchef stärken', 'Führungsrolle definieren', 'Kompetenzen ausbauen'],
+        10: ['4-Ebenen-Integration', 'Ganzheitliche Verankerung', 'Nachhaltigkeit sichern'],
+        11: ['Handlungsplanung', 'Hindernisse antizipieren', 'Umsetzungsstrategien'],
+        12: ['Erfolgsvision entwickeln', 'Motivation stärken', 'Follow-up planen']
+      };
+
+      suggestions.innerHTML = `
+        <p><strong>Vorschläge für Schritt ${step.id}:</strong></p>
+        ${stepSuggestions[step.id].map(suggestion => `
+          <div class="suggestion" onclick="selectSuggestion('${suggestion}')">${suggestion}</div>
+        `).join('')}
+      `;
+    }
+
+    // Suggestion auswählen
+    function selectSuggestion(suggestion) {
+      document.getElementById('assistantInput').value = suggestion;
+      event.target.classList.add('clicked');
+      setTimeout(() => event.target.classList.remove('clicked'), 1000);
+    }
+
+    // Chat-Funktionen
+    function sendCoachingMessage() {
+      const input = document.getElementById('coachingInput');
+      const message = input.value.trim();
+      
+      if (message) {
+        addChatMessage('Coach', message);
+        input.value = '';
+        
+        // API-Call zur echten KI
+        callOpenAI(message, currentStep, 'coaching_dialog');
+      }
+    }
+
+    function sendAssistantMessage() {
+      const input = document.getElementById('assistantInput');
+      const message = input.value.trim();
+      
+      if (message) {
+        addChatMessage('Coach', message);
+        input.value = '';
+        
+        // API-Call zur echten KI
+        callOpenAI(message, currentStep, 'ki_assistant');
+      }
+    }
+
+    function addChatMessage(sender, message) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender.toLowerCase()}`;
+      messageDiv.innerHTML = `
+        <div class="message-sender">${sender}</div>
+        <div>${message}</div>
+      `;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // OpenAI API Call
+    async function callOpenAI(message, step, source) {
+      try {
+        const response = await fetch('/api/openai-chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: generateSystemPrompt(step, source)
+              },
+              {
+                role: 'user',
+                content: message
+              }
+            ],
+            source: source,
+            step: step
+          })
+        });
+
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
+        
+        // KI-Antwort anzeigen
+        addChatMessage('KI', aiResponse);
+        
+      } catch (error) {
+        console.error('OpenAI API Error:', error);
+        addChatMessage('KI', 'Entschuldigung, es gab einen Fehler bei der KI-Anfrage.');
+      }
+    }
+
+    // System-Prompt generieren
+    function generateSystemPrompt(step, source) {
+      const basePrompt = `Du bist ein KI-Assistent im triadischen Coaching-System. 
+      Du erhältst Nachrichten aus zwei verschiedenen Bereichen:
+      
+      **source: "ki_assistant"** → Coach-Unterstützung
+      - Fachliche Beratung und Methodenerklärung
+      - Konkrete Handlungsempfehlungen
+      - Prompt-Vorschläge
+      
+      **source: "coaching_dialog"** → Coachee-Dialog
+      - Empathische, direkte Kommunikation
+      - Lösungsorientierte Fragen
+      - Unterstützung des Coachees
+      
+      **Aktueller Schritt: ${step}/12**
+      **Nachrichten-Quelle: ${source}**
+      
+      **Solution Finder Expertise:** Du kennst Innere Team-Aufstellungen, 19 Grundspannungen, 
+      Skalenarbeit, positive Kerne, Transformation und Integration.
+      
+      **WICHTIG:** Nutze dein Fachwissen aus dem Solution Finder aktiv und verwende 
+      die exakten Formulierungen und Methoden.`;
+      
+      return basePrompt;
+    }
+
+    // Repository-Funktionen
+    function openRepository() {
+      document.getElementById('repositoryModal').style.display = 'flex';
+      loadRepositoryPrompts();
+      setTimeout(() => {
+        setupRepositorySearch();
+      }, 100);
+    }
+
+    function closeRepository() {
+      document.getElementById('repositoryModal').style.display = 'none';
+    }
+
+    function loadRepositoryPrompts() {
+      Object.keys(repositoryPrompts).forEach(category => {
+        const container = document.getElementById(`${category}-repo-prompts`);
+        if (container) {
+          container.innerHTML = repositoryPrompts[category].map(prompt => `
+            <div class="repo-prompt-card" onclick="copyRepositoryPrompt('${prompt.code}', '${prompt.prompt.replace(/'/g, "\\'")}')">
+              <div class="repo-prompt-name">
+                <span class="repo-prompt-code">${prompt.code}</span>
+                ${prompt.name}
+              </div>
+              <div class="repo-prompt-text">${prompt.prompt}</div>
+            </div>
+          `).join('');
+        }
+      });
+    }
+
+    function copyRepositoryPrompt(code, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Visuelles Feedback
+        const cards = document.querySelectorAll('.repo-prompt-card');
+        cards.forEach(card => {
+          if (card.innerHTML.includes(code)) {
+            card.classList.add('copied');
+            setTimeout(() => card.classList.remove('copied'), 1000);
+          }
+        });
+        
+        // Prompt auch in Chat-Input einfügen
+        const chatInput = document.getElementById('coachingInput');
+        if (chatInput) {
+          chatInput.value = text;
+          chatInput.focus();
+        }
+      }).catch(err => {
+        console.error('Fehler beim Kopieren:', err);
+        alert('Fehler beim Kopieren des Prompts');
+      });
+    }
+
+    // Repository-Suchfunktion
+    function setupRepositorySearch() {
+      const searchInput = document.getElementById('repoSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const searchTerm = e.target.value.toLowerCase();
+          
+          Object.keys(repositoryPrompts).forEach(category => {
+            const container = document.getElementById(`${category}-repo-prompts`);
+            const cards = container.querySelectorAll('.repo-prompt-card');
+            
+            cards.forEach(card => {
+              const cardText = card.textContent.toLowerCase();
+              if (cardText.includes(searchTerm) || searchTerm === '') {
+                card.style.display = 'block';
+              } else {
+                card.style.display = 'none';
+              }
+            });
+          });
+        });
+      }
+    }
+
+    // Modal bei Klick außerhalb schließen
+    window.onclick = function(event) {
+      const modal = document.getElementById('repositoryModal');
+      if (event.target === modal) {
+        closeRepository();
+      }
+    }
+
+    // Datum/Zeit aktualisieren
+    function updateDateTime() {
+      const now = new Date();
+      const formatted = now.toLocaleString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('currentDateTime').textContent = formatted;
+    }
+
+    // Initialisierung beim Laden
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
