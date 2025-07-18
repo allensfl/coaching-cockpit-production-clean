@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coaching-Session</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; display: flex; align-items: center; justify-content: center; }
+        .chat-container { width: 100%; max-width: 800px; height: 90vh; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .chat-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; text-align: center; }
+        .chat-header h1 { font-size: 24px; margin-bottom: 8px; }
+        .chat-header p { opacity: 0.9; font-size: 16px; }
+        .connection-status { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; margin-top: 10px; font-size: 14px; }
+        .connected { background: rgba(72, 187, 120, 0.3); }
+        .chat-messages { flex: 1; padding: 30px; overflow-y: auto; background: #f8fafc; }
+        .message { margin-bottom: 20px; padding: 16px 20px; border-radius: 16px; max-width: 85%; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.coach { background: #667eea; color: white; margin-left: auto; }
+        .message.coachee { background: white; color: #2d3748; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .message-time { font-size: 12px; opacity: 0.7; margin-top: 6px; }
+        .chat-input-container { padding: 25px; border-top: 1px solid #e2e8f0; background: white; }
+        .chat-input { width: 100%; padding: 16px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; resize: none; min-height: 50px; transition: all 0.3s; }
+        .chat-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .send-btn { margin-top: 15px; background: #667eea; color: white; border: none; padding: 14px 30px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; width: 100%; transition: all 0.3s; }
+        .send-btn:hover { background: #5a6fd8; transform: translateY(-1px); }
+        .send-btn:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
+        .waiting-message { text-align: center; color: #718096; font-style: italic; padding: 40px 20px; }
+        .typing-indicator { display: none; padding: 16px 20px; margin-bottom: 20px; }
+        .typing-dots { display: flex; align-items: center; }
+        .typing-dots span { height: 8px; width: 8px; background: #a0aec0; border-radius: 50%; display: inline-block; margin-right: 5px; animation: typing 1.4s infinite ease-in-out; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+        @media (max-width: 768px) { .chat-container { height: 100vh; border-radius: 0; } .chat-header { padding: 20px; } .chat-header h1 { font-size: 20px; } .chat-messages { padding: 20px; } .chat-input-container { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🎯 Coaching-Session</h1>
+            <p>Willkommen zu Ihrem persönlichen Coaching</p>
+            <div class="connection-status" id="connectionStatus">Verbindung wird hergestellt...</div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="waiting-message" id="waitingMessage">
+                Warten auf Coach-Verbindung...<br>
+                <small>Ihre Session startet gleich.</small>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+                <span style="margin-left: 10px; color: #718096;">Coach schreibt...</span>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <textarea class="chat-input" id="messageInput" placeholder="Schreiben Sie Ihre Nachricht..." rows="2" disabled></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>Nachricht senden</button>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let isConnected = false;
+
+        function initializeCoacheeInterface() {
+            // Session-ID aus URL-Parameter extrahieren
+            const urlParams = new URLSearchParams(window.location.search);
+            sessionId = urlParams.get('session');
+            
+            if (sessionId) {
+                simulateConnection();
+            } else {
+                showErrorMessage();
+            }
+        }
+
+        function simulateConnection() {
+            // Simuliere Verbindungsaufbau
+            setTimeout(() => {
+                isConnected = true;
+                document.getElementById('connectionStatus').textContent = 'Verbunden mit Coach';
+                document.getElementById('connectionStatus').classList.add('connected');
+                document.getElementById('waitingMessage').style.display = 'none';
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                
+                // Erste Coach-Nachricht
+                addMessage('coach', 'Hallo! Schön, dass Sie da sind. Ich bin Ihr Coach für diese Session. Lassen Sie uns gemeinsam an Ihrem Anliegen arbeiten.', getCurrentTime());
+                
+                setTimeout(() => {
+                    addMessage('coach', 'Beschreiben Sie mir bitte zunächst in 1-2 Sätzen, was Sie heute erreichen möchten.', getCurrentTime());
+                }, 2000);
+            }, 3000);
+        }
+
+        function showErrorMessage() {
+            document.getElementById('waitingMessage').innerHTML = 
+                'Ungültiger Session-Link<br><small>Bitte verwenden Sie den Link, den Ihr Coach Ihnen gesendet hat.</small>';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message && isConnected) {
+                addMessage('coachee', message, getCurrentTime());
+                input.value = '';
+                
+                // Simuliere Coach-Antwort
+                simulateCoachResponse();
+            }
+        }
+
+        function addMessage(sender, text, time) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}`;
+            messageElement.innerHTML = `
+                ${text}
+                <div class="message-time">${time}</div>
+            `;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function simulateCoachResponse() {
+            // Typing-Indikator anzeigen
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'block';
+            
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                
+                const responses = [
+                    'Das ist ein wichtiges Thema. Können Sie mir mehr darüber erzählen?',
+                    'Ich verstehe. Lassen Sie uns das gemeinsam genauer anschauen.',
+                    'Das höre ich oft. Wie fühlt sich das für Sie an?',
+                    'Vielen Dank für diese Offenheit. Was wäre für Sie ein erster kleiner Schritt?',
+                    'Das ist sehr nachvollziehbar. Auf einer Skala von 0 bis 10 - wie wichtig ist Ihnen dieses Ziel?'
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage('coach', randomResponse, getCurrentTime());
+            }, 2000 + Math.random() * 2000);
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        // Enter-Taste zum Senden
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Automatische Textarea-Höhe
+        document.getElementById('messageInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+        });
+
+        // App initialisieren
+        document.addEventListener('DOMContentLoaded', initializeCoacheeInterface);
+    </script>
+</body>
+</html>
