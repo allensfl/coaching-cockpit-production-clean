@@ -1,1446 +1,1332 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Triadisches KI-Coaching Interface</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    .container {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 20px;
-      min-height: 100vh;
-    }
-
-    .header {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      text-align: center;
-      position: relative;
-    }
-
-    .header h1 {
-      color: #333;
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-
-    .session-info {
-      color: #666;
-      font-size: 1.1em;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .progress-container {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .progress-header h2 {
-      color: #333;
-      font-size: 1.5em;
-    }
-
-    .phase-indicator {
-      display: flex;
-      gap: 10px;
-    }
-
-    .phase-label {
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.9em;
-      font-weight: 600;
-    }
-
-    .phase-a { background: #e3f2fd; color: #1976d2; }
-    .phase-b { background: #f3e5f5; color: #7b1fa2; }
-    .phase-c { background: #e8f5e8; color: #388e3c; }
-
-    .progress-bar {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .progress-step {
-      background: #f0f0f0;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      padding: 15px 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .progress-step.completed {
-      background: #d4edda;
-      border-color: #28a745;
-      color: #155724;
-    }
-
-    .progress-step.active {
-      background: #cce5ff;
-      border-color: #007bff;
-      color: #004085;
-      box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
-    }
-
-    .progress-step.pending {
-      background: #f8f9fa;
-      border-color: #dee2e6;
-      color: #6c757d;
-    }
-
-    .step-number {
-      font-weight: bold;
-      font-size: 1.1em;
-      margin-bottom: 5px;
-    }
-
-    .step-title {
-      font-size: 0.8em;
-      line-height: 1.2;
-    }
-
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      height: calc(100vh - 280px);
-    }
-
-    .left-panel {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      overflow-y: auto;
-    }
-
-    .right-panel {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .chat-panel, .assistant-panel {
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      overflow-y: auto;
-    }
-
-    .step-content h3 {
-      color: #333;
-      margin-bottom: 20px;
-      font-size: 1.4em;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
-    }
-
-    .task-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .task-item {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .task-item:hover {
-      background: #e9ecef;
-    }
-
-    .task-item.completed {
-      background: #d4edda;
-      border-color: #c3e6cb;
-      opacity: 0.8;
-    }
-
-    .task-checkbox {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #007bff;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .task-checkbox.checked {
-      background: #007bff;
-      color: white;
-    }
-
-    .task-text {
-      flex: 1;
-      line-height: 1.5;
-    }
-
-    .task-text.completed {
-      text-decoration: line-through;
-      opacity: 0.7;
-    }
-
-    .progress-indicator {
-      background: #e9ecef;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .progress-bar-fill {
-      background: linear-gradient(90deg, #007bff, #28a745);
-      height: 8px;
-      border-radius: 4px;
-      transition: width 0.3s ease;
-      margin-bottom: 10px;
-    }
-
-    .navigation-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-    }
-
-    .nav-button {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .nav-button.prev {
-      background: #6c757d;
-      color: white;
-    }
-
-    .nav-button.next {
-      background: #007bff;
-      color: white;
-    }
-
-    .nav-button.next.completed {
-      background: #28a745;
-    }
-
-    .nav-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    .nav-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .chat-messages {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
-    }
-
-    .message {
-      margin-bottom: 15px;
-      padding: 10px;
-      border-radius: 8px;
-      max-width: 80%;
-    }
-
-    .message.coach {
-      background: #e3f2fd;
-      border-left: 4px solid #2196f3;
-    }
-
-    .message.coachee {
-      background: #f3e5f5;
-      border-left: 4px solid #9c27b0;
-      margin-left: auto;
-    }
-
-    .message.ai {
-      background: #e8f5e8;
-      border-left: 4px solid #4caf50;
-    }
-
-    .message-sender {
-      font-weight: bold;
-      margin-bottom: 5px;
-      font-size: 0.9em;
-    }
-
-    .chat-input {
-      display: flex;
-      gap: 10px;
-    }
-
-    .chat-input input {
-      flex: 1;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1em;
-      outline: none;
-    }
-
-    .chat-input button {
-      padding: 12px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .assistant-suggestions {
-      margin-bottom: 20px;
-    }
-
-    .suggestion {
-      background: #f8f9fa;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .suggestion:hover {
-      background: #e9ecef;
-      border-color: #007bff;
-    }
-
-    .suggestion.clicked {
-      background: #d4edda;
-      border-color: #28a745;
-    }
-
-    .modal {
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
-      width: 90%;
-      max-width: 1200px;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      border-bottom: 2px solid #eee;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      color: #333;
-    }
-
-    .close {
-      font-size: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #999;
-      transition: color 0.3s;
-    }
-
-    .close:hover {
-      color: #666;
-    }
-
-    .modal-body {
-      padding: 20px;
-    }
-
-    .usage-tip {
-      background: #e3f2fd;
-      border: 1px solid #bbdefb;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      color: #1976d2;
-      font-size: 0.9em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .repo-categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-    }
-
-    .repo-category {
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 20px;
-    }
-
-    .repo-category h3 {
-      margin-bottom: 15px;
-      color: #333;
-      font-size: 1.2em;
-    }
-
-    .repo-prompt-card {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .repo-prompt-card:hover {
-      border-color: #667eea;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .repo-prompt-card.copied {
-      background: #d4edda;
-      border-color: #28a745;
-      animation: pulse 0.5s ease-in-out;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-
-    .repo-prompt-code {
-      background: #667eea;
-      color: white;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.8em;
-      font-weight: bold;
-      margin-right: 8px;
-    }
-
-    .repo-prompt-name {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 5px;
-    }
-
-    .repo-prompt-text {
-      color: #666;
-      font-size: 0.9em;
-      line-height: 1.4;
-    }
-
-    .search-bar {
-      margin-bottom: 20px;
-    }
-
-    .search-bar input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    .search-bar input:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      .main-content {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr auto;
-      }
-      
-      .right-panel {
-        grid-template-rows: 1fr;
-        grid-template-columns: 1fr;
-      }
-      
-      .progress-bar {
-        grid-template-columns: repeat(6, 1fr);
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12-Schritte KI-Coaching Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .session-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .session-info h1 {
+            color: #4a5568;
+            font-size: 24px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .progress-container {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: #667eea;
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            text-align: center;
+            color: #4a5568;
+            max-width: 100px;
+        }
+
+        .step-details {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .step-title {
+            color: #2d3748;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .task-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .task-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #a0aec0;
+        }
+
+        .chat-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chat-panel {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .coaching-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .assistant-header {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f7fafc;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.ai {
+            background: white;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-input-container {
+            padding: 15px 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 40px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            margin-top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .send-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .suggestions {
+            background: #f0f4f8;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .suggestions h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .suggestion-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #e2e8f0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-body {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .category {
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .category-description {
+            font-size: 14px;
+            color: #4a5568;
+            margin-top: 5px;
+        }
+
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .prompt-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .prompt-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .prompt-code {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .prompt-text {
+            color: #4a5568;
+            font-size: 13px;
+            line-height: 1.4;
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .prompt-text.expanded {
+            max-height: none;
+        }
+
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+        }
+
+        .copy-feedback.show {
+            transform: translateX(0);
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .phase-a { background: #fef5e7; color: #744210; }
+        .phase-b { background: #e6fffa; color: #234e52; }
+        .phase-c { background: #f0fff4; color: #22543d; }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 98%;
+                height: 95vh;
+                margin: 1% auto;
+            }
+            
+            .prompts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .step {
+                min-width: 80px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Triadisches KI-Coaching Interface</h1>
-      <div class="session-info">
-        <span>Session: #12345</span>
-        <span>•</span>
-        <span id="currentDateTime">17.07.2025, 14:30</span>
-        <span>•</span>
-        <span>Auto-Save: <span id="saveStatus">Gespeichert</span></span>
-        <span>•</span>
-        <button id="repositoryBtn" onclick="openRepository()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 1em; font-weight: 600;">
-          📚 Triadisches Repository
-        </button>
-      </div>
-    </div>
-
-    <div class="progress-container">
-      <div class="progress-header">
-        <h2>Coaching-Fortschritt</h2>
-        <div class="phase-indicator">
-          <div class="phase-label phase-a">Phase 1: Problem & Ziel</div>
-          <div class="phase-label phase-b">Phase 2: Problemanalyse</div>
-          <div class="phase-label phase-c">Phase 3: Lösungsstrategie</div>
-        </div>
-      </div>
-      
-      <div class="progress-bar" id="progressBar">
-        <!-- Schritte werden hier dynamisch eingefügt -->
-      </div>
-    </div>
-
-    <div class="main-content">
-      <div class="left-panel">
-        <div class="step-content" id="stepContent">
-          <!-- Schritt-Inhalte werden hier dynamisch eingefügt -->
-        </div>
-      </div>
-
-      <div class="right-panel">
-        <div class="chat-panel">
-          <h3>💬 Coaching-Dialog</h3>
-          <div class="chat-messages" id="chatMessages">
-            <div class="message coach">
-              <div class="message-sender">Coach</div>
-              <div>Willkommen zum triadischen KI-Coaching! Lassen Sie uns gemeinsam mit Ihrem Anliegen beginnen.</div>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="session-info">
+                <h1>🎯 Triadisches KI-Coaching</h1>
+                <div class="header-buttons">
+                    <button class="btn btn-primary" onclick="openRepository()">📚 Triadisches Repository</button>
+                    <button class="btn btn-secondary">💾 Auto-Save</button>
+                </div>
             </div>
-          </div>
-          <div class="chat-input">
-            <input type="text" id="coachingInput" placeholder="Nachricht eingeben..." onkeypress="if(event.key==='Enter') sendCoachingMessage()">
-            <button onclick="sendCoachingMessage()">Senden</button>
-          </div>
         </div>
 
-        <div class="assistant-panel">
-          <h3>🤖 KI-Assistent</h3>
-          <div class="assistant-suggestions" id="assistantSuggestions">
-            <p><strong>Triadische Prompts für aktuellen Schritt</strong></p>
-            <div id="currentStepSuggestions">
-              <!-- Suggestions werden hier dynamisch eingefügt -->
+        <!-- Progress Container -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar">
+                <!-- Steps will be generated by JavaScript -->
             </div>
-          </div>
-          <div class="chat-input">
-            <input type="text" id="assistantInput" placeholder="Frage an KI-Assistent..." onkeypress="if(event.key==='Enter') sendAssistantMessage()">
-            <button onclick="sendAssistantMessage()">Fragen</button>
-          </div>
         </div>
-      </div>
+
+        <!-- Step Details -->
+        <div class="step-details" id="stepDetails">
+            <!-- Step content will be generated by JavaScript -->
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <!-- Coaching Dialog Panel -->
+            <div class="chat-panel">
+                <div class="chat-header coaching-header">
+                    💬 Coaching-Dialog (Coach ↔ Coachee)
+                </div>
+                <div class="chat-messages" id="coachingMessages">
+                    <div class="message ai">
+                        Willkommen zum triadischen KI-Coaching! Ich bin hier, um Sie durch den strukturierten 12-Schritte-Prozess zu begleiten. Beginnen wir mit Schritt 1 - der Problem- und Zielbeschreibung.
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="coachingInput" placeholder="Ihre Nachricht an den Coach..." rows="2"></textarea>
+                    <button class="send-btn" onclick="sendMessage('coaching')">Senden</button>
+                </div>
+                <div class="suggestions" id="coachingSuggestions">
+                    <h4>💡 Empfohlene Fragen für diesen Schritt:</h4>
+                    <!-- Suggestions will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- KI Assistant Panel -->
+            <div class="chat-panel">
+                <div class="chat-header assistant-header">
+                    🤖 KI-Assistent (Coach ↔ KI)
+                </div>
+                <div class="chat-messages" id="assistantMessages">
+                    <div class="message ai">
+                        Hallo! Ich bin Ihr KI-Assistent und unterstütze Sie als Coach bei der Durchführung des triadischen Coaching-Prozesses. Nutzen Sie das Repository für passende Prompts oder fragen Sie mich direkt nach Hinweisen für den aktuellen Schritt.
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="assistantInput" placeholder="Ihre Frage an den KI-Assistenten..." rows="2"></textarea>
+                    <button class="send-btn" onclick="sendMessage('assistant')">Senden</button>
+                </div>
+                <div class="suggestions" id="assistantSuggestions">
+                    <h4>🔧 KI-Unterstützung für diesen Schritt:</h4>
+                    <!-- Suggestions will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="btn btn-secondary" onclick="previousStep()" id="prevBtn">← Vorheriger Schritt</button>
+            <span id="stepCounter">Schritt 1 von 12</span>
+            <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">Nächster Schritt →</button>
+        </div>
     </div>
 
     <!-- Repository Modal -->
-    <div id="repositoryModal" class="modal" style="display: none;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>📚 Triadisches Coaching Repository</h2>
-          <span class="close" onclick="closeRepository()">&times;</span>
+    <div id="repositoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📚 Triadisches Repository - 73 Prompts in 13 Kategorien</h2>
+                <span class="close" onclick="closeRepository()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Suchen Sie nach Prompt-Codes (T1, D2, M3...) oder Stichwörtern..." oninput="searchPrompts()">
+                </div>
+                <div id="repositoryContent">
+                    <!-- Repository content will be generated by JavaScript -->
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="usage-tip">
-            💡 <strong>Klicke auf einen Prompt-Code um ihn zu kopieren und direkt im Chat zu verwenden!</strong>
-          </div>
-          
-          <div class="search-bar">
-            <input type="text" id="repoSearchInput" placeholder="Suche nach Code oder Stichwort... (z.B. T1, T7A, Bremse)">
-          </div>
-
-          <div class="repo-categories">
-            <!-- KI-Prompts Phase 1 -->
-            <div class="repo-category">
-              <h3>🤖 KI-Prompts Phase 1</h3>
-              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Anweisungen AN die KI</p>
-              <div class="repo-prompts" id="kiPhase1-repo-prompts">
-                <!-- Wird dynamisch gefüllt -->
-              </div>
-            </div>
-
-            <!-- KI-Prompts Phase 2 -->
-            <div class="repo-category">
-              <h3>🤖 KI-Prompts Phase 2</h3>
-              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Anweisungen AN die KI</p>
-              <div class="repo-prompts" id="kiPhase2-repo-prompts">
-                <!-- Wird dynamisch gefüllt -->
-              </div>
-            </div>
-
-            <!-- KI-Prompts Phase 3 -->
-            <div class="repo-category">
-              <h3>🤖 KI-Prompts Phase 3</h3>
-              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Anweisungen AN die KI</p>
-              <div class="repo-prompts" id="kiPhase3-repo-prompts">
-                <!-- Wird dynamisch gefüllt -->
-              </div>
-            </div>
-
-            <!-- Coach-Anweisungen -->
-            <div class="repo-category">
-              <h3>👨‍💼 Coach-Anweisungen</h3>
-              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">WIE der Coach vorgeht</p>
-              <div class="repo-prompts" id="coachAnweisungen-repo-prompts">
-                <!-- Wird dynamisch gefüllt -->
-              </div>
-            </div>
-
-            <!-- Klienten-Fragen -->
-            <div class="repo-category">
-              <h3>❓ Klienten-Fragen</h3>
-              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Fragen AN den Klienten</p>
-              <div class="repo-prompts" id="klientenFragen-repo-prompts">
-                <!-- Wird dynamisch gefüllt -->
-              </div>
-            </div>
-
-            <!-- Spannungsfeld-Fragen -->
-            <div class="repo-category">
-              <h3>⚖️ Spannungsfeld-Fragen</h3>
-              <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">40 Ruhestand-Spannungen</p>
-              <div class="repo-prompts" id="spannungsfeldFragen-repo-prompts">
-                <!-- Wird dynamisch gefüllt -->
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <script>
-    // Triadische Prompts Datenbank - 6 Kategorien
-    const repositoryPrompts = {
-      // 1. KI-Prompts Phase 1 (Anweisungen AN die KI)
-      kiPhase1: [
-        {
-          code: 'T1',
-          name: 'Problem-Start für KI',
-          prompt: 'Ich habe folgendes Problem: [PROBLEM BESCHREIBEN]'
-        },
-        {
-          code: 'T2',
-          name: 'KI-Anweisung: Ist-Soll-Bericht',
-          prompt: 'Erstelle einen in Ich-Form geschriebenen Bericht, in dem alle bisher vorliegenden Informationen der Problem- und Zielbeschreibung zusammengefasst sind. Gliedere diesen Bericht in zwei Teile, indem Du zunächst die vorliegende Ist-Situation und dann die von mir gewünschte Soll-Situation beschreibst. Nimm – soweit möglich – in jedem der beiden Teile auf folgende Aspekte Bezug, nämlich auf die vorliegenden äußeren Rahmenbedingungen und äußerlichen Ressourcen einschließlich meiner körperlichen Bedingungen, auf meine psychischen Prozesse (wie z.B. Gefühle, motivationale Impulse und Gedanken), die durch die vorliegende Coachingproblematik bei mir aktuell ausgelöst werden, auf meine beobachtbaren Verhaltensweisen, die durch die vorliegende Coachingproblematik bei mir aktuell ausgelöst werden, und auf die faktischen Folgen, die meine beobachtbaren Verhaltensweisen bei meinen Mitmenschen und bei mir selbst verursachen.'
-        },
-        {
-          code: 'T3',
-          name: 'KI-Anweisung: Bildanalyse',
-          prompt: 'Ich habe folgendes Bild gewählt: [Bildbeschreibung in Ich-Form]. Was sagt dieses Bild über mein Coaching-Ziel aus? In welcher Beziehung stehen Bild und Zielbeschreibung zueinander?'
-        },
-        {
-          code: 'T4',
-          name: 'KI-Anweisung: Ausbalancierungsproblem identifizieren',
-          prompt: 'Identifiziere aus dem Textbaustein Ausbalancierungsprobleme dasjenige Ausbalancierungsproblem, dass du auf der Grundlage der vorliegenden Informationen zu meinem Coaching Problem und Ziel am klarsten erkennen kannst. Welche Fragen müsste ich beantworten, damit noch sicherer zu klären ist, ob es sich tatsächlich um das von dir identifizierte Ausbalancierungsproblem handelt?'
+    <!-- Copy Feedback -->
+    <div id="copyFeedback" class="copy-feedback">Prompt kopiert! ✓</div>
+
+    <script>
+        // 12-Schritte Definition
+        const steps = [
+            {
+                id: 1,
+                title: "Problem- und Zielbeschreibung",
+                phase: "A",
+                tasks: [
+                    "Coachee beschreibt das Problem in eigenen Worten",
+                    "Konkrete Zielsetzung für das Coaching definieren",
+                    "Wichtigkeit und Dringlichkeit auf Skala bewerten",
+                    "Erste Ressourcen und Stärken identifizieren"
+                ],
+                coachingSuggestions: [
+                    "Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten.",
+                    "Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel?",
+                    "Was hindert Sie daran, dieses Ziel zu erreichen?"
+                ],
+                assistantSuggestions: [
+                    "Analysiere die Problemstellung auf Ausbalancierungsprobleme",
+                    "Identifiziere bereits vorhandene Ressourcen",
+                    "Prüfe die Zielformulierung auf Konkretheit und Messbarkeit"
+                ]
+            },
+            {
+                id: 2,
+                title: "Systemische Einordnung",
+                phase: "A",
+                tasks: [
+                    "Problemkontext und Systemzusammenhänge erfassen",
+                    "Beteiligte Personen und deren Rollen identifizieren",
+                    "Wechselwirkungen und Abhängigkeiten analysieren",
+                    "Systemische Ressourcen erkunden"
+                ],
+                coachingSuggestions: [
+                    "Wer ist noch von dieser Situation betroffen?",
+                    "Welche Rollen spielen andere Personen in diesem System?",
+                    "Wie würden andere die Situation beschreiben?"
+                ],
+                assistantSuggestions: [
+                    "Erstelle eine systemische Karte der Beteiligten",
+                    "Analysiere Wechselwirkungen und Abhängigkeiten",
+                    "Identifiziere systemische Ressourcen und Allianzen"
+                ]
+            },
+            {
+                id: 3,
+                title: "Bildmetapher entwickeln",
+                phase: "A",
+                tasks: [
+                    "Inneres Bild für die aktuelle Situation finden",
+                    "Metapher ausführlich beschreiben und vertiefen",
+                    "Emotionale Resonanz der Metapher erkunden",
+                    "Veränderungspotential in der Metapher entdecken"
+                ],
+                coachingSuggestions: [
+                    "Wenn Ihre Situation ein Bild wäre - wie sähe es aus?",
+                    "Welche Farben, Formen und Bewegungen sehen Sie?",
+                    "Was fühlen Sie, wenn Sie dieses Bild betrachten?"
+                ],
+                assistantSuggestions: [
+                    "Unterstütze die Entwicklung einer stimmigen Bildmetapher",
+                    "Erkunde die symbolische Bedeutung der Bildelemente",
+                    "Identifiziere Veränderungsmöglichkeiten in der Metapher"
+                ]
+            },
+            {
+                id: 4,
+                title: "Ausbalancierungsprobleme identifizieren",
+                phase: "A",
+                tasks: [
+                    "Relevante Spannungsfelder aus den 18 Dimensionen identifizieren",
+                    "Polaritäten und deren Ausprägungen analysieren",
+                    "Ungleichgewichte und Überbetonungen erkennen",
+                    "Komplementäre Kräfte für Balance bestimmen"
+                ],
+                coachingSuggestions: [
+                    "Zwischen welchen Polen bewegen Sie sich in dieser Situation?",
+                    "Wo spüren Sie ein Ungleichgewicht?",
+                    "Was wäre das Gegenteil Ihres aktuellen Verhaltens?"
+                ],
+                assistantSuggestions: [
+                    "Analysiere mit den 18 Ausbalancierungsdimensionen",
+                    "Identifiziere die 2-3 relevantesten Spannungsfelder",
+                    "Bestimme komplementäre Kräfte für mehr Balance"
+                ]
+            },
+            {
+                id: 5,
+                title: "Schlüsselaffekt benennen",
+                phase: "B",
+                tasks: [
+                    "Dominanten emotionalen Zustand identifizieren",
+                    "Körperliche Empfindungen des Affekts erfassen",
+                    "Auslöser und Muster des Schlüsselaffekts erkunden",
+                    "Zusammenhang zu den Ausbalancierungsproblemen herstellen"
+                ],
+                coachingSuggestions: [
+                    "Welches Gefühl ist in dieser Situation am stärksten?",
+                    "Wo spüren Sie dieses Gefühl in Ihrem Körper?",
+                    "Wann taucht dieses Gefühl typischerweise auf?"
+                ],
+                assistantSuggestions: [
+                    "Identifiziere den Schlüsselaffekt aus der Beschreibung",
+                    "Verbinde den Affekt mit den Ausbalancierungsproblemen",
+                    "Analysiere Auslöser und wiederkehrende Muster"
+                ]
+            },
+            {
+                id: 6,
+                title: "Inneres Team aufstellen",
+                phase: "B",
+                tasks: [
+                    "Verschiedene innere Anteile identifizieren",
+                    "Jeder Anteil bekommt Namen und Charakteristika",
+                    "Positive Absichten aller Anteile würdigen",
+                    "Teamchef-Anteil als Koordinator bestimmen"
+                ],
+                coachingSuggestions: [
+                    "Welche verschiedenen Stimmen hören Sie in sich?",
+                    "Geben Sie jedem Anteil einen Namen und beschreiben Sie ihn",
+                    "Was will jeder Anteil für Sie Gutes erreichen?"
+                ],
+                assistantSuggestions: [
+                    "Identifiziere die wichtigsten inneren Anteile",
+                    "Beschreibe deren positive Absichten und Schutzfunktionen",
+                    "Bestimme einen geeigneten Teamchef-Anteil"
+                ]
+            },
+            {
+                id: 7,
+                title: "Dialog zwischen den Anteilen",
+                phase: "B",
+                tasks: [
+                    "Konflikthafte Anteile in Dialog bringen",
+                    "Verschiedene Perspektiven verstehen und würdigen",
+                    "Gemeinsame Werte und Ziele identifizieren",
+                    "Kompromisse und Kooperationen entwickeln"
+                ],
+                coachingSuggestions: [
+                    "Was würde der eine Anteil dem anderen sagen?",
+                    "Wo haben beide Anteile recht?",
+                    "Wie könnten sie zusammenarbeiten?"
+                ],
+                assistantSuggestions: [
+                    "Moderiere den Dialog zwischen konflikthaften Anteilen",
+                    "Suche nach gemeinsamen Werten und Zielen",
+                    "Entwickle Kooperationsvorschläge für die Anteile"
+                ]
+            },
+            {
+                id: 8,
+                title: "Lösungsstrategie entwickeln",
+                phase: "C",
+                tasks: [
+                    "Konkrete Handlungsoptionen erarbeiten",
+                    "Strategien für den Umgang mit Spannungsfeldern entwickeln",
+                    "Ressourcen und Unterstützungsmöglichkeiten aktivieren",
+                    "Realistische Umsetzungsschritte planen"
+                ],
+                coachingSuggestions: [
+                    "Welche Handlungsmöglichkeiten sehen Sie jetzt?",
+                    "Was würde Ihnen bei der Umsetzung helfen?",
+                    "Welche Unterstützung brauchen Sie?"
+                ],
+                assistantSuggestions: [
+                    "Entwickle konkrete Lösungsstrategien basierend auf der Analyse",
+                    "Integriere die Erkenntnisse aus den Ausbalancierungsproblemen",
+                    "Plane realistische und machbare Umsetzungsschritte"
+                ]
+            },
+            {
+                id: 9,
+                title: "Innere Anteile transformieren",
+                phase: "C",
+                tasks: [
+                    "Neue Rollen für die inneren Anteile definieren",
+                    "Transformationsprozess für problematische Anteile einleiten",
+                    "Stärkung der hilfreichen Anteile",
+                    "Neue Teamdynamik etablieren"
+                ],
+                coachingSuggestions: [
+                    "Wie könnte sich dieser Anteil in Zukunft verhalten?",
+                    "Welche neue Rolle wäre für ihn passend?",
+                    "Wie kann der Teamchef die anderen Anteile besser führen?"
+                ],
+                assistantSuggestions: [
+                    "Unterstütze die Transformation der inneren Anteile",
+                    "Entwickle neue, konstruktive Rollen für jeden Anteil",
+                    "Stärke die Führungsrolle des Teamchef-Anteils"
+                ]
+            },
+            {
+                id: 10,
+                title: "Glaubenssätze transformieren",
+                phase: "C",
+                tasks: [
+                    "Limiting beliefs identifizieren und hinterfragen",
+                    "Neue, unterstützende Glaubenssätze entwickeln",
+                    "Verankerung der neuen Überzeugungen",
+                    "Integration in das Selbstbild"
+                ],
+                coachingSuggestions: [
+                    "Welche Überzeugungen hindern Sie noch?",
+                    "Was würden Sie stattdessen gerne glauben?",
+                    "Wie können Sie diese neue Überzeugung stärken?"
+                ],
+                assistantSuggestions: [
+                    "Identifiziere dysfunktionale Glaubenssätze",
+                    "Entwickle alternative, unterstützende Überzeugungen",
+                    "Plane Übungen zur Verankerung neuer Glaubenssätze"
+                ]
+            },
+            {
+                id: 11,
+                title: "Erfolgsimagination kreieren",
+                phase: "C",
+                tasks: [
+                    "Lebendige Zukunftsvision in allen Sinneskanälen entwickeln",
+                    "Emotionale Verankerung der Erfolgsvision",
+                    "Integration der transformierten Anteile in die Vision",
+                    "Motivation und Vorfreude aktivieren"
+                ],
+                coachingSuggestions: [
+                    "Stellen Sie sich vor, Sie haben Ihr Ziel erreicht - was sehen, hören, fühlen Sie?",
+                    "Wie verhalten sich Ihre inneren Anteile in dieser Zukunft?",
+                    "Was ist das Beste an dieser neuen Situation?"
+                ],
+                assistantSuggestions: [
+                    "Kreiere eine detaillierte, sinnliche Erfolgsimagination",
+                    "Integriere alle transformierten Anteile in die Vision",
+                    "Verwende die Bildmetapher in der transformierten Form"
+                ]
+            },
+            {
+                id: 12,
+                title: "Integration und Handlungsplan",
+                phase: "C",
+                tasks: [
+                    "Alle Erkenntnisse und Transformationen zusammenfassen",
+                    "Konkreten Handlungsplan mit Terminen erstellen",
+                    "Erfolgskontrollen und Reflexionspunkte definieren",
+                    "Nachhaltigkeit und Transfer sicherstellen"
+                ],
+                coachingSuggestions: [
+                    "Was nehmen Sie als wichtigste Erkenntnis mit?",
+                    "Welche konkreten Schritte gehen Sie als nächstes?",
+                    "Wie bleiben Sie mit Ihren neuen Erkenntnissen in Kontakt?"
+                ],
+                assistantSuggestions: [
+                    "Erstelle eine Zusammenfassung aller wichtigen Erkenntnisse",
+                    "Entwickle einen detaillierten Handlungsplan",
+                    "Plane Follow-up Termine und Erfolgskontrollen"
+                ]
+            }
+        ];
+
+        // Prompt Database
+        const promptDatabase = {
+            'ki_phase1': {
+                title: '🤖 KI-Prompts Phase 1',
+                description: 'Anweisungen AN die KI',
+                prompts: {
+                    'T1': 'Ich habe folgendes Problem...',
+                    'T2': 'Erstelle einen in Ich-Form geschriebenen Bericht, in dem alle bisher vorliegenden Informationen der Problem- und Zielbeschreibung zusammengefasst sind. Gliedere diesen Bericht in zwei Teile...',
+                    'T3': 'Analysiere die vorliegenden Informationen und identifiziere die Kernproblematik...',
+                    'T4': 'Identifiziere aus dem Textbaustein Ausbalancierungsprobleme die relevanten Spannungsfelder...'
+                }
+            },
+            'ki_phase2': {
+                title: '🤖 KI-Prompts Phase 2',
+                description: 'Anweisungen AN die KI',
+                prompts: {
+                    'T7A': 'Versetze dich bitte in die Bremse...',
+                    'T7B': 'Analysiere das obige Transkript sowie alle momentan vorliegenden Informationen zu meiner Coachingproblematik mit Hilfe des Textbausteins Ausbalancierungsprobleme...',
+                    'T7C': 'Führe eine systemische Analyse durch...'
+                }
+            },
+            'ki_phase3': {
+                title: '🤖 KI-Prompts Phase 3', 
+                description: 'Anweisungen AN die KI',
+                prompts: {
+                    'T8': 'Entwickle Lösungsstrategien basierend auf der Analyse...',
+                    'T10': 'Erstelle einen Handlungsplan...',
+                    'T11': 'Orientiere dich bei dieser Aufgabe an dem Textbaustein Ausbalancierungsprobleme, da ist Coaching-diagnostisches Wissen hinterlegt...'
+                }
+            },
+            'coach_instructions': {
+                title: '👨‍💼 Coach-Anweisungen',
+                description: 'WIE der Coach vorgeht',
+                prompts: {
+                    'C1': 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen - das ist der Teil, der dieses Ziel erreichen will...',
+                    'C2': 'Führen Sie den Klienten durch eine systematische Exploration...',
+                    'C3': 'Ich möchte gerne mit der Bremse sprechen...',
+                    'C4': 'Leiten Sie eine Ressourcen-Aktivierung ein...',
+                    'C5': 'Unterstützen Sie den Transformationsprozess...',
+                    'C6': 'Begleiten Sie die Integration der Erkenntnisse...'
+                }
+            },
+            'client_questions': {
+                title: '❓ Klienten-Fragen',
+                description: 'Fragen AN den Klienten',
+                prompts: {
+                    'F1': 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten.',
+                    'F2': 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel?',
+                    'F3': 'Was hindert Sie daran, dieses Ziel zu erreichen?',
+                    'F4': 'Welche Ressourcen haben Sie bereits zur Verfügung?',
+                    'F5': 'Wie würden Sie merken, dass Sie Ihr Ziel erreicht haben?',
+                    'F6': 'Was wäre der erste kleine Schritt in die richtige Richtung?',
+                    'F7': 'Wer oder was könnte Sie dabei unterstützen?',
+                    'F8': 'Welche Erfolge haben Sie in ähnlichen Situationen bereits erlebt?'
+                }
+            },
+            'spannungsfelder': {
+                title: '⚖️ Spannungsfeld-Fragen',
+                description: '40 Ruhestand-Spannungen',
+                prompts: {
+                    'SP1': 'Zwischen welchen Polen bewegen Sie sich gerade?',
+                    'SP20': 'Wie balancieren Sie Aktivität und Ruhe?',
+                    'SP21': 'Was bedeutet Erfolg für Sie in dieser Lebensphase?',
+                    'SP23': 'Wenn Sie an Ihre Arbeitszeit denken...',
+                    'SP24': 'Schwanken Sie zwischen Struktur und Freiheit?',
+                    'SP25': 'Wie gehen Sie mit dem Gefühl von Nutzlosigkeit um?',
+                    'SP26': 'Zwischen Alleinsein und Gesellschaft...',
+                    'SP27': 'Schwanken Sie zwischen Gesellschaft und Ruhe?',
+                    'SP28': 'Wie erleben Sie den Wandel Ihrer sozialen Rolle?',
+                    'SP36': 'Wie gehen Sie mit körperlichen Veränderungen um?',
+                    'SP37': 'Zwischen Vitalität und Akzeptanz...',
+                    'SP38': 'Wie denken Sie über Ihre Endlichkeit?',
+                    'SP33': 'Was gibt Ihrem Leben Sinn?',
+                    'SP39': 'Zwischen Bewahrung und Neubeginn...',
+                    'SP40': 'Wie möchten Sie weiterwachsen?'
+                }
+            },
+            'diagnostik': {
+                title: '🧠 Diagnostik',
+                description: 'Diagnose & Spannungsfelder erfassen',
+                prompts: {
+                    'D1': 'Analysiere die folgende Aussage mit Blick auf mögliche Ausbalancierungsprobleme: ‹Ich kann einfach nicht loslassen – ich muss alles selbst im Griff haben.› – Welche Spannungsdimensionen sind hier aktiv? – Welche komplementäre Kraft könnte hilfreich sein? – Was wäre ein ressourcenfokussierter Coachingansatz?',
+                    'D2': 'Lies folgende Klient:innenaussage: ‹Ich weiss, ich sollte etwas tun, aber innerlich bin ich wie gelähmt.› – Welcher Schlüsselaffekt zeigt sich hier? – Was könnte die innere Dynamik dahinter sein? – Welche erste kleine Intervention wäre denkbar?',
+                    'D3': 'Eine Klientin sagt: ‹Ein Teil von mir will einfach Ruhe, aber der andere macht mir Druck, weiterzumachen.› – Welche zwei inneren Anteile könnten hier aktiv sein? – Was wollen sie jeweils schützen oder erreichen? – Wie könnte der Coach innere Verständigung anregen?',
+                    'D4': 'Ein Coachee sagt: ‹Ich muss immer stark sein – Schwäche zeigen geht nicht.› – Welcher dysfunktionale Glaubenssatz ist hier aktiv? – Welcher positive Wert steckt vielleicht dahinter? – Wie könnte man diesen Satz achtsam in Frage stellen?'
+                }
+            },
+            'intervention': {
+                title: '🛠️ Intervention',
+                description: 'Lösungsorientierte Mikrointerventionen',
+                prompts: {
+                    'I1': 'Ein Coachee sagt: ‹Ich weiss nicht, wie ich anfangen soll – es ist alles zu viel.› – Welche kleine lösungsfokussierte Frage könnte den nächsten Schritt erleichtern? – Welche vorhandene Ressource kann aktiviert werden? – Was wäre eine hilfreiche Skalierungsfrage dazu?',
+                    'I2': 'Bitte formuliere eine motivierende Erfolgsimagination in Ich-Form für folgende Zielrichtung: ‹Ich möchte in meinem Ruhestand klarer spüren, was mir gut tut – und mutiger danach handeln.› – Baue sinnliche Eindrücke ein (sehen, hören, fühlen) – Zeige den Unterschied zur Ausgangssituation – Integriere den inneren Dialog der Veränderung',
+                    'I3': 'Stelle einem Coachee mit aktuellem Mutverlust folgende Frage: ‹Wann in deinem Leben hast du schon einmal eine ähnliche Situation bewältigt – und wie hast du das damals geschafft?› – Welche Elemente aus der damaligen Lösung lassen sich heute nutzen? – Was hat dich damals gestützt?',
+                    'I4': 'Ein Coachee sagt: ‹Ich werde im Ruhestand ganz sicher überflüssig sein.› – Formuliere eine Frage, die den gegenteiligen Gedanken prüft, z. B.: ‹Was wäre, wenn du gerade dann besonders gebraucht wirst – vielleicht anders als bisher?› – Welche neue Perspektive könnte daraus entstehen?',
+                    'I5': 'Stelle dir vor, du begegnest deinem 10 Jahre älteren Ich – es wirkt ruhig, klar und zugewandt. – Was würde es dir raten für deine aktuelle Situation? – Welche Werte oder Haltungen strahlt es aus? – Was sagt es dir über den Weg, den du gehen willst?'
+                }
+            },
+            'metaphern': {
+                title: '🌀 Metaphern & Sprache',
+                description: 'Bilder die berühren und wirken',
+                prompts: {
+                    'M1': 'Bitte rege einen Coachee an, seine aktuelle Lebenslage als inneres Bild zu beschreiben: – ‹Wenn deine Situation ein Bild wäre – wie sähe es aus? Was wäre zu sehen, zu spüren, zu hören?› – ‹Welche Farben, Formen, Bewegungen kommen vor?› – ‹Was zeigt sich dir darin über dein inneres Erleben?›',
+                    'M2': 'Ein Coachee beschreibt ein wiederkehrendes, belastendes Gefühl. Bitte leite folgende Imaginationsfrage an: – ‹Stell dir vor, dieses Gefühl wäre eine Figur – wie sieht sie aus, wie spricht sie, wie bewegt sie sich?› – ‹Wie heisst sie – und was will sie dir sagen?› – ‹Welche gute Absicht könnte dahinterstecken?›',
+                    'M3': 'Leite folgende Übung an: ‹Stell dir dein Leben als Garten vor. Welche Pflanzen wachsen darin? Wo ist es üppig, wo karg? – Gibt es Bereiche, die mehr Pflege brauchen? – Was wächst vielleicht schon, ohne dass du es merkst? – Was möchtest du neu anlegen?›',
+                    'M4': 'Bitte frage: ‹Wenn du das so sagst – wo im Körper spürst du das am meisten?› – ‹Wie verändert sich die Körperempfindung, wenn du die Formulierung leicht abwandelst?› – ‹Welche Worte fühlen sich stimmiger an?› Beispiel: Aus ‹Ich muss loslassen› wird ‹Ich darf sanft weitergehen›',
+                    'M5': 'Ein Coachee sagt: ‹Ich weiss einfach nicht mehr, was ich will.› – Bitte formuliere daraus eine sprachlich berührende Metapher, z. B.: ‹Wie ein Segel ohne Wind treibe ich auf offenem Meer – sehnend nach einem Kompass.› – Frage zurück: ‹Was wäre dein nächster Kurs – auch ohne Wind?›'
+                }
+            },
+            'skalierung': {
+                title: '📏 Skalierung & Reflexion',
+                description: 'Klarheit schaffen, Entwicklung sichtbar machen',
+                prompts: {
+                    'S1': 'Bitte leite eine klassische Skalierungsfrage an: – ‹Auf einer Skala von 0 bis 10 – wobei 10 bedeutet: Es ist genau so, wie du es dir wünschst – wo stehst du heute?› – ‹Was ist schon da, dass du bei dieser Zahl stehst und nicht bei einer tieferen?› – ‹Was müsste passieren, damit du einen Punkt höher kämst?›',
+                    'S2': 'Coachee hat bereits Schritte unternommen. Bitte frage: – ‹Wenn du zurückblickst: Wo standest du vor zwei Wochen – auf derselben Skala?› – ‹Was hat sich seitdem bewegt – innerlich wie äusserlich?› – ‹Was kannst du dir selbst dafür anerkennen?›',
+                    'S3': 'Bitte gib einem Coachee eine Anleitung, wie er eine Skala über mehrere Tage führen kann: – ‹Wähle ein Thema, z. B. dein Energielevel, deine Gelassenheit oder Zuversicht.› – ‹Trage jeden Abend eine Zahl zwischen 0 und 10 ein.› – ‹Beobachte Muster, Auslöser und Veränderungen – ohne Bewertung.› – ‹Was fällt dir nach einer Woche auf?›',
+                    'S4': 'Bitte leite eine einfache Aufstellung im Raum an: – ‹Stell dir drei Punkte im Raum vor: deinen aktuellen Standpunkt, dein Wunschbild, und einen Beobachterpunkt.› – ‹Gehe die Positionen ab – was nimmst du jeweils wahr?› – ‹Welche neue Sicht entsteht aus dem Beobachterpunkt?›',
+                    'S5': 'Bitte leite eine dreiteilige Reflexion an: – ‹1. Was ist konkret passiert?› – ‹2. Wie habe ich mich dabei gefühlt, was hat mich geleitet?› – ‹3. Was nehme ich daraus mit – was bleibt, was lerne ich?›'
+                }
+            },
+            'modelle': {
+                title: '🧭 Modell-Zuordnung',
+                description: 'Coachingmodelle gezielt anwenden',
+                prompts: {
+                    'MO1': 'Bitte leite ein Coachinggespräch mit dem GROW-Modell an: – G: ‹Was ist dein Ziel in dieser Sitzung?› – R: ‹Wo stehst du aktuell in Bezug auf dieses Ziel?› – O: ‹Welche Möglichkeiten hast du, dich dem Ziel zu nähern?› – W: ‹Was wirst du konkret als Nächstes tun – und wann?›',
+                    'MO2': 'Bitte frage den Coachee: – ‹Bist du gerade eher in einer Phase des Abschiednehmens, der Zwischenzeit oder eines Neuanfangs?› – ‹Was zeigt sich für dich in dieser Phase?› – ‹Was hilft dir, gut durch diese Zeit zu gehen – und was wäre der nächste kleine Schritt?›',
+                    'MO3': 'Bitte leite eine Tetralemma-Frageführung ein: – ‹Was spricht für A?› – ‹Was spricht für B?› – ‹Was wäre eine dritte Option, ein Sowohl-als-auch?› – ‹Was wäre ein ganz anderer, überraschender vierter Weg?› – ‹Und wenn du das Ganze einmal komplett in Frage stellst – was zeigt sich als fünfte Möglichkeit?›',
+                    'MO4': 'Bitte leite ein Gespräch mit dem Lebensrad an: – ‹Stell dir einen Kreis mit acht Segmenten vor: Beruf, Beziehungen, Gesundheit, Freizeit, Persönliches Wachstum, Finanzen, Wohnumfeld, Sinn/Spiritualität.› – ‹Wie zufrieden bist du mit jedem Bereich – auf einer Skala von 0 bis 10?› – ‹Was möchtest du stärken oder verändern?› – ‹Welcher erste Schritt ergibt sich daraus?›',
+                    'MO5': 'Bitte leite eine ZRM-orientierte Übung an: – ‹Gibt es ein Bild, das dich spontan anspricht – ohne genau zu wissen, warum?› – ‹Was löst es körperlich, emotional oder gedanklich in dir aus?› – ‹Was könnte ein Mottoziel sein, das diese Resonanz einfängt?› – ‹Wie würdest du dieses Motto in dein Leben integrieren?›'
+                }
+            },
+            'prompt_gestaltung': {
+                title: '🧩 Prompt-Gestaltung',
+                description: 'Meta-Prompts für wirksame KI-Dialoge',
+                prompts: {
+                    'PG1': 'Formuliere deinen Prompt entlang dieser vier Elemente: – Person: Wer spricht oder antwortet (z. B. «Du bist ein empathischer Coach …») – Perspektive: Welche Rolle oder Haltung wird eingenommen (z. B. systemisch, lösungsfokussiert, narrativ …) – Prozess: Was soll die KI konkret tun (analysieren, paraphrasieren, visualisieren …) – Purpose: Wozu dient das Ganze? (Klarheit, Struktur, Aktivierung etc.)',
+                    'PG2': 'Kennzeichne jede Zeile durch ein Tag: – <COACH>: Anweisung oder Einleitung des Coachs – <KI>: Antwort oder Analyse durch die KI – <COACHEE>: Reaktion oder Input des Coachee (optional simuliert)',
+                    'PG3': 'Nutze die 3-A-Regel: – Anerkennen: «Danke, dass du das teilst …» – Aufgreifen: «Du beschreibst also … Das klingt nach …» – Anregen: «Was wäre, wenn du diesen Aspekt mal aus einer anderen Perspektive betrachtest …?»',
+                    'PG4': 'Baue modulare Prompts: «Du bist [Rolle] mit [Haltung]. Deine Aufgabe ist es, [Prozess] auszuführen, um [Ziel].» → Ergänzbar mit: Kontextwissen, Skalen, Methodenbezug, Visualisierung, Sprachstil etc.',
+                    'PG5': 'Antworte so, wie ein einfühlsamer Coach mit klarer Sprache, lösungsorientierter Haltung und einem Hauch Leichtigkeit schreiben würde. Vermeide leere Floskeln, bleibe menschlich.'
+                }
+            },
+            'textbausteine': {
+                title: '🧠 KI-Textbausteine',
+                description: 'Coaching-DNA für die KI',
+                prompts: {
+                    'TB1': 'COACHING SOLUTION FINDER: Du bist ein erfahrener, empathischer Coach. Deine Aufgabe ist es, ressourcenorientiert und wertschätzend zu antworten. Beginne immer mit einer dankenden Begrüßung für das Vertrauen. Paraphrasiere das Problem in eigenen Worten, normalisiere es ("Das ist nicht ungewöhnlich...") und hebe bereits erkennbare Stärken, Ressourcen oder positive Ansätze hervor. Dein Ton ist warmherzig, ermutigend und professionell. Fokussiere auf Potenziale statt Defizite.',
+                    'TB2': 'AUSBALANCIERUNGSPROBLEME (18 Dimensionen): 1. Minderwertigkeit vs. Großartigkeit, 2. Anerkennungsstreben vs. Egozentrik, 3. Selbstinszenierung vs. Zurückhaltung, 4. Kontrolle vs. Vertrauen, 5. Nähe vs. Distanz, 6. Rationalität vs. Intuition, 7. Perfektion vs. Spontaneität, 8. Sicherheit vs. Risiko, 9. Autonomie vs. Zugehörigkeit, 10. Struktur vs. Flexibilität, 11. Leistung vs. Entspannung, 12. Selbstfürsorge vs. Aufopferung, 13. Offenheit vs. Bewahrung, 14. Durchsetzung vs. Harmonie, 15. Individualität vs. Anpassung, 16. Aktivität vs. Passivität, 17. Optimismus vs. Realismus, 18. Bindung vs. Freiheit. Jede Dimension beschreibt ein mögliches inneres Spannungsfeld.',
+                    'TB3': 'SCHLÜSSELAFFEKTE: "Ich fühle mich wie gelähmt und meine Gedanken kreisen..." / "Ich bin wie blockiert und alles andere erscheint plötzlich wichtiger..." / "Ich spüre Enttäuschung/Überforderung und kann keinen klaren Gedanken fassen..." / "Ich fühle mich innerlich unruhig und getrieben..." / "Es steigt Panik in mir auf und ich will nur noch weg..." / "Ich spüre eine bleierne Schwere und Mutlosigkeit..." / "Mein Kopf wird leer und ich kann mich nicht konzentrieren..." / "Ich fühle mich klein und hilflos wie ein Kind..." / "Es wird eng in mir und ich bekomme kaum noch Luft..." / "Ich spüre Wut und Frustration, die mich lähmt..."',
+                    'TB4': 'ERFOLGSIMAGINATION: Erstelle eine lebhafte, sinnliche Erzählung in Ich-Form mit folgenden Elementen: – Beginne mit der ursprünglichen Schlüsselsituation – Beschreibe die neue, positive Reaktion detailliert – Integriere die komplementären Kräfte der Ausbalancierungsprobleme – Verwende die Bildmetapher aus Schritt 3 – Mache es filmisch erlebbar (was sehe, höre, fühle ich?) – Beschreibe innere Dialoge und neue Gedankenmuster – Zeige konkrete Handlungen und deren positive Konsequenzen – Verwende warme, motivierende Sprache – Schaffe einen emotionalen Anker für das neue Verhalten',
+                    'TB5': 'INNERE ANTEILE: Teamchefin/Zielerreicher (rational, zielorientiert, plant), Unterstützerin/Mutmacher (optimistisch, ermutigend, sieht Chancen), Bremse/Beschützer (vorsichtig, sicherheitsorientiert, warnt), Kritiker/Perfektionist (hohe Standards, fehlerfinderisch), Anerkennungssucher (braucht Bestätigung, möchte gemocht werden), Rebell/Innovator (hinterfragt Regeln, will Neues), Harmoniestifter (vermeidet Konflikte, sucht Ausgleich), Kontrolleur (will alles unter Kontrolle, plant detailliert). Jeder Anteil hat positive Absichten und schützenswerte Bedürfnisse.',
+                    'TB6': 'GLAUBENSSÄTZE-ANALYSE: Perfektion ("Ich darf keine Fehler machen"), Anerkennung ("Mein Wert hängt von der Meinung anderer ab"), Kontrolle ("Ich muss alles kontrollieren können"), Sicherheit ("Sichtbarkeit ist riskant"), Leistung ("Ich bin nur wertvoll, wenn ich leiste"), Selbstwert ("Ich bin nicht gut genug"). Analysiere die zugrundeliegenden Regeln der Realitätswahrnehmung und deren Schutzfunktion.'
+                }
+            }
+        };
+
+        // State Management
+        let currentStep = 1;
+        let stepData = {};
+
+        // Initialize Application
+        function initializeApp() {
+            loadStepData();
+            renderProgressBar();
+            renderStepDetails();
+            updateNavigation();
+            renderRepositoryContent();
         }
-      ],
 
-      // 2. KI-Prompts Phase 2 (Anweisungen AN die KI)
-      kiPhase2: [
-        {
-          code: 'T7A',
-          name: 'KI-Anweisung: Als Bremse agieren',
-          prompt: 'Versetze dich bitte in die Bremse, die in dem obigen Transkript erwähnt wird und trage noch weitere Argumente vor, die dagegen sprechen, mein Coachingziel zu verfolgen. Lass dich bei dieser Aufgabe von dem Textbaustein Ausbalancierungsprobleme sowie durch die anderen hochgeladenen Textbausteine inspirieren.'
-        },
-        {
-          code: 'T7B',
-          name: 'KI-Anweisung: Dimensionen-Ranking',
-          prompt: 'Analysiere das obige Transkript sowie alle momentan vorliegenden Informationen zu meiner Coachingproblematik mit Hilfe des Textbausteins Ausbalancierungsprobleme und erstelle mit Blick auf die 18 Ausbalancierungsdimensionen, die in diesem Textbaustein beschrieben sind, ein Ranking der Ausbalancierungsdimensionen. Das heißt, setze diejenige Ausbalancierungsdimension auf Rangplatz 1, die für meinen Schlüsselaffekt und mein gesamtes Coachingproblem am wichtigsten ist, und diejenige, die am wenigsten wichtig ist, auf Rangplatz 18.'
-        },
-        {
-          code: 'T7C',
-          name: 'KI-Anweisung: Kausalzusammenhänge',
-          prompt: 'Gehe bitte von dieser Rangpositionierung aus und kläre, wie die Probleme, die den Ausbalancierungsdimensionen zugrunde liegen, ursächlich zusammenhängen. Also das gesamte Kausalgefüge zwischen diesen drei Dimensionen und die entsprechenden Problematiken sollte verdeutlicht werden.'
-        }
-      ],
+        // Progress Bar Rendering
+        function renderProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = '';
 
-      // 3. KI-Prompts Phase 3 (Anweisungen AN die KI)
-      kiPhase3: [
-        {
-          code: 'T8',
-          name: 'KI-Anweisung: Entwicklungsziel formulieren',
-          prompt: 'Formuliere auf Basis der bisherigen Erkenntnisse ein übergeordnetes Lern- und Entwicklungsziel für mich.'
-        },
-        {
-          code: 'T10',
-          name: 'KI-Anweisung: Widerstandsanalyse',
-          prompt: 'Analysiere dieses Transkript. Welche realitätsprägenden Überzeugungen und inneren Regeln stecken hinter den Aussagen der Widerstände? Was hemmt die Umsetzung meines Entwicklungsziels?'
-        },
-        {
-          code: 'T11',
-          name: 'KI-Anweisung: Erfolgsimagination',
-          prompt: 'Orientiere dich bei dieser Aufgabe an dem Textbaustein Ausbalancierungsprobleme, da ist Coaching-diagnostisches Wissen hinterlegt. Gehe dabei im Einzelnen folgendermaßen vor: Beziehe dich auf die Komplementärkräfte, die dort auch genau beschrieben sind, und das jeweilige Ideal einer optimalen Ausbalancierung, die in diesem Textbaustein mit Bezug auf die Ausbalancierungsprobleme beschrieben ist. Beschreibe die positiven Veränderungen in einer in Ich-Form verfassten persönlichen Erlebenserzählung, die ich jetzt sofort als Erfolgsimagination nutzen will. Beschreibe in dieser Erfolgsimagination alles sehr differenziert, lebensnah und persönlich und zwar so, dass man es sich wie in einem Film alles ganz konkret vorstellen kann - also alles was äußerlich beobachtbar passiert und alles was intrapsychisch in mir passiert. Die Erlebenserzählung startet mit der Schlüsselsituation, die sich nicht verändert hat. Lege also die Beschreibung der Schlüsselsituation zugrunde, die ich dir zu Beginn dieses Chats mitgeteilt habe. Anschließend beschreibst du in dem persönlichen Erlebensbericht in Ich-Form den deutlich veränderten Schlüsselaffekt. Beziehe dich dabei auf die am Anfang unseres Chats dir mitgeteilte Beschreibung des Bildes, das für mich eine Visualisierung meines Ziels darstellt, und erstelle in diesem Sinne zwei deutlich unterschiedliche Erlebensbeschreibungen.'
-        }
-      ],
+            steps.forEach((step, index) => {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'step';
+                if (step.id === currentStep) stepElement.classList.add('active');
+                if (stepData[step.id]?.completed) stepElement.classList.add('completed');
 
-      // 4. Coach-Anweisungen (WIE der Coach vorgeht)
-      coachAnweisungen: [
-        {
-          code: 'C1',
-          name: 'Teamchef einführen',
-          prompt: 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen - das ist der Teil, der dieses Ziel erreichen will. Wählen Sie eine Figur oder einen Gegenstand, der diesen Teil repräsentiert und stellen Sie ihn hier auf. Was sagt dieser Teamchef? Lassen Sie ihn sprechen: "Ich will, dass wir..."'
-        },
-        {
-          code: 'C2',
-          name: 'Bremse aufdecken',
-          prompt: 'Und da ist bestimmt auch ein Teil in Ihnen, der Bedenken hat oder bremst. Spüren Sie ihn? Was sagt diese innere Stimme? Wählen Sie auch dafür eine Figur.'
-        },
-        {
-          code: 'C3',
-          name: 'Interview mit Bremse',
-          prompt: 'Ich möchte gerne mit der Bremse sprechen. Können Sie in diese Rolle hineinspüren? ... Hallo Bremse, ich habe Ihre Bedenken gehört. Was genau macht Ihnen Sorgen an dem Vorhaben des Teamchefs?'
-        },
-        {
-          code: 'C4',
-          name: 'Interview mit Unterstützer',
-          prompt: 'Jetzt wende ich mich an den Unterstützer. Können Sie in diese Rolle wechseln? ... Du hast das Gespräch mit der Bremse mitgehört. Wie siehst du das, was sie sagt?'
-        },
-        {
-          code: 'C5',
-          name: 'Abrüstung einleiten',
-          prompt: 'Stellen Sie sich vor, beide Anteile legen ihre Waffen nieder. Die Bremse muss nicht mehr so übervorsichtig sein, der Unterstützer nicht mehr so drängend. Was würde dann möglich?'
-        },
-        {
-          code: 'C6',
-          name: 'Neue Haltung entwickeln',
-          prompt: 'Wie könnte eine Haltung aussehen, die das Beste von beiden vereint? Etwas wie: "Ich gehe [vorsichtig/mutig] vor und bleibe dabei [achtsam/pragmatisch]"?'
-        }
-      ],
+                stepElement.innerHTML = `
+                    <div class="step-circle">${step.id}</div>
+                    <div class="step-label">${step.title}</div>
+                `;
 
-      // 5. Klienten-Fragen (Solution Finder Fragen AN den Klienten)
-      klientenFragen: [
-        {
-          code: 'F1',
-          name: 'Zielformulierung',
-          prompt: 'Beschreiben Sie mir bitte in 1-2 Sätzen, was Sie erreichen möchten. Schreiben Sie es so auf, als würden Sie es einem guten Freund erklären.'
-        },
-        {
-          code: 'F2',
-          name: 'Wichtigkeits-Skala',
-          prompt: 'Auf einer Skala von 0 bis 10: Wie wichtig ist Ihnen dieses Ziel? 0 bedeutet "völlig unwichtig", 10 bedeutet "absolut entscheidend für mein Leben".'
-        },
-        {
-          code: 'F3',
-          name: 'Schwierigkeits-Skala',
-          prompt: 'Und wie schwierig schätzen Sie es ein, dieses Ziel zu erreichen? 0 wäre "kinderleicht", 10 wäre "scheint unmöglich".'
-        },
-        {
-          code: 'F4',
-          name: 'Vertiefung Wichtigkeit/Schwierigkeit',
-          prompt: 'Was genau macht es so wichtig/schwierig für Sie? Erzählen Sie mir mehr davon.'
-        },
-        {
-          code: 'F5',
-          name: 'Unterstützer identifizieren',
-          prompt: 'Welcher Anteil in Ihnen unterstützt dieses Ziel? Was sagt er? Auch für ihn wählen Sie bitte eine Figur.'
-        },
-        {
-          code: 'F6',
-          name: 'Bremse benennen',
-          prompt: 'Wenn Sie die Haltung der Bremse in 2-3 Worten beschreiben müssten - wie würden Sie sie nennen? Etwas wie "Übervorsichtige Sicherheitswächterin" oder "Perfektionismus-fixierte Selbstblockade"?'
-        },
-        {
-          code: 'F7',
-          name: 'Positiver Kern der Bremse',
-          prompt: 'Die Bremse ist nicht "böse" oder "falsch". Sie übertreibt nur, weil sie etwas Wichtiges schützen will. Was könnte das sein? Was ist der gute Kern in ihrer Haltung?'
-        },
-        {
-          code: 'F8',
-          name: 'Ersten Schritt definieren',
-          prompt: 'Was ist der allererste, kleinste Schritt, den Sie diese Woche machen können? Etwas, was Sie definitiv schaffen und was in Richtung Ihrer neuen Balance geht?'
-        }
-      ],
-
-      // 6. Spannungsfeld-Fragen (40 Ruhestand-Spannungen)
-      spannungsfeldFragen: [
-        {
-          code: 'SP1',
-          name: 'Zeit: Gegenwart ↔ Zukunft',
-          prompt: 'Wie erleben Sie aktuell den Umgang mit Ihrer Zeit - eher als Festhalten am Moment oder als ständige Zukunftsplanung?'
-        },
-        {
-          code: 'SP20',
-          name: 'Vergangenheit ↔ Zukunftsangst',
-          prompt: 'Merken Sie, dass Sie öfter in Erinnerungen schwelgen oder sich Sorgen um das machen, was kommen könnte?'
-        },
-        {
-          code: 'SP21',
-          name: 'Zeitsouveränität ↔ Zeitlosigkeit',
-          prompt: 'Erleben Sie Ihre neue Zeitfreiheit eher als Geschenk oder als Last?'
-        },
-        {
-          code: 'SP23',
-          name: 'Beruf: Überidentifikation ↔ Verachtung',
-          prompt: 'Wenn Sie an Ihre Arbeitszeit denken - überwiegt Stolz, Verbitterung oder etwas anderes?'
-        },
-        {
-          code: 'SP24',
-          name: 'Status: Fixierung ↔ Bedeutungslosigkeit',
-          prompt: 'Vermissen Sie Ihren früheren Status - die Anerkennung, die Wichtigkeit?'
-        },
-        {
-          code: 'SP25',
-          name: 'Leistung: Zwang ↔ Antriebslosigkeit',
-          prompt: 'Haben Sie manchmal das Gefühl, Sie müssten auch im Ruhestand "produktiv" sein?'
-        },
-        {
-          code: 'SP26',
-          name: 'Rollen: Festhalten ↔ Beziehungsabbruch',
-          prompt: 'In welchen Beziehungen erleben Sie Veränderungsdruck - wo wird anders mit Ihnen umgegangen?'
-        },
-        {
-          code: 'SP27',
-          name: 'Sozial: Einsamkeit ↔ Rückzug',
-          prompt: 'Schwanken Sie zwischen dem Bedürfnis nach Gesellschaft und dem Wunsch nach Ruhe?'
-        },
-        {
-          code: 'SP28',
-          name: 'Familie: Großeltern-Überforderung ↔ Verweigerung',
-          prompt: 'Wie erleben Sie die Erwartungen Ihrer Familie an Sie als Großmutter/Großvater?'
-        },
-        {
-          code: 'SP29',
-          name: 'Finanzen: Sparsamkeit ↔ Verschwendungsangst',
-          prompt: 'Wie erleben Sie aktuell Entscheidungen rund ums Geld - eher als Knausern oder als Angst vor Ausgaben?'
-        },
-        {
-          code: 'SP31',
-          name: 'Wohnen: Ortsverbundenheit ↔ Rastlosigkeit',
-          prompt: 'Erleben Sie Ihren aktuellen Wohnort als perfekt passend oder als einengend?'
-        },
-        {
-          code: 'SP33',
-          name: 'Sinn: Vermächtnis-Druck ↔ Resignation',
-          prompt: 'Beschäftigt Sie die Frage, was von Ihrem Leben bleiben wird?'
-        },
-        {
-          code: 'SP36',
-          name: 'Gesundheit: Fixierung ↔ Vernachlässigung',
-          prompt: 'Wie viel Raum nehmen Gesundheitsthemen in Ihrem Leben ein?'
-        },
-        {
-          code: 'SP37',
-          name: 'Endlichkeit: Sterbeangst ↔ Lebensmüdigkeit',
-          prompt: 'Wie präsent ist das Thema Endlichkeit in Ihrem Leben?'
-        },
-        {
-          code: 'SP38',
-          name: 'Alter: Jugendlichkeit ↔ Vorzeitiges Altern',
-          prompt: 'Wie stehen Sie zu den sichtbaren Zeichen des Älterwerdens?'
-        },
-        {
-          code: 'SP39',
-          name: 'Lernen: Verweigerung ↔ Unstete Optimierung',
-          prompt: 'Wie stehen Sie zu neuen Herausforderungen oder Lernmöglichkeiten?'
-        },
-        {
-          code: 'SP40',
-          name: 'Routine: Gefangenschaft ↔ Planlose Experimente',
-          prompt: 'Wie erleben Sie Ihre täglichen Gewohnheiten - als Sicherheit oder als Käfig?'
-        }
-      ]
-    };
-
-    // 12-Schritte Konfiguration
-    const steps = [
-      {
-        id: 1,
-        title: 'Einleitung & Problembeschreibung',
-        phase: 'a',
-        tasks: [
-          '🎯 Coach und Klient sprechen zunächst persönlich',
-          '📋 Coach zeigt Prompt-Repository als Landkarte',
-          '🤝 Gemeinsam ersten Prompt (T1) auswählen',
-          '✍️ Klient schildert Anliegen, Coach protokolliert',
-          '🤖 KI gibt ressourcenorientiertes, positives Feedback',
-          '⭐ KI identifiziert erste Fähigkeiten und Stärken',
-          '💬 Beziehungsaufbau zur Maschine durch KI-Lob'
-        ]
-      },
-      {
-        id: 2,
-        title: 'Ist-Soll-Analyse',
-        phase: 'a',
-        tasks: [
-          '📊 Prompt T2 verwenden für strukturierte Analyse',
-          '🔍 Äußere Rahmenbedingungen erfassen',
-          '🧠 Psychische Prozesse dokumentieren',
-          '👀 Beobachtbare Verhaltensweisen identifizieren',
-          '📈 Faktische Folgen analysieren',
-          '📝 Ist-Situation vollständig beschreiben',
-          '🎯 Soll-Situation klar formulieren'
-        ]
-      },
-      {
-        id: 3,
-        title: 'Bildarbeit & Visualisierung',
-        phase: 'a',
-        tasks: [
-          '🖼️ Klient wählt Bild für Coaching-Ziel',
-          '📝 Bildbeschreibung in Ich-Form erstellen',
-          '🤖 Prompt T3 für Bildanalyse verwenden',
-          '🔗 Beziehung zwischen Bild und Ziel klären',
-          '💡 Bedeutung für Coachingproblematik erarbeiten',
-          '🎨 Visuelle Verankerung des Ziels',
-          '📋 Erkenntnisse dokumentieren'
-        ]
-      },
-      {
-        id: 4,
-        title: 'Diagnostik & Ausbalancierungsprobleme',
-        phase: 'a',
-        tasks: [
-          '🔍 Prompt T4 für Problemidentifikation nutzen',
-          '📚 Textbaustein Ausbalancierungsprobleme verwenden',
-          '🎯 Klarestes Ausbalancierungsproblem identifizieren',
-          '❓ Klärende Fragen entwickeln',
-          '🧩 Vorsichtige Diagnostik einleiten',
-          '📝 Problematik präziser formulieren',
-          '✅ Diagnose validieren'
-        ]
-      },
-      {
-        id: 5,
-        title: 'Schlüsselsituation & Schlüsselaffekt',
-        phase: 'b',
-        tasks: [
-          '🔍 Prompt T5 für Kernproblem-Identifikation',
-          '💭 Schlüsselsituationen identifizieren',
-          '😢 Schlüsselaffekt aufdecken',
-          '🌪️ "Auge des Taifuns" finden',
-          '🧠 Unbewusste emotionale Kernproblematik',
-          '📝 Affekt als Kernproblem verstehen',
-          '🎯 Diagnostische Grundlage schaffen'
-        ]
-      },
-      {
-        id: 6,
-        title: 'Tiefenpsychologisches Interview',
-        phase: 'b',
-        tasks: [
-          '🎙️ Interview mit Klient durchführen',
-          '📝 Vollständiges Transkript erstellen',
-          '🤖 Transkript für KI-Analyse vorbereiten',
-          '💬 Alle relevanten Aspekte erfassen',
-          '🧠 Tiefere Einsichten gewinnen',
-          '📋 Für nächsten Schritt dokumentieren'
-        ]
-      },
-      {
-        id: 7,
-        title: 'KI-Auswertung & Ursachenanalyse',
-        phase: 'b',
-        tasks: [
-          '🛑 Prompt T7A: KI als Bremse versetzen',
-          '💭 Weitere Gegenargumente sammeln',
-          '📊 Prompt T7B: Ranking der 18 Dimensionen',
-          '🔗 Prompt T7C: Kausalzusammenhänge klären',
-          '🧩 Ursachenmodell entwickeln',
-          '📈 Wichtigste Dimensionen priorisieren',
-          '🎯 Klares Problemverständnis schaffen'
-        ]
-      },
-      {
-        id: 8,
-        title: 'Übergeordnetes Entwicklungsziel',
-        phase: 'c',
-        tasks: [
-          '🎯 Prompt T8 für Zielformulierung nutzen',
-          '🔍 "Ziel hinter dem Ziel" identifizieren',
-          '📈 Überdauernde Persönlichkeitsentwicklung',
-          '🔗 Verbindung zur Problemdiagnostik',
-          '🌱 Langfristige Entwicklung planen',
-          '💡 Tiefere Erkenntnisse integrieren'
-        ]
-      },
-      {
-        id: 9,
-        title: 'Lösungsstrategie entwickeln',
-        phase: 'c',
-        tasks: [
-          '🛠️ Praxisgerechte Lösung erarbeiten',
-          '🎯 Strategie aus Diagnostik ableiten',
-          '📋 Konkrete Schritte definieren',
-          '🔄 Umsetzbarkeit prüfen',
-          '💪 Ressourcen identifizieren',
-          '📝 Strategie dokumentieren'
-        ]
-      },
-      {
-        id: 10,
-        title: 'Widerstandsanalyse',
-        phase: 'c',
-        tasks: [
-          '🤖 Prompt T10 für Widerstandsanalyse',
-          '🧠 Realitätsprägende Überzeugungen identifizieren',
-          '📋 Innere Regeln rekonstruieren',
-          '😨 Sorgen und Ängste aufdecken',
-          '🚧 Umsetzungshindernisse verstehen',
-          '💭 Denkweisen analysieren',
-          '🔓 Überwindungsstrategien entwickeln'
-        ]
-      },
-      {
-        id: 11,
-        title: 'Erfolgsimagination',
-        phase: 'c',
-        tasks: [
-          '🎬 Prompt T11 für Erlebenserzählung nutzen',
-          '📚 Textbaustein Ausbalancierungsprobleme verwenden',
-          '⚖️ Komplementärkräfte integrieren',
-          '🎯 Optimale Ausbalancierung beschreiben',
-          '🎭 Persönliche Ich-Form-Erzählung',
-          '🎥 Filmische, konkrete Vorstellung',
-          '🔄 Umkonditionierung ermöglichen'
-        ]
-      },
-      {
-        id: 12,
-        title: 'Integration & Abschluss',
-        phase: 'c',
-        tasks: [
-          '🔄 Alle Erkenntnisse zusammenführen',
-          '📋 Vollständige Dokumentation',
-          '🎯 Nächste Schritte definieren',
-          '📅 Follow-up planen',
-          '💪 Motivation stärken',
-          '🎉 Erfolg würdigen'
-        ]
-      }
-    ];
-
-    // Globale Variablen
-    let currentStep = 1;
-    let taskStatus = {};
-    let chatHistory = [];
-
-    // Initialisierung
-    function init() {
-      loadStep(currentStep);
-      updateProgressBar();
-      updateDateTime();
-      
-      // Task Status initialisieren
-      steps.forEach(step => {
-        taskStatus[step.id] = step.tasks.map(() => false);
-      });
-    }
-
-    // Schritt laden
-    function loadStep(stepNumber) {
-      currentStep = stepNumber;
-      const step = steps.find(s => s.id === stepNumber);
-      if (!step) return;
-
-      const stepContent = document.getElementById('stepContent');
-      stepContent.innerHTML = `
-        <h3>Schritt ${step.id}: ${step.title}</h3>
-        <div class="progress-indicator">
-          <div class="progress-bar-fill" style="width: ${getStepProgress(step.id)}%"></div>
-          <div>${getCompletedTasks(step.id)} von ${step.tasks.length} Aufgaben erledigt</div>
-        </div>
-        <ul class="task-list">
-          ${step.tasks.map((task, index) => `
-            <li class="task-item ${taskStatus[step.id] && taskStatus[step.id][index] ? 'completed' : ''}">
-              <div class="task-checkbox ${taskStatus[step.id] && taskStatus[step.id][index] ? 'checked' : ''}" 
-                   onclick="toggleTask(${step.id}, ${index})">
-                ${taskStatus[step.id] && taskStatus[step.id][index] ? '✓' : ''}
-              </div>
-              <div class="task-text ${taskStatus[step.id] && taskStatus[step.id][index] ? 'completed' : ''}">
-                ${task}
-              </div>
-            </li>
-          `).join('')}
-        </ul>
-        <div class="navigation-buttons">
-          <button class="nav-button prev" onclick="previousStep()" ${stepNumber === 1 ? 'disabled' : ''}>
-            ← Zurück
-          </button>
-          <button class="nav-button next ${isStepCompleted(step.id) ? 'completed' : ''}" 
-                  onclick="nextStep()" ${stepNumber === steps.length ? 'disabled' : ''}>
-            ${stepNumber === steps.length ? 'Fertig!' : 'Weiter →'}
-          </button>
-        </div>
-      `;
-
-      updateAssistantSuggestions(step);
-    }
-
-    // Progress Bar aktualisieren
-    function updateProgressBar() {
-      const progressBar = document.getElementById('progressBar');
-      progressBar.innerHTML = steps.map(step => `
-        <div class="progress-step ${getStepStatus(step.id)}" onclick="loadStep(${step.id})">
-          <div class="step-number">${step.id}</div>
-          <div class="step-title">${step.title}</div>
-        </div>
-      `).join('');
-    }
-
-    // Schritt-Status ermitteln
-    function getStepStatus(stepId) {
-      if (stepId < currentStep) return 'completed';
-      if (stepId === currentStep) return 'active';
-      return 'pending';
-    }
-
-    // Task Status umschalten
-    function toggleTask(stepId, taskIndex) {
-      if (!taskStatus[stepId]) {
-        taskStatus[stepId] = steps.find(s => s.id === stepId).tasks.map(() => false);
-      }
-      taskStatus[stepId][taskIndex] = !taskStatus[stepId][taskIndex];
-      loadStep(currentStep);
-      updateProgressBar();
-    }
-
-    // Schritt-Fortschritt berechnen
-    function getStepProgress(stepId) {
-      if (!taskStatus[stepId]) return 0;
-      const completed = taskStatus[stepId].filter(status => status).length;
-      const total = taskStatus[stepId].length;
-      return Math.round((completed / total) * 100);
-    }
-
-    // Erledigte Aufgaben zählen
-    function getCompletedTasks(stepId) {
-      if (!taskStatus[stepId]) return 0;
-      return taskStatus[stepId].filter(status => status).length;
-    }
-
-    // Schritt als erledigt prüfen
-    function isStepCompleted(stepId) {
-      return getStepProgress(stepId) === 100;
-    }
-
-    // Navigation
-    function nextStep() {
-      if (currentStep < steps.length) {
-        loadStep(currentStep + 1);
-        updateProgressBar();
-      }
-    }
-
-    function previousStep() {
-      if (currentStep > 1) {
-        loadStep(currentStep - 1);
-        updateProgressBar();
-      }
-    }
-
-    // KI-Assistent Vorschläge
-    function updateAssistantSuggestions(step) {
-      const suggestions = document.getElementById('currentStepSuggestions');
-      const stepSuggestions = {
-        1: ['Verwende T1 für Problembeschreibung', 'Wie gebe ich positives Feedback?', 'Beziehungsaufbau zur KI'],
-        2: ['T2 für Ist-Soll-Analyse nutzen', 'Strukturierte Problemerfassung', 'Rahmenbedingungen dokumentieren'],
-        3: ['T3 für Bildanalyse verwenden', 'Visualisierung des Ziels', 'Bildbeschreibung anleiten'],
-        4: ['T4 für Ausbalancierungsprobleme', 'Diagnostik einleiten', 'Textbausteine nutzen'],
-        5: ['T5 für Schlüsselaffekt finden', 'Auge des Taifuns identifizieren', 'Emotionale Kernproblematik'],
-        6: ['Tiefenpsychologisches Interview', 'Vollständiges Transkript', 'Alle Aspekte erfassen'],
-        7: ['T7A: KI als Bremse', 'T7B: Dimensionen-Ranking', 'T7C: Kausalzusammenhänge'],
-        8: ['T8: Übergeordnetes Ziel', 'Ziel hinter dem Ziel', 'Persönlichkeitsentwicklung'],
-        9: ['Praxisgerechte Lösung', 'Aus Diagnostik ableiten', 'Umsetzbarkeit prüfen'],
-        10: ['T10: Widerstandsanalyse', 'Innere Regeln finden', 'Überzeugungen identifizieren'],
-        11: ['T11: Erfolgsimagination', 'Erlebenserzählung erstellen', 'Komplementärkräfte nutzen'],
-        12: ['Integration aller Erkenntnisse', 'Vollständige Dokumentation', 'Follow-up planen']
-      };
-
-      suggestions.innerHTML = `
-        <p><strong>Triadische Prompts für Schritt ${step.id}:</strong></p>
-        ${stepSuggestions[step.id].map(suggestion => `
-          <div class="suggestion" onclick="selectSuggestion('${suggestion}')">${suggestion}</div>
-        `).join('')}
-      `;
-    }
-
-    // Suggestion auswählen
-    function selectSuggestion(suggestion) {
-      document.getElementById('assistantInput').value = suggestion;
-      event.target.classList.add('clicked');
-      setTimeout(() => event.target.classList.remove('clicked'), 1000);
-    }
-
-    // Chat-Funktionen
-    function sendCoachingMessage() {
-      const input = document.getElementById('coachingInput');
-      const message = input.value.trim();
-      
-      if (message) {
-        addChatMessage('Coach', message);
-        input.value = '';
-        
-        // API-Call zur echten KI
-        callOpenAI(message, currentStep, 'coaching_dialog');
-      }
-    }
-
-    function sendAssistantMessage() {
-      const input = document.getElementById('assistantInput');
-      const message = input.value.trim();
-      
-      if (message) {
-        addChatMessage('Coach', message);
-        input.value = '';
-        
-        // API-Call zur echten KI
-        callOpenAI(message, currentStep, 'ki_assistant');
-      }
-    }
-
-    function addChatMessage(sender, message) {
-      const chatMessages = document.getElementById('chatMessages');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${sender.toLowerCase()}`;
-      messageDiv.innerHTML = `
-        <div class="message-sender">${sender}</div>
-        <div>${message}</div>
-      `;
-      chatMessages.appendChild(messageDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // OpenAI API Call
-    async function callOpenAI(message, step, source) {
-      try {
-        const response = await fetch('/api/openai-chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages: [
-              {
-                role: 'system',
-                content: generateSystemPrompt(step, source)
-              },
-              {
-                role: 'user',
-                content: message
-              }
-            ],
-            source: source,
-            step: step
-          })
-        });
-
-        const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
-        
-        // KI-Antwort anzeigen
-        addChatMessage('KI', aiResponse);
-        
-      } catch (error) {
-        console.error('OpenAI API Error:', error);
-        addChatMessage('KI', 'Entschuldigung, es gab einen Fehler bei der KI-Anfrage.');
-      }
-    }
-
-    // System-Prompt generieren
-    function generateSystemPrompt(step, source) {
-      const basePrompt = `Du bist ein KI-Assistent im triadischen Coaching-System. 
-      Du erhältst Nachrichten aus zwei verschiedenen Bereichen:
-      
-      **source: "ki_assistant"** → Coach-Unterstützung
-      - Fachliche Beratung und Methodenerklärung
-      - Konkrete Handlungsempfehlungen für triadisches Coaching
-      - Prompt-Vorschläge und Anwendungshilfen
-      
-      **source: "coaching_dialog"** → Coachee-Dialog
-      - Empathische, direkte Kommunikation
-      - Ressourcenorientiertes, positives Feedback
-      - Lösungsorientierte Fragen und Unterstützung
-      
-      **Aktueller Schritt: ${step}/12**
-      **Nachrichten-Quelle: ${source}**
-      
-      **Triadisches Coaching Expertise:** Du kennst die 12 Schritte des triadischen KI-Coachings, 
-      Ausbalancierungsprobleme, Schlüsselaffekte, Komplementärkräfte und Erfolgsimagination.
-      
-      **WICHTIG:** Nutze dein Fachwissen aus dem triadischen System und den Textbausteinen 
-      zu Ausbalancierungsproblemen aktiv.`;
-      
-      return basePrompt;
-    }
-
-    // Repository-Funktionen
-    function openRepository() {
-      document.getElementById('repositoryModal').style.display = 'flex';
-      loadRepositoryPrompts();
-      setTimeout(() => {
-        setupRepositorySearch();
-      }, 100);
-    }
-
-    function closeRepository() {
-      document.getElementById('repositoryModal').style.display = 'none';
-    }
-
-    function loadRepositoryPrompts() {
-      Object.keys(repositoryPrompts).forEach(category => {
-        const container = document.getElementById(`${category}-repo-prompts`);
-        if (container) {
-          container.innerHTML = repositoryPrompts[category].map(prompt => `
-            <div class="repo-prompt-card" onclick="copyRepositoryPrompt('${prompt.code}', '${prompt.prompt.replace(/'/g, "\\'")}')">
-              <div class="repo-prompt-name">
-                <span class="repo-prompt-code">${prompt.code}</span>
-                ${prompt.name}
-              </div>
-              <div class="repo-prompt-text">${prompt.prompt}</div>
-            </div>
-          `).join('');
-        }
-      });
-    }
-
-    function copyRepositoryPrompt(code, text) {
-      navigator.clipboard.writeText(text).then(() => {
-        // Visuelles Feedback
-        const cards = document.querySelectorAll('.repo-prompt-card');
-        cards.forEach(card => {
-          if (card.innerHTML.includes(code)) {
-            card.classList.add('copied');
-            setTimeout(() => card.classList.remove('copied'), 1000);
-          }
-        });
-        
-        // Prompt auch in Chat-Input einfügen
-        const chatInput = document.getElementById('coachingInput');
-        if (chatInput) {
-          chatInput.value = text;
-          chatInput.focus();
-        }
-      }).catch(err => {
-        console.error('Fehler beim Kopieren:', err);
-        alert('Fehler beim Kopieren des Prompts');
-      });
-    }
-
-    // Repository-Suchfunktion
-    function setupRepositorySearch() {
-      const searchInput = document.getElementById('repoSearchInput');
-      if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-          const searchTerm = e.target.value.toLowerCase();
-          
-          Object.keys(repositoryPrompts).forEach(category => {
-            const container = document.getElementById(`${category}-repo-prompts`);
-            const cards = container.querySelectorAll('.repo-prompt-card');
-            
-            cards.forEach(card => {
-              const cardText = card.textContent.toLowerCase();
-              if (cardText.includes(searchTerm) || searchTerm === '') {
-                card.style.display = 'block';
-              } else {
-                card.style.display = 'none';
-              }
+                stepElement.onclick = () => goToStep(step.id);
+                progressBar.appendChild(stepElement);
             });
-          });
+        }
+
+        // Step Details Rendering
+        function renderStepDetails() {
+            const step = steps.find(s => s.id === currentStep);
+            const stepDetails = document.getElementById('stepDetails');
+            
+            const phaseClass = `phase-${step.phase.toLowerCase()}`;
+            
+            stepDetails.innerHTML = `
+                <div class="phase-badge ${phaseClass}">Phase ${step.phase}</div>
+                <div class="step-title">${step.id}. ${step.title}</div>
+                <ul class="task-list">
+                    ${step.tasks.map((task, index) => `
+                        <li class="task-item ${stepData[currentStep]?.tasks?.[index] ? 'completed' : ''}">
+                            <input type="checkbox" class="task-checkbox" 
+                                   ${stepData[currentStep]?.tasks?.[index] ? 'checked' : ''}
+                                   onchange="toggleTask(${index})">
+                            <span class="task-text">${task}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+
+            updateSuggestions();
+        }
+
+        // Update Suggestions
+        function updateSuggestions() {
+            const step = steps.find(s => s.id === currentStep);
+            
+            // Coaching Suggestions
+            const coachingSuggestions = document.getElementById('coachingSuggestions');
+            coachingSuggestions.innerHTML = `
+                <h4>💡 Empfohlene Fragen für diesen Schritt:</h4>
+                ${step.coachingSuggestions.map(suggestion => `
+                    <div class="suggestion-item" onclick="insertText('coaching', '${suggestion.replace(/'/g, "\\'")}')">
+                        ${suggestion}
+                    </div>
+                `).join('')}
+            `;
+
+            // Assistant Suggestions
+            const assistantSuggestions = document.getElementById('assistantSuggestions');
+            assistantSuggestions.innerHTML = `
+                <h4>🔧 KI-Unterstützung für diesen Schritt:</h4>
+                ${step.assistantSuggestions.map(suggestion => `
+                    <div class="suggestion-item" onclick="insertText('assistant', '${suggestion.replace(/'/g, "\\'")}')">
+                        ${suggestion}
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Task Management
+        function toggleTask(taskIndex) {
+            if (!stepData[currentStep]) stepData[currentStep] = { tasks: [] };
+            if (!stepData[currentStep].tasks) stepData[currentStep].tasks = [];
+            
+            stepData[currentStep].tasks[taskIndex] = !stepData[currentStep].tasks[taskIndex];
+            
+            // Check if all tasks are completed
+            const step = steps.find(s => s.id === currentStep);
+            const allCompleted = step.tasks.every((_, index) => stepData[currentStep].tasks[index]);
+            stepData[currentStep].completed = allCompleted;
+            
+            saveStepData();
+            renderProgressBar();
+            renderStepDetails();
+        }
+
+        // Navigation
+        function goToStep(stepId) {
+            currentStep = stepId;
+            renderProgressBar();
+            renderStepDetails();
+            updateNavigation();
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                renderProgressBar();
+                renderStepDetails();
+                updateNavigation();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length) {
+                currentStep++;
+                renderProgressBar();
+                renderStepDetails();
+                updateNavigation();
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentStep === 1;
+            document.getElementById('nextBtn').disabled = currentStep === steps.length;
+            document.getElementById('stepCounter').textContent = `Schritt ${currentStep} von ${steps.length}`;
+        }
+
+        // Chat Functions
+        function sendMessage(chatType) {
+            const inputId = chatType === 'coaching' ? 'coachingInput' : 'assistantInput';
+            const messagesId = chatType === 'coaching' ? 'coachingMessages' : 'assistantMessages';
+            
+            const input = document.getElementById(inputId);
+            const messages = document.getElementById(messagesId);
+            
+            if (input.value.trim()) {
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.textContent = input.value;
+                messages.appendChild(userMessage);
+                
+                // Simulate AI response (in real implementation, this would call OpenAI API)
+                simulateAIResponse(messagesId, chatType, input.value);
+                
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        function simulateAIResponse(messagesId, chatType, userMessage) {
+            const messages = document.getElementById(messagesId);
+            
+            setTimeout(() => {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai';
+                
+                if (chatType === 'coaching') {
+                    aiMessage.textContent = `Vielen Dank für Ihr Vertrauen. Ich verstehe, dass Sie "${userMessage.substring(0, 50)}..." beschäftigt. Das ist eine wichtige Beobachtung. Lassen Sie uns das gemeinsam weiter erkunden...`;
+                } else {
+                    aiMessage.textContent = `Basierend auf Ihrer Anfrage "${userMessage.substring(0, 50)}..." empfehle ich Ihnen, die Ausbalancierungsdimensionen zu analysieren. Nutzen Sie Prompt T${currentStep} aus dem Repository für eine strukturierte Herangehensweise.`;
+                }
+                
+                messages.appendChild(aiMessage);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+        }
+
+        function insertText(chatType, text) {
+            const inputId = chatType === 'coaching' ? 'coachingInput' : 'assistantInput';
+            const input = document.getElementById(inputId);
+            input.value = text;
+            input.focus();
+        }
+
+        // Repository Functions
+        function openRepository() {
+            document.getElementById('repositoryModal').style.display = 'block';
+        }
+
+        function closeRepository() {
+            document.getElementById('repositoryModal').style.display = 'none';
+        }
+
+        function renderRepositoryContent() {
+            const content = document.getElementById('repositoryContent');
+            content.innerHTML = '';
+
+            Object.keys(promptDatabase).forEach(categoryKey => {
+                const category = promptDatabase[categoryKey];
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category';
+                categoryElement.innerHTML = `
+                    <div class="category-header">
+                        ${category.title}
+                        <div class="category-description">${category.description}</div>
+                    </div>
+                    <div class="prompts-grid">
+                        ${Object.keys(category.prompts).map(promptKey => `
+                            <div class="prompt-card" onclick="copyPrompt('${promptKey}', \`${category.prompts[promptKey].replace(/`/g, '\\`').replace(/\$/g, '\\)}\`)">
+                                <div class="prompt-code">${promptKey}</div>
+                                <div class="prompt-text">${category.prompts[promptKey].substring(0, 150)}${category.prompts[promptKey].length > 150 ? '...' : ''}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                content.appendChild(categoryElement);
+            });
+        }
+
+        function searchPrompts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categories = document.querySelectorAll('.category');
+            
+            categories.forEach(category => {
+                const prompts = category.querySelectorAll('.prompt-card');
+                let hasVisiblePrompts = false;
+                
+                prompts.forEach(prompt => {
+                    const code = prompt.querySelector('.prompt-code').textContent.toLowerCase();
+                    const text = prompt.querySelector('.prompt-text').textContent.toLowerCase();
+                    
+                    if (code.includes(searchTerm) || text.includes(searchTerm)) {
+                        prompt.style.display = 'block';
+                        hasVisiblePrompts = true;
+                    } else {
+                        prompt.style.display = 'none';
+                    }
+                });
+                
+                category.style.display = hasVisiblePrompts ? 'block' : 'none';
+            });
+        }
+
+        function copyPrompt(code, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyFeedback();
+                
+                // Also insert into active chat input
+                const coachingInput = document.getElementById('coachingInput');
+                const assistantInput = document.getElementById('assistantInput');
+                
+                // Determine which input to use based on prompt type
+                if (code.startsWith('T') || code.startsWith('TB') || code.startsWith('D') || code.startsWith('PG')) {
+                    assistantInput.value = text;
+                } else {
+                    coachingInput.value = text;
+                }
+            });
+        }
+
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+
+        // Data Persistence
+        function saveStepData() {
+            localStorage.setItem('coaching-step-data', JSON.stringify(stepData));
+        }
+
+        function loadStepData() {
+            const saved = localStorage.getItem('coaching-step-data');
+            stepData = saved ? JSON.parse(saved) : {};
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeRepository();
+            }
+            
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'coachingInput') {
+                    sendMessage('coaching');
+                } else if (activeElement.id === 'assistantInput') {
+                    sendMessage('assistant');
+                }
+            }
         });
-      }
-    }
 
-    // Modal bei Klick außerhalb schließen
-    window.onclick = function(event) {
-      const modal = document.getElementById('repositoryModal');
-      if (event.target === modal) {
-        closeRepository();
-      }
-    }
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('repositoryModal');
+            if (event.target === modal) {
+                closeRepository();
+            }
+        }
 
-    // Datum/Zeit aktualisieren
-    function updateDateTime() {
-      const now = new Date();
-      const formatted = now.toLocaleString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      document.getElementById('currentDateTime').textContent = formatted;
-    }
-
-    // Initialisierung beim Laden
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
 </body>
 </html>
