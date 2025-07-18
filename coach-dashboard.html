@@ -393,7 +393,7 @@
         }
 
         function copyCoacheeLink() {
-            const coacheeUrl = window.location.origin + window.location.pathname.replace('coaching-interface-12-steps.html', 'coachee-interface.html') + '?session=' + sessionId;
+            const coacheeUrl = window.location.origin + '/coachee-interface.html?session=' + sessionId;
             navigator.clipboard.writeText(coacheeUrl).then(() => {
                 showCopyFeedback('Coachee-Link kopiert!');
             });

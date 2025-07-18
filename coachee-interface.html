@@ -39,7 +39,7 @@
     <div class="chat-container">
         <div class="chat-header">
             <h1>🎯 Coaching-Session</h1>
-            <p>Willkommen zu Ihrem persönlichen Coaching</p>
+            <p>Ihr persönliches Coaching mit KI-Unterstützung</p>
             <div class="connection-status" id="connectionStatus">Verbindung wird hergestellt...</div>
         </div>
         
@@ -89,12 +89,7 @@
                 document.getElementById('messageInput').disabled = false;
                 document.getElementById('sendBtn').disabled = false;
                 
-                // Erste Coach-Nachricht
-                addMessage('coach', 'Hallo! Schön, dass Sie da sind. Ich bin Ihr Coach für diese Session. Lassen Sie uns gemeinsam an Ihrem Anliegen arbeiten.', getCurrentTime());
-                
-                setTimeout(() => {
-                    addMessage('coach', 'Beschreiben Sie mir bitte zunächst in 1-2 Sätzen, was Sie heute erreichen möchten.', getCurrentTime());
-                }, 2000);
+                // KEINE automatischen Coach-Nachrichten - Coach begrüßt mündlich!
             }, 3000);
         }
 
