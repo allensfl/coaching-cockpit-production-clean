@@ -451,10 +451,6 @@
             position: relative;
         }
 
-        .prompt-text.expanded {
-            max-height: none;
-        }
-
         .copy-feedback {
             position: fixed;
             top: 20px;
@@ -612,7 +608,7 @@
     <div id="copyFeedback" class="copy-feedback">Prompt kopiert! ✓</div>
 
     <script>
-        // 12-Schritte Definition
+        // 12-Schritte Definition mit allen Details
         const steps = [
             {
                 id: 1,
@@ -868,46 +864,46 @@
             }
         ];
 
-        // Prompt Database
+        // Vollständige Prompt Database mit allen 73 Prompts
         const promptDatabase = {
             'ki_phase1': {
                 title: '🤖 KI-Prompts Phase 1',
                 description: 'Anweisungen AN die KI',
                 prompts: {
-                    'T1': 'Ich habe folgendes Problem...',
-                    'T2': 'Erstelle einen in Ich-Form geschriebenen Bericht, in dem alle bisher vorliegenden Informationen der Problem- und Zielbeschreibung zusammengefasst sind. Gliedere diesen Bericht in zwei Teile...',
-                    'T3': 'Analysiere die vorliegenden Informationen und identifiziere die Kernproblematik...',
-                    'T4': 'Identifiziere aus dem Textbaustein Ausbalancierungsprobleme die relevanten Spannungsfelder...'
+                    'T1': 'Ich habe folgendes Problem und möchte es mit Ihnen bearbeiten...',
+                    'T2': 'Erstelle einen in Ich-Form geschriebenen Bericht, in dem alle bisher vorliegenden Informationen der Problem- und Zielbeschreibung zusammengefasst sind. Gliedere diesen Bericht in zwei Teile: 1) Problembeschreibung und 2) Zielbeschreibung.',
+                    'T3': 'Analysiere die vorliegenden Informationen und identifiziere die Kernproblematik. Welche Muster und Zusammenhänge sind erkennbar?',
+                    'T4': 'Identifiziere aus dem Textbaustein Ausbalancierungsprobleme die relevanten Spannungsfelder für diese Problematik.'
                 }
             },
             'ki_phase2': {
                 title: '🤖 KI-Prompts Phase 2',
                 description: 'Anweisungen AN die KI',
                 prompts: {
-                    'T7A': 'Versetze dich bitte in die Bremse...',
-                    'T7B': 'Analysiere das obige Transkript sowie alle momentan vorliegenden Informationen zu meiner Coachingproblematik mit Hilfe des Textbausteins Ausbalancierungsprobleme...',
-                    'T7C': 'Führe eine systemische Analyse durch...'
+                    'T7A': 'Versetze dich bitte in die Bremse - den inneren Anteil, der vor Veränderung warnt. Was würde dieser Anteil sagen?',
+                    'T7B': 'Analysiere das obige Transkript sowie alle momentan vorliegenden Informationen zu meiner Coachingproblematik mit Hilfe des Textbausteins Ausbalancierungsprobleme und erstelle mit Blick auf die 18 Ausbalancierungsdimensionen eine detaillierte Diagnose.',
+                    'T7C': 'Führe eine systemische Analyse durch und identifiziere alle relevanten Faktoren und Akteure.'
                 }
             },
             'ki_phase3': {
-                title: '🤖 KI-Prompts Phase 3', 
+                title: '🤖 KI-Prompts Phase 3',
                 description: 'Anweisungen AN die KI',
                 prompts: {
-                    'T8': 'Entwickle Lösungsstrategien basierend auf der Analyse...',
-                    'T10': 'Erstelle einen Handlungsplan...',
-                    'T11': 'Orientiere dich bei dieser Aufgabe an dem Textbaustein Ausbalancierungsprobleme, da ist Coaching-diagnostisches Wissen hinterlegt...'
+                    'T8': 'Entwickle konkrete Lösungsstrategien basierend auf der vorangegangenen Analyse.',
+                    'T10': 'Erstelle einen detaillierten Handlungsplan mit konkreten Schritten und Terminen.',
+                    'T11': 'Orientiere dich bei dieser Aufgabe an dem Textbaustein Ausbalancierungsprobleme, da ist Coaching-diagnostisches Wissen hinterlegt. Gehe dabei im Einzelnen folgendermaßen vor: Beziehe dich auf die Komplementärkräfte und entwickle eine Erfolgsimagination.'
                 }
             },
             'coach_instructions': {
                 title: '👨‍💼 Coach-Anweisungen',
                 description: 'WIE der Coach vorgeht',
                 prompts: {
-                    'C1': 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen - das ist der Teil, der dieses Ziel erreichen will...',
-                    'C2': 'Führen Sie den Klienten durch eine systematische Exploration...',
-                    'C3': 'Ich möchte gerne mit der Bremse sprechen...',
-                    'C4': 'Leiten Sie eine Ressourcen-Aktivierung ein...',
-                    'C5': 'Unterstützen Sie den Transformationsprozess...',
-                    'C6': 'Begleiten Sie die Integration der Erkenntnisse...'
+                    'C1': 'Stellen Sie sich vor, da ist ein Teamchef in Ihnen - das ist der Teil, der dieses Ziel erreichen will. Wählen Sie eine Figur für diesen Teamchef und beschreiben Sie ihn.',
+                    'C2': 'Führen Sie den Klienten durch eine systematische Exploration der verschiedenen inneren Anteile.',
+                    'C3': 'Ich möchte gerne mit der Bremse sprechen - dem Anteil, der Sie vor Veränderung schützen will.',
+                    'C4': 'Leiten Sie eine Ressourcen-Aktivierung ein und identifizieren Sie vorhandene Stärken.',
+                    'C5': 'Unterstützen Sie den Transformationsprozess der inneren Anteile.',
+                    'C6': 'Begleiten Sie die Integration der Erkenntnisse in den Alltag.'
                 }
             },
             'client_questions': {
@@ -931,18 +927,18 @@
                     'SP1': 'Zwischen welchen Polen bewegen Sie sich gerade?',
                     'SP20': 'Wie balancieren Sie Aktivität und Ruhe?',
                     'SP21': 'Was bedeutet Erfolg für Sie in dieser Lebensphase?',
-                    'SP23': 'Wenn Sie an Ihre Arbeitszeit denken...',
-                    'SP24': 'Schwanken Sie zwischen Struktur und Freiheit?',
+                    'SP23': 'Wenn Sie an Ihre Arbeitszeit denken - was vermissen Sie, was nicht?',
+                    'SP24': 'Schwanken Sie zwischen dem Wunsch nach Struktur und dem nach Freiheit?',
                     'SP25': 'Wie gehen Sie mit dem Gefühl von Nutzlosigkeit um?',
-                    'SP26': 'Zwischen Alleinsein und Gesellschaft...',
+                    'SP26': 'Zwischen Alleinsein und Gesellschaft - wo fühlen Sie sich wohl?',
                     'SP27': 'Schwanken Sie zwischen Gesellschaft und Ruhe?',
                     'SP28': 'Wie erleben Sie den Wandel Ihrer sozialen Rolle?',
                     'SP36': 'Wie gehen Sie mit körperlichen Veränderungen um?',
-                    'SP37': 'Zwischen Vitalität und Akzeptanz...',
+                    'SP37': 'Zwischen Vitalität und Akzeptanz - wo stehen Sie?',
                     'SP38': 'Wie denken Sie über Ihre Endlichkeit?',
-                    'SP33': 'Was gibt Ihrem Leben Sinn?',
-                    'SP39': 'Zwischen Bewahrung und Neubeginn...',
-                    'SP40': 'Wie möchten Sie weiterwachsen?'
+                    'SP33': 'Was gibt Ihrem Leben Sinn und Bedeutung?',
+                    'SP39': 'Zwischen Bewahrung des Erreichten und Neubeginn?',
+                    'SP40': 'Wie möchten Sie in dieser Lebensphase noch weiterwachsen?'
                 }
             },
             'diagnostik': {
@@ -1092,7 +1088,7 @@
             coachingSuggestions.innerHTML = `
                 <h4>💡 Empfohlene Fragen für diesen Schritt:</h4>
                 ${step.coachingSuggestions.map(suggestion => `
-                    <div class="suggestion-item" onclick="insertText('coaching', '${suggestion.replace(/'/g, "\\'")}')">
+                    <div class="suggestion-item" onclick="insertText('coaching', \`${suggestion}\`)">
                         ${suggestion}
                     </div>
                 `).join('')}
@@ -1103,7 +1099,7 @@
             assistantSuggestions.innerHTML = `
                 <h4>🔧 KI-Unterstützung für diesen Schritt:</h4>
                 ${step.assistantSuggestions.map(suggestion => `
-                    <div class="suggestion-item" onclick="insertText('assistant', '${suggestion.replace(/'/g, "\\'")}')">
+                    <div class="suggestion-item" onclick="insertText('assistant', \`${suggestion}\`)">
                         ${suggestion}
                     </div>
                 `).join('')}
@@ -1115,11 +1111,6 @@
             if (!stepData[currentStep]) stepData[currentStep] = { tasks: [] };
             if (!stepData[currentStep].tasks) stepData[currentStep].tasks = [];
             
-            stepData[currentStep].tasks[taskIndex] = !stepData[currentStep].tasks[taskIndex];
-            
-            // Check if all tasks are completed
-            const step = steps.find(s => s.id === currentStep);
-            const allCompleted = step.tasks.every((_, index) => stepData[currentStep].tasks[index]);
             stepData[currentStep].completed = allCompleted;
             
             saveStepData();
@@ -1231,7 +1222,12 @@
                     </div>
                     <div class="prompts-grid">
                         ${Object.keys(category.prompts).map(promptKey => `
-                            <div class="prompt-card" onclick="copyPrompt('${promptKey}', \`${category.prompts[promptKey].replace(/`/g, '\\`').replace(/\$/g, '\\)}\`)">
+                            <div class="prompt-card" onclick="copyPrompt('${promptKey}', \`${category.prompts[promptKey].replace(/`/g, '\\`').replace(/\$/g, '\\Step].tasks[taskIndex] = !stepData[currentStep].tasks[taskIndex];
+            
+            // Check if all tasks are completed
+            const step = steps.find(s => s.id === currentStep);
+            const allCompleted = step.tasks.every((_, index) => stepData[currentStep].tasks[index]);
+            stepData[current)}\`)">
                                 <div class="prompt-code">${promptKey}</div>
                                 <div class="prompt-text">${category.prompts[promptKey].substring(0, 150)}${category.prompts[promptKey].length > 150 ? '...' : ''}</div>
                             </div>
@@ -1293,12 +1289,20 @@
 
         // Data Persistence
         function saveStepData() {
-            localStorage.setItem('coaching-step-data', JSON.stringify(stepData));
+            try {
+                localStorage.setItem('coaching-step-data', JSON.stringify(stepData));
+            } catch (e) {
+                console.log('LocalStorage nicht verfügbar');
+            }
         }
 
         function loadStepData() {
-            const saved = localStorage.getItem('coaching-step-data');
-            stepData = saved ? JSON.parse(saved) : {};
+            try {
+                const saved = localStorage.getItem('coaching-step-data');
+                stepData = saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                stepData = {};
+            }
         }
 
         // Event Listeners
@@ -1329,4 +1333,9 @@
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
-</html>
+</html>Step].tasks[taskIndex] = !stepData[currentStep].tasks[taskIndex];
+            
+            // Check if all tasks are completed
+            const step = steps.find(s => s.id === currentStep);
+            const allCompleted = step.tasks.every((_, index) => stepData[currentStep].tasks[index]);
+            stepData[current
