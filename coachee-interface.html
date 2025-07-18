@@ -58,8 +58,9 @@
         </div>
         
         <div class="chat-input-container">
-            <textarea class="chat-input" id="messageInput" placeholder="Schreiben Sie Ihre Nachricht..." rows="2" disabled></textarea>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>Nachricht senden</button>
+            <div style="text-align: center; color: #718096; padding: 20px; font-style: italic;">
+                Sprechen Sie mit Ihrem Coach - die wichtigsten Punkte werden hier schriftlich festgehalten.
+            </div>
         </div>
     </div>
 
@@ -86,10 +87,9 @@
                 document.getElementById('connectionStatus').textContent = 'Verbunden mit Coach';
                 document.getElementById('connectionStatus').classList.add('connected');
                 document.getElementById('waitingMessage').style.display = 'none';
-                document.getElementById('messageInput').disabled = false;
-                document.getElementById('sendBtn').disabled = false;
                 
-                // KEINE automatischen Coach-Nachrichten - Coach begrüßt mündlich!
+                // Hinweis für mündliche Kommunikation
+                addMessage('coach', 'Sie können jetzt sprechen - ich höre zu und halte die wichtigsten Punkte schriftlich fest.', getCurrentTime());
             }, 3000);
         }
 
