@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach-Dashboard - Triadisches KI-Coaching</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; }
+        .main-container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        .header { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .session-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .session-info h1 { color: #4a5568; font-size: 24px; }
+        .session-details { background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .session-id { font-family: monospace; background: #e2e8f0; padding: 5px 10px; border-radius: 4px; font-size: 14px; }
+        .coachee-link { background: #48bb78; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; margin-left: 10px; }
+        .header-buttons { display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; transform: translateY(-2px); }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .progress-container { background: #f7fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .progress-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative; }
+        .progress-bar::before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #e2e8f0; z-index: 1; }
+        .step { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; cursor: pointer; transition: all 0.3s; }
+        .step-circle { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; color: #a0aec0; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 8px; transition: all 0.3s; }
+        .step.active .step-circle { background: #667eea; color: white; }
+        .step.completed .step-circle { background: #48bb78; color: white; }
+        .step-label { font-size: 11px; text-align: center; color: #4a5568; max-width: 80px; }
+        .step-details { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .step-title { color: #2d3748; font-size: 18px; margin-bottom: 15px; font-weight: 600; }
+        .task-list { list-style: none; margin-bottom: 15px; }
+        .task-item { display: flex; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .task-item:last-child { border-bottom: none; }
+        .task-checkbox { margin-right: 10px; margin-top: 2px; }
+        .task-text { flex: 1; line-height: 1.4; font-size: 14px; }
+        .task-item.completed .task-text { text-decoration: line-through; color: #a0aec0; }
+        .chat-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; margin-bottom: 20px; height: 600px; }
+        .coachee-dialog { grid-column: 1; grid-row: 1 / 3; }
+        .ki-assistant { grid-column: 2; grid-row: 1; }
+        .coach-notes { grid-column: 2; grid-row: 2; }
+        .chat-panel { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .chat-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .coachee-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .ki-header { background: linear-gradient(135deg, #48bb78, #38a169); color: white; }
+        .notes-header { background: linear-gradient(135deg, #ed8936, #dd6b20); color: white; }
+        .connection-status { font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+        .connected { background: rgba(72, 187, 120, 0.2); color: #22543d; }
+        .disconnected { background: rgba(245, 101, 101, 0.2); color: #742a2a; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f7fafc; }
+        .message { margin-bottom: 12px; padding: 10px 14px; border-radius: 10px; max-width: 85%; }
+        .message.coach { background: #667eea; color: white; margin-left: auto; }
+        .message.coachee { background: white; color: #2d3748; border: 1px solid #e2e8f0; }
+        .message.ki { background: #e6fffa; color: #234e52; border: 1px solid #81e6d9; position: relative; }
+        .forward-btn { position: absolute; top: 8px; right: 8px; background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; opacity: 0.8; transition: all 0.2s; }
+        .forward-btn:hover { opacity: 1; background: #5a6fd8; }
+        .forward-modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .forward-modal-content { background: white; margin: 10% auto; padding: 20px; border-radius: 12px; width: 90%; max-width: 600px; }
+        .forward-modal h3 { margin-bottom: 15px; color: #2d3748; }
+        .forward-text { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; min-height: 100px; font-family: inherit; font-size: 14px; }
+        .forward-buttons { margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end; }
+        .forward-buttons button { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-send-to-coachee { background: #48bb78; color: white; }
+        .btn-cancel { background: #e2e8f0; color: #4a5568; }
+        .message.note { background: #fed7d7; color: #822727; border: 1px solid #feb2b2; }
+        .message-sender { font-size: 11px; font-weight: 600; margin-bottom: 4px; opacity: 0.8; }
+        .message-time { font-size: 10px; opacity: 0.6; float: right; }
+        .chat-input-container { padding: 15px; border-top: 1px solid #e2e8f0; }
+        .chat-input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 35px; }
+        .chat-input:focus { outline: none; border-color: #667eea; }
+        .send-btn { margin-top: 8px; background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 14px; }
+        .send-btn:hover { background: #5a6fd8; }
+        .send-btn.ki { background: #48bb78; }
+        .send-btn.ki:hover { background: #38a169; }
+        .send-btn.notes { background: #ed8936; }
+        .send-btn.notes:hover { background: #dd6b20; }
+        .navigation { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .suggestions { background: #f0f4f8; border-radius: 6px; padding: 12px; margin-top: 10px; }
+        .suggestions h4 { color: #2d3748; margin-bottom: 8px; font-size: 13px; }
+        .suggestion-item { background: white; padding: 8px; margin: 4px 0; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+        .suggestion-item:hover { background: #e2e8f0; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 2% auto; padding: 0; border-radius: 15px; width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px 15px 0 0; }
+        .modal-body { flex: 1; padding: 25px; overflow-y: auto; background: #f8f9fa; }
+        .close { color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { opacity: 0.7; }
+        .search-container { margin-bottom: 20px; position: sticky; top: 0; background: #f8f9fa; padding-bottom: 15px; z-index: 10; }
+        .search-input { width: 100%; padding: 15px 20px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; background: white; }
+        .search-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 10px rgba(102, 126, 234, 0.2); }
+        .stats-bar { text-align: center; padding: 10px; background: #e2e8f0; border-radius: 8px; margin-bottom: 20px; color: #4a5568; font-weight: 500; }
+        .category-section { margin-bottom: 30px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .category-header { background: linear-gradient(135deg, #f7fafc, #edf2f7); padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .category-icon { font-size: 1.2em; }
+        .category-title { font-size: 1.2em; font-weight: 600; color: #2d3748; }
+        .category-subtitle { font-size: 0.9em; color: #4a5568; margin-left: auto; }
+        .prompts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; padding: 20px; }
+        .prompt-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; cursor: pointer; transition: all 0.3s; position: relative; }
+        .prompt-card:hover { border-color: #667eea; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15); transform: translateY(-2px); }
+        .prompt-card.hidden { display: none; }
+        .prompt-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+        .prompt-code { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 0.9em; min-width: 50px; text-align: center; }
+        .prompt-title { font-weight: 600; color: #2d3748; font-size: 1em; line-height: 1.3; flex: 1; }
+        .prompt-description { color: #666; font-size: 0.85em; line-height: 1.4; margin-bottom: 10px; }
+        .prompt-text { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-family: 'Courier New', monospace; font-size: 0.8em; line-height: 1.4; color: #2d3436; margin-bottom: 10px; max-height: 100px; overflow: hidden; position: relative; }
+        .prompt-text::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 20px; background: linear-gradient(transparent, #f8f9fa); }
+        .prompt-actions { display: flex; justify-content: space-between; align-items: center; }
+        .prompt-phase { background: #e3f2fd; color: #1976d2; padding: 3px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 500; }
+        .copy-btn { background: linear-gradient(135deg, #00b894 0%, #00cec9 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: 500; transition: all 0.3s; }
+        .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,184,148,0.3); }
+        .copy-btn.copied { background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); }
+        .copy-feedback { position: fixed; top: 20px; right: 20px; background: #48bb78; color: white; padding: 10px 16px; border-radius: 6px; font-weight: 500; z-index: 1001; transform: translateX(100%); transition: transform 0.3s; font-size: 14px; }
+        .copy-feedback.show { transform: translateX(0); }
+        .phase-badge { display: inline-block; background: #e2e8f0; color: #4a5568; padding: 3px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; margin-bottom: 8px; }
+        .phase-a { background: #fef5e7; color: #744210; }
+        .phase-b { background: #e6fffa; color: #234e52; }
+        .phase-c { background: #f0fff4; color: #22543d; }
+        @media (max-width: 1200px) { .chat-container { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; } .coachee-dialog { grid-column: 1; grid-row: 1; } .ki-assistant { grid-column: 1; grid-row: 2; } .coach-notes { grid-column: 1; grid-row: 3; } .chat-panel { height: 400px; } .prompts-grid { grid-template-columns: 1fr; } .prompt-card { padding: 12px; } }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="session-info">
+                <div>
+                    <h1>🎯 Coach-Dashboard - Triadisches KI-Coaching</h1>
+                    <div class="session-details">
+                        <strong>Session:</strong> <span class="session-id" id="sessionId">COACH-2025-001</span>
+                        <a href="#" class="coachee-link" onclick="copyCoacheeLink()">📋 Coachee-Link kopieren</a>
+                        <div style="margin-top: 5px; font-size: 14px; color: #4a5568;">
+                            <strong>Coachee-Status:</strong> <span class="connection-status disconnected" id="coacheeStatus">Nicht verbunden</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-buttons">
+                    <button class="btn btn-primary" onclick="openRepository()">🧠 Repository (83 Prompts)</button>
+                    <button class="btn btn-secondary" onclick="startNewSession()">🔄 Neue Session</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="step-details" id="stepDetails"></div>
+
+        <div class="chat-container">
+            <!-- Coachee Dialog - Was der Coachee sieht -->
+            <div class="chat-panel coachee-dialog">
+                <div class="chat-header coachee-header">
+                    💬 Dialog mit Coachee
+                    <span class="connection-status disconnected" id="coacheeConnectionStatus">Offline</span>
+                </div>
+                <div class="chat-messages" id="coacheeMessages">
+                    <div class="message coachee">
+                        <div class="message-sender">System</div>
+                        Warten auf Coachee-Verbindung... Teilen Sie den Coachee-Link für den Start der Session.
+                        <div class="message-time">16:22</div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="coacheeInput" placeholder="Nachricht an Coachee..." rows="2"></textarea>
+                    <button class="send-btn" onclick="sendMessage('coachee')">An Coachee senden</button>
+                </div>
+                <div class="suggestions" id="coacheeSuggestions">
+                    <h4>💡 Empfohlene Fragen für diesen Schritt:</h4>
+                </div>
+            </div>
+
+            <!-- KI Assistant - Private Coach ↔ KI Kommunikation -->
+            <div class="chat-panel ki-assistant">
+                <div class="chat-header ki-header">
+                    🤖 KI-Assistent (privat)
+                </div>
+                <div class="chat-messages" id="kiMessages">
+                    <div class="message ki">
+                        <div class="message-sender">KI-Assistent</div>
+                        Bereit für Coaching-Unterstützung. Nutzen Sie das Repository für strukturierte Prompts oder fragen Sie mich direkt.
+                        <div class="message-time">16:22</div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="kiInput" placeholder="Frage an KI-Assistenten..." rows="2"></textarea>
+                    <button class="send-btn ki" onclick="sendMessage('ki')">KI fragen</button>
+                </div>
+                <div class="suggestions" id="kiSuggestions">
+                    <h4>🔧 KI-Unterstützung für diesen Schritt:</h4>
+                </div>
+            </div>
+
+            <!-- Coach Notes - Private Notizen -->
+            <div class="chat-panel coach-notes">
+                <div class="chat-header notes-header">
+                    📋 Coach-Notizen (privat)
+                </div>
+                <div class="chat-messages" id="notesMessages">
+                    <div class="message note">
+                        <div class="message-sender">Notiz</div>
+                        Session gestartet - warte auf Coachee. Ziel: Strukturierter 12-Schritte Prozess.
+                        <div class="message-time">16:22</div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="notesInput" placeholder="Private Notizen..." rows="2"></textarea>
+                    <button class="send-btn notes" onclick="sendMessage('notes')">Notiz hinzufügen</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn btn-secondary" onclick="previousStep()" id="prevBtn">← Vorheriger</button>
+            <span id="stepCounter">Schritt 1 von 12</span>
+            <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">Nächster →</button>
+        </div>
+    </div>
+
+    <!-- Repository Modal -->
+    <div id="repositoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🧠 Triadisches Repository - 83 Prompts</h2>
+                <span class="close" onclick="closeRepository()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Suchen nach Codes oder Stichwörtern... (GT1, SF3, Widerstand, Spannungsfeld)" oninput="searchPrompts()">
+                </div>
+                <div class="stats-bar" id="statsDisplay">83 Prompts verfügbar • 8 Kategorien • Vollständiges System</div>
+                <div id="repositoryContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forward to Coachee Modal -->
+    <div id="forwardModal" class="forward-modal">
+        <div class="forward-modal-content">
+            <h3>📤 An Coachee weiterleiten</h3>
+            <p style="margin-bottom: 15px; color: #4a5568; font-size: 14px;">
+                Bearbeiten Sie die Nachricht bevor Sie sie an den Coachee senden:
+            </p>
+            <textarea id="forwardText" class="forward-text" placeholder="Nachricht bearbeiten..."></textarea>
+            <div class="forward-buttons">
+                <button class="btn-cancel" onclick="closeForwardModal()">Abbrechen</button>
+                <button class="btn-send-to-coachee" onclick="sendToCoachee()">An Coachee senden</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="copyFeedback" class="copy-feedback">Kopiert! ✓</div>
+
+    <script>
+        const steps = [
+            {id: 1, title: "Problem- und Zielbeschreibung", phase: "A", tasks: ["Problem beschreiben", "Ziele definieren", "Wichtigkeit bewerten", "Ressourcen identifizieren"], coachingSuggestions: ["Was möchten Sie erreichen?", "Wie wichtig ist dieses Ziel?", "Was hindert Sie?"], assistantSuggestions: ["Analysiere Ausbalancierungsprobleme", "Identifiziere Ressourcen", "Prüfe Zielformulierung"]},
+            {id: 2, title: "Systemische Einordnung", phase: "A", tasks: ["Kontext erfassen", "Beteiligte identifizieren", "Wechselwirkungen analysieren", "Systemressourcen erkunden"], coachingSuggestions: ["Wer ist betroffen?", "Welche Rollen spielen andere?", "Wie sehen andere die Situation?"], assistantSuggestions: ["Erstelle systemische Karte", "Analysiere Abhängigkeiten", "Identifiziere Allianzen"]},
+            {id: 3, title: "Bildmetapher entwickeln", phase: "A", tasks: ["Inneres Bild finden", "Metapher beschreiben", "Emotionale Resonanz", "Veränderungspotential"], coachingSuggestions: ["Wie sähe Ihre Situation als Bild aus?", "Welche Farben sehen Sie?", "Was fühlen Sie dabei?"], assistantSuggestions: ["Unterstütze Bildentwicklung", "Erkunde Symbolik", "Finde Veränderungsmöglichkeiten"]},
+            {id: 4, title: "Ausbalancierungsprobleme", phase: "A", tasks: ["Spannungsfelder identifizieren", "Polaritäten analysieren", "Ungleichgewichte erkennen", "Komplementäre Kräfte"], coachingSuggestions: ["Zwischen welchen Polen bewegen Sie sich?", "Wo spüren Sie Ungleichgewicht?", "Was wäre das Gegenteil?"], assistantSuggestions: ["Analysiere 18 Dimensionen", "Identifiziere Spannungsfelder", "Bestimme Balance-Kräfte"]},
+            {id: 5, title: "Schlüsselaffekt benennen", phase: "B", tasks: ["Emotionen identifizieren", "Körperempfindungen", "Auslöser erkunden", "Zusammenhänge herstellen"], coachingSuggestions: ["Welches Gefühl ist am stärksten?", "Wo spüren Sie es im Körper?", "Wann taucht es auf?"], assistantSuggestions: ["Identifiziere Schlüsselaffekt", "Verbinde mit Spannungsfeldern", "Analysiere Muster"]},
+            {id: 6, title: "Inneres Team aufstellen", phase: "B", tasks: ["Anteile identifizieren", "Namen und Charakteristika", "Positive Absichten", "Teamchef bestimmen"], coachingSuggestions: ["Welche Stimmen hören Sie?", "Geben Sie jedem einen Namen", "Was will jeder Anteil?"], assistantSuggestions: ["Identifiziere Anteile", "Beschreibe Absichten", "Bestimme Teamchef"]},
+            {id: 7, title: "Dialog zwischen Anteilen", phase: "B", tasks: ["Konflikte moderieren", "Perspektiven verstehen", "Gemeinsame Werte", "Kooperationen entwickeln"], coachingSuggestions: ["Was würde der eine dem anderen sagen?", "Wo haben beide recht?", "Wie könnten sie kooperieren?"], assistantSuggestions: ["Moderiere Dialog", "Finde gemeinsame Werte", "Entwickle Kooperationen"]},
+            {id: 8, title: "Lösungsstrategie entwickeln", phase: "C", tasks: ["Handlungsoptionen erarbeiten", "Strategien entwickeln", "Ressourcen aktivieren", "Schritte planen"], coachingSuggestions: ["Welche Möglichkeiten sehen Sie?", "Was würde helfen?", "Welche Unterstützung brauchen Sie?"], assistantSuggestions: ["Entwickle Strategien", "Integriere Erkenntnisse", "Plane Umsetzung"]},
+            {id: 9, title: "Anteile transformieren", phase: "C", tasks: ["Neue Rollen definieren", "Transformation einleiten", "Hilfreiche Anteile stärken", "Teamdynamik etablieren"], coachingSuggestions: ["Wie könnte sich der Anteil verhalten?", "Welche neue Rolle passt?", "Wie führt der Teamchef?"], assistantSuggestions: ["Unterstütze Transformation", "Entwickle neue Rollen", "Stärke Teamchef"]},
+            {id: 10, title: "Glaubenssätze transformieren", phase: "C", tasks: ["Limiting beliefs identifizieren", "Neue Glaubenssätze", "Verankerung", "Integration"], coachingSuggestions: ["Welche Überzeugungen hindern?", "Was möchten Sie glauben?", "Wie stärken Sie das?"], assistantSuggestions: ["Identifiziere Glaubenssätze", "Entwickle Alternativen", "Plane Verankerung"]},
+            {id: 11, title: "Erfolgsimagination kreieren", phase: "C", tasks: ["Zukunftsvision entwickeln", "Emotionale Verankerung", "Anteile integrieren", "Motivation aktivieren"], coachingSuggestions: ["Was sehen, hören, fühlen Sie?", "Wie verhalten sich die Anteile?", "Was ist das Beste?"], assistantSuggestions: ["Kreiere Imagination", "Integriere Anteile", "Nutze Bildmetapher"]},
+            {id: 12, title: "Integration und Handlungsplan", phase: "C", tasks: ["Erkenntnisse zusammenfassen", "Handlungsplan erstellen", "Erfolgskontrollen", "Transfer sicherstellen"], coachingSuggestions: ["Was ist die wichtigste Erkenntnis?", "Welche Schritte gehen Sie?", "Wie bleiben Sie dran?"], assistantSuggestions: ["Erstelle Zusammenfassung", "Entwickle Plan", "Plane Follow-up"]}
+        ];
+
+        // Vollständige Prompt-Datenbank mit allen 83 Prompts
+        const fullPromptDatabase = {
+            'geissler_triadisch': {
+                title: '🔄 Geißler Triadisch',
+                description: '12-Schritte Coaching-Prozess',
+                prompts: {
+                    'GT1': { text: 'Ich möchte mit meinem Coachee den Coaching-Auftrag klären. Bitte hilf mir dabei, die richtigen Fragen zu stellen, um Erwartungen, Ziele und Rahmenbedingungen zu definieren. Der Coachee hat gesagt: [AUSSAGE EINFÜGEN]. Wie kann ich am besten nachfragen und welche Aspekte sollte ich unbedingt klären?', phase: 'Phase 1: Auftragsklärung', keywords: 'auftrag klären erwartungen ziele rahmenbedingungen kontrakt' },
+                    'GT2': { text: 'Mein Coachee beschreibt sein Anliegen so: [BESCHREIBUNG EINFÜGEN]. Hilf mir dabei, das Thema gemeinsam mit ihm zu schärfen und zu konkretisieren, ohne zu früh in Lösungen zu gehen. Welche Fragen helfen bei der Problemdefinition?', phase: 'Phase 2: Problemdefinition', keywords: 'problem thema definieren konkretisieren schärfen' },
+                    'GT3': { text: 'Ich möchte mit meinem Coachee konkrete Vereinbarungen für unser Coaching treffen. Das Thema ist [THEMA] und die Rahmenbedingungen sind [RAHMEN]. Hilf mir dabei, einen klaren, verbindlichen Kontrakt zu gestalten und wichtige Aspekte anzusprechen.', phase: 'Phase 3: Kontraktschließung', keywords: 'kontrakt vereinbarungen rahmen verbindlichkeit' },
+                    'GT4': { text: 'Basierend auf dem, was mein Coachee erzählt hat: [INFORMATIONEN EINFÜGEN], möchte ich erste Hypothesen entwickeln. Hilf mir dabei, hypothesenoffen zu bleiben und unterschiedliche Perspektiven zu erkunden, ohne zu schnell zu interpretieren.', phase: 'Phase 4: Hypothesenbildung', keywords: 'hypothesen entwickeln perspektiven erkunden' },
+                    'GT5': { text: 'Ich bemerke bei meinem Coachee folgende wiederkehrende Muster: [MUSTER EINFÜGEN]. Hilf mir dabei, diese Strukturen behutsam zu erkunden und dem Coachee bewusst zu machen, ohne zu konfrontativ zu werden. Wie spreche ich Muster konstruktiv an?', phase: 'Phase 5: Mustererkennung', keywords: 'muster strukturen wiederkehrend emotionen verhalten' },
+                    'GT6': { text: 'Ich möchte meinem Coachee konstruktives Feedback zu folgendem Aspekt geben: [BEOBACHTUNG EINFÜGEN]. Hilf mir dabei, eine empathische aber klare Rückmeldung zu formulieren, die entwicklungsfördernd wirkt und Widerstände minimiert.', phase: 'Phase 6: Feedback geben', keywords: 'feedback konfrontation rückmeldung konstruktiv' },
+                    'GT7': { text: 'Mein Coachee und ich wollen gemeinsam Lösungsalternativen entwickeln für: [HERAUSFORDERUNG EINFÜGEN]. Hilf mir dabei, den kreativen Prozess zu moderieren und vielfältige Optionen zu generieren, ohne selbst Lösungen vorzugeben.', phase: 'Phase 7: Lösungsentwicklung', keywords: 'lösungen alternativen entwickeln kreativ brainstorming' },
+                    'GT8': { text: 'Mein Coachee steht vor folgenden Entscheidungsalternativen: [OPTIONEN EINFÜGEN]. Hilf mir dabei, ihn bei der Entscheidungsfindung zu unterstützen, ohne die Entscheidung für ihn zu treffen. Welche Fragen helfen bei der Bewertung der Optionen?', phase: 'Phase 8: Entscheidungsfindung', keywords: 'entscheidungen unterstützen bewerten optionen' },
+                    'GT9': { text: 'Mein Coachee hat sich für folgende Lösung entschieden: [ENTSCHEIDUNG EINFÜGEN]. Jetzt wollen wir einen konkreten Handlungsplan entwickeln. Hilf mir dabei, realistische und überprüfbare Schritte zu definieren und mögliche Hindernisse zu antizipieren.', phase: 'Phase 9: Handlungsplanung', keywords: 'handlungsplan entwickeln schritte konkret realistisch' },
+                    'GT10': { text: 'Mein Coachee berichtet über seine Umsetzungserfahrungen: [ERFAHRUNGEN EINFÜGEN]. Hilf mir dabei, ihn bei der Reflexion und Anpassung seines Vorgehens zu unterstützen. Wie kann ich Motivation und Durchhaltevermögen stärken?', phase: 'Phase 10: Umsetzungsbegleitung', keywords: 'umsetzung begleiten motivation durchhalten' },
+                    'GT11': { text: 'Mein Coachee und ich wollen die bisherigen Erfolge bewerten: [BISHERIGE ERGEBNISSE EINFÜGEN]. Hilf mir dabei, eine konstruktive Erfolgsbewertung zu gestalten und Learnings für die Zukunft zu extrahieren. Wie würdige ich Erfolge angemessen?', phase: 'Phase 11: Erfolgsbewertung', keywords: 'erfolg bewerten lernen reflexion würdigen' },
+                    'GT12': { text: 'Das Coaching mit meinem Coachee geht zu Ende. Die wichtigsten Erfolge waren: [ERFOLGE EINFÜGEN]. Hilf mir dabei, einen würdigen Abschluss zu gestalten, den Transfer zu sichern und die Selbstständigkeit des Coachees zu stärken.', phase: 'Phase 12: Coaching-Abschluss', keywords: 'abschluss transfer nachhaltigkeit selbstständigkeit' }
+                }
+            },
+            'solution_finder': {
+                title: '⭐ Solution Finder',
+                description: 'Lösungsorientierte Haltung',
+                prompts: {
+                    'SF0': { text: 'Ich möchte die « kühnste Hoffnung » meines Coachees erkunden. Das Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, eine Frage zu formulieren, die seine idealsten Vorstellungen und größten Hoffnungen aktiviert, auch wenn sie zunächst unrealistisch erscheinen mögen.', phase: 'Solution Finder Einstieg', keywords: 'kühnste hoffnung vision ideal träume' },
+                    'SF1': { text: 'Ich möchte eine Skalierungsfrage für meinen Coachee entwickeln. Das Thema ist: [THEMA EINFÜGEN]. Bitte formuliere eine passende Skalierungsfrage von 1-10 und erkläre mir, wie ich die Antwort lösungsorientiert nutzen kann. Welche Nachfragen sind sinnvoll?', phase: 'Solution Finder Kern', keywords: 'skalierung bewertung fortschritt messung' },
+                    'SF2': { text: 'Mein Coachee beschreibt ein Problem: [PROBLEM EINFÜGEN]. Hilf mir dabei, Ausnahmen zu finden – Momente, in denen das Problem nicht auftritt oder weniger stark ist. Wie kann ich nach diesen wertvollen Ausnahmen fragen?', phase: 'Solution Finder Ressourcen', keywords: 'ausnahmen funktioniert besser momente' },
+                    'SF3': { text: 'Ich möchte die klassische Wunderfrage für meinen Coachee anpassen. Sein Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, eine maßgeschneiderte Wunderfrage zu formulieren, die seine Lösungsvision aktiviert und konkrete Veränderungen sichtbar macht.', phase: 'Solution Finder Vision', keywords: 'wunderfrage wunder über nacht magic' },
+                    'SF4': { text: 'Mein Coachee hat eine Lösungsvision entwickelt: [VISION EINFÜGEN]. Jetzt suchen wir nach den kleinsten möglichen ersten Schritten. Hilf mir dabei, machbare Mini-Schritte zu identifizieren, die sofort umsetzbar sind und Erfolgserlebnisse schaffen.', phase: 'Solution Finder Umsetzung', keywords: 'kleine schritte mini babysteps machbar' },
+                    'SF5': { text: 'Ich möchte die Ressourcen und Stärken meines Coachees aktivieren. Er hat bisher erzählt: [INFORMATIONEN EINFÜGEN]. Hilf mir dabei, seine verborgenen und offensichtlichen Ressourcen zu identifizieren und nutzbar zu machen.', phase: 'Solution Finder Potentiale', keywords: 'ressourcen stärken potentiale fähigkeiten' },
+                    'SF6': { text: 'Mein Coachee hat bereits kleine Fortschritte gemacht: [FORTSCHRITTE EINFÜGEN]. Hilf mir dabei, diese Erfolge angemessen zu würdigen und die Motivation für weitere Schritte zu stärken. Wie kann ich Selbstwirksamkeit verstärken?', phase: 'Solution Finder Motivation', keywords: 'fortschritte würdigen erfolge motivation' },
+                    'SF7': { text: 'Mein Coachee braucht Unterstützung für: [ZIEL EINFÜGEN]. Hilf mir dabei, sein persönliches und berufliches Netzwerk zu erkunden und konkrete Unterstützungsmöglichkeiten zu identifizieren. Wer könnte wie helfen?', phase: 'Solution Finder Netzwerk', keywords: 'unterstützung mobilisieren netzwerk hilfe' },
+                    'SF8': { text: 'Mein Coachee befürchtet Rückfälle oder Hindernisse: [BEFÜRCHTUNGEN EINFÜGEN]. Hilf mir dabei, präventive Strategien zu entwickeln und ihn auf mögliche Herausforderungen vorzubereiten, ohne pessimistisch zu werden.', phase: 'Solution Finder Nachhaltigkeit', keywords: 'rückfälle handhaben hindernisse präventive strategien' },
+                    'SF9': { text: 'Mein Coachee hat deutliche Fortschritte erreicht: [ERFOLGE EINFÜGEN]. Hilf mir dabei, diese Erfolge zu verankern und nachhaltig zu machen. Wie kann ich seine neuen Kompetenzen und Einsichten stabilisieren?', phase: 'Solution Finder Abschluss', keywords: 'erfolg verankern nachhaltig kompetenzen stabilisieren' }
+                }
+            },
+            'diagnostik': {
+                title: '🔍 Diagnostik',
+                description: 'Spannungsfelder erfassen',
+                prompts: {
+                    'DIAG1': { text: 'Mein Coachee beschreibt folgende Situation: [SITUATION EINFÜGEN]. Hilf mir dabei zu identifizieren, welches Spannungsfeld hier vorliegen könnte. Nutze die 19 Grundspannungen oder 21 Ruhestand-Spannungen als Orientierung und erkläre mir, wie ich das behutsam ansprechen kann.', phase: 'Diagnostik: Spannungsanalyse', keywords: 'spannungsfeld identifizieren grundspannungen konflikt' },
+                    'DIAG2': { text: 'Mein Coachee zeigt Widerstand gegen: [WIDERSTAND EINFÜGEN]. Hilf mir dabei zu verstehen, welche Funktion dieser Widerstand haben könnte und wie ich ihn respektvoll und lösungsorientiert ansprechen kann, ohne ihn zu verstärken.', phase: 'Diagnostik: Widerstandsanalyse', keywords: 'widerstand verstehen blockadenanalyse hindernis funktion' },
+                    'DIAG3': { text: 'Ich bemerke bei meinem Coachee verschiedene innere Stimmen: [BEOBACHTUNG EINFÜGEN]. Hilf mir dabei, die verschiedenen inneren Anteile (Teamchef, Unterstützer, Bremse, Kritiker, Träumer, Realist) zu erkunden und konstruktiv zu nutzen.', phase: 'Diagnostik: Persönlichkeitsanteile', keywords: 'innere anteile teamchef unterstützer bremse kritiker' },
+                    'DIAG4': { text: 'Ich erkenne bei meinem Coachee limitierende Glaubenssätze: [GLAUBENSSÄTZE EINFÜGEN]. Hilf mir dabei, diese Überzeugungen zu verstehen und behutsam zu hinterfragen, ohne den Coachee zu bedrängen oder zu kritisieren.', phase: 'Diagnostik: Glaubenssatz-Analyse', keywords: 'glaubenssätze überzeugungen limitierend perfektionismus' },
+                    'DIAG5': { text: 'Mein Coachee zeigt wiederkehrende emotionale Muster: [MUSTER EINFÜGEN]. Hilf mir dabei, diese Reaktionen zu verstehen und die dahinterliegenden Trigger oder Bedürfnisse zu identifizieren, ohne zu psychologisieren.', phase: 'Diagnostik: Emotional', keywords: 'emotionale muster wiederkehrend reaktionen trigger' }
+                }
+            },
+            'loesungsorientiert': {
+                title: '💡 Lösungsorientiert',
+                description: 'Handlungs- und Ressourcenorientierung',
+                prompts: {
+                    'LÖS1': { text: 'Mein Coachee hat ein vages Ziel formuliert: [ZIEL EINFÜGEN]. Hilf mir dabei, dieses Ziel zu konkretisieren und messbar zu machen, ohne es zu technisch oder zu restriktiv zu gestalten. Wie frage ich nach der wahren Motivation dahinter?', phase: 'Lösungsorientiert: Zielklärung', keywords: 'ziel konkretisieren smart messbar motivation' },
+                    'LÖS2': { text: 'Mein Coachee steht vor dieser Herausforderung: [HERAUSFORDERUNG EINFÜGEN]. Hilf mir dabei, seine Ressourcen und Stärken zu identifizieren und zu aktivieren. Wie kann ich ihn dabei unterstützen, seine eigenen Lösungskompetenzen zu entdecken, ohne ihm Lösungen vorzugeben?', phase: 'Lösungsorientiert: Ressourcenarbeit', keywords: 'ressourcen aktivieren stärken nutzen energie' },
+                    'LÖS3': { text: 'Ich möchte die Erfolgserinnerungen meines Coachees aktivieren. Das aktuelle Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, systematisch nach vergangenen Erfolgen und Bewältigungsstrategien zu fragen, die auf die jetzige Situation übertragbar sind.', phase: 'Lösungsorientiert: Erfolgsaktivierung', keywords: 'erfolgserinnerungen vergangene erfolge stolz achievements' },
+                    'LÖS4': { text: 'Mein Coachee fühlt sich bezüglich seiner Herausforderung festgefahren: [HERAUSFORDERUNG EINFÜGEN]. Hilf mir dabei, einen kreativen Prozess zu gestalten, der neue Perspektiven und unkonventionelle Lösungsansätze hervorbringt.', phase: 'Lösungsorientiert: Kreativität', keywords: 'brainstorming kreativität ideenfindung options' },
+                    'LÖS5': { text: 'Mein Coachee sieht seine Situation sehr einseitig: [SICHTWEISE EINFÜGEN]. Hilf mir dabei, behutsam neue Perspektiven zu eröffnen und alternative Interpretationen zu erkunden, ohne seine Wahrnehmung zu invalidieren.', phase: 'Lösungsorientiert: Reframing', keywords: 'perspektivenwechsel reframing neue sichtweise' }
+                }
+            },
+            'meta_prompts': {
+                title: '🎯 Meta-Prompts',
+                description: 'Coach-Unterstützung und Prozess-Steuerung',
+                prompts: {
+                    'META1': { text: 'Ich möchte den bisherigen Coaching-Verlauf mit meinem Coachee reflektieren. Wir sind bei Session [NUMMER EINFÜGEN] und haben bisher [FORTSCHRITT EINFÜGEN] erreicht. Wie kann ich eine gute Prozessreflexion gestalten, die motiviert und den Fokus schärft?', phase: 'Meta-Ebene: Prozessreflexion', keywords: 'prozess reflektieren coaching verlauf reflexion' },
+                    'META2': { text: 'Ich möchte die nächste Session mit meinem Coachee strukturieren. Das Hauptthema ist: [THEMA EINFÜGEN] und der aktuelle Stand ist: [STAND EINFÜGEN]. Hilf mir dabei, eine effektive Session-Struktur zu entwickeln.', phase: 'Meta-Ebene: Session-Planung', keywords: 'session planen struktur vorbereitung agenda' },
+                    'META3': { text: 'Ich bemerke Herausforderungen in der Coaching-Beziehung: [HERAUSFORDERUNGEN EINFÜGEN]. Hilf mir dabei, das Vertrauen und die Arbeitsallianz zu stärken und eine noch bessere Zusammenarbeit zu entwickeln.', phase: 'Meta-Ebene: Beziehungsarbeit', keywords: 'coaching beziehung rapport vertrauen alliance' },
+                    'META4': { text: 'Das Coaching mit meinem Coachee fühlt sich festgefahren an: [SITUATION EINFÜGEN]. Hilf mir dabei, neue Impulse zu setzen und den Prozess wieder in Bewegung zu bringen, ohne zu forcieren.', phase: 'Meta-Ebene: Prozess-Dynamisierung', keywords: 'stagnation überwinden blockade festgefahren' },
+                    'META5': { text: 'Ich möchte meine eigene Coach-Performance reflektieren. Diese Session ist [BESCHREIBUNG EINFÜGEN] verlaufen. Hilf mir dabei, mein Verhalten zu analysieren und Verbesserungsmöglichkeiten zu identifizieren.', phase: 'Meta-Ebene: Selbstreflexion', keywords: 'supervision reflexion coach entwicklung' }
+                }
+            },
+            'notfall_grenzen': {
+                title: '🚨 Notfall & Grenzen',
+                description: 'Sicherheit und professionelle Grenzen',
+                prompts: {
+                    'WARN1': { text: 'Mein Coachee bewegt sich in Richtung therapeutischer Themen: [THEMA EINFÜGEN]. Hilf mir dabei, die Coaching-Grenzen zu wahren und professionell zu kommunizieren, dass hier therapeutische Unterstützung nötig sein könnte, ohne abweisend zu wirken.', phase: 'Sicherheit: Grenzen wahren', keywords: 'coaching grenzen therapie überschreitung ethik' },
+                    'WARN2': { text: 'Mein Coachee hat suizidale Gedanken oder Äußerungen gemacht: [ÄUSSERUNGEN EINFÜGEN]. Hilf mir dabei, sofort angemessen zu reagieren, die Gefährdung einzuschätzen und professionelle Hilfe zu organisieren. Dies ist ein Notfall.', phase: 'NOTFALL: Suizidgefahr', keywords: 'suizid selbstmord gedanken krisenintervention notfall' },
+                    'WARN3': { text: 'Mein Coachee zeigt aggressive Tendenzen oder macht Gewaltandrohungen: [VERHALTEN EINFÜGEN]. Hilf mir dabei, die Situation zu deeskalieren und angemessen zu reagieren, ohne mich selbst zu gefährden.', phase: 'NOTFALL: Gewaltprävention', keywords: 'gewalt aggression bedrohung sicherheit schutz' },
+                    'WARN4': { text: 'Ich vermute bei meinem Coachee Substanzmissbrauch: [ANZEICHEN EINFÜGEN]. Hilf mir dabei, das Thema behutsam aber direkt anzusprechen und geeignete Unterstützung zu vermitteln, ohne zu konfrontativ zu werden.', phase: 'Sicherheit: Substanzmissbrauch', keywords: 'substanzmissbrauch drogen alkohol abhängigkeit' },
+                    'WARN5': { text: 'Mein Coachee zeigt Anzeichen einer Trauma-Reaktion oder Flashback: [ANZEICHEN EINFÜGEN]. Hilf mir dabei, stabilisierend zu wirken und Retraumatisierung zu vermeiden. Welche sofortigen Maßnahmen sind wichtig?', phase: 'NOTFALL: Trauma-Stabilisierung', keywords: 'trauma traumatisierung flashback retraumatisierung' },
+                    'WARN6': { text: 'Mein Coachee berichtet über rechtliche Probleme oder illegale Aktivitäten: [SACHVERHALT EINFÜGEN]. Hilf mir dabei, meine rechtlichen und ethischen Verpflichtungen zu verstehen und angemessen zu handeln.', phase: 'Sicherheit: Rechtliche Fragen', keywords: 'rechtliche probleme illegal straftat meldepflicht' }
+                }
+            },
+            'gruppen_paare': {
+                title: '👥 Gruppen & Paare',
+                description: 'Mehrpersonen-Coaching Settings',
+                prompts: {
+                    'GRUPPE1': { text: 'In meiner Coaching-Gruppe entsteht folgende Dynamik: [DYNAMIK EINFÜGEN]. Hilf mir dabei, diese konstruktiv zu moderieren und alle Teilnehmer einzubeziehen, ohne die Gruppe zu spalten oder einzelne zu bevorzugen.', phase: 'Gruppen-Coaching: Dynamik', keywords: 'gruppendynamik team mehrere personen moderation' },
+                    'GRUPPE2': { text: 'Ich coache ein Paar mit folgenden Herausforderungen: [HERAUSFORDERUNGEN EINFÜGEN]. Hilf mir dabei, neutral zu bleiben und beiden Partnern zu helfen, ihre Kommunikation und ihr Verständnis füreinander zu verbessern.', phase: 'Paar-Coaching: Kommunikation', keywords: 'paarbeziehung konflikt kommunikation partner' },
+                    'GRUPPE3': { text: 'Das Team hat folgenden Konflikt: [KONFLIKT EINFÜGEN]. Hilf mir dabei, eine konstruktive Konfliktbearbeitung zu moderieren und die Zusammenarbeit nachhaltig zu verbessern.', phase: 'Team-Coaching: Konfliktlösung', keywords: 'teamkonflikt arbeitsplatz kollegen führung' },
+                    'GRUPPE4': { text: 'Ich coache eine Familie mit dieser Ausgangslage: [AUSGANGSLAGE EINFÜGEN]. Hilf mir dabei, systemische Perspektiven einzunehmen und alle Familienmitglieder respektvoll einzubeziehen, ohne therapeutisch zu werden.', phase: 'Familien-Coaching: System', keywords: 'familiencoaching generationen eltern kinder system' },
+                    'GRUPPE5': { text: 'In der Gruppe gibt es sehr dominante und sehr zurückhaltende Teilnehmer: [SITUATION EINFÜGEN]. Hilf mir dabei, eine ausgewogene Beteiligung zu fördern und allen Raum zu geben, ohne zu dirigistisch zu werden.', phase: 'Gruppen-Coaching: Partizipation', keywords: 'partizipation beteiligung schweiger dominante' },
+                    'GRUPPE6': { text: 'Ich möchte die Gruppenressourcen für folgendes Thema aktivieren: [THEMA EINFÜGEN]. Hilf mir dabei, das Peer-Learning zu fördern und die Teilnehmer dazu zu bringen, voneinander zu lernen und sich gegenseitig zu unterstützen.', phase: 'Gruppen-Coaching: Ressourcen', keywords: 'gruppenressourcen peer learning voneinander' }
+                }
+            },
+            'live_digital': {
+                title: '📱 Live & Digital',
+                description: 'Spontane und mobile Coaching-Unterstützung',
+                prompts: {
+                    'LIVE1': { text: 'Im Live-Coaching ist gerade etwas Unerwartetes passiert: [SITUATION EINFÜGEN]. Ich brauche schnell eine passende, professionelle Reaktion. Hilf mir dabei, lösungsorientiert und empathisch zu antworten, ohne die Coaching-Grenzen zu überschreiten.', phase: 'Live-Coaching: Spontanreaktion', keywords: 'spontan reagieren unerwartetes situation schnell' },
+                    'LIVE2': { text: 'Mein Coachee zeigt starke Emotionen: [EMOTION EINFÜGEN]. Hilf mir dabei, angemessen zu reagieren und die Emotionen zu begleiten, ohne sie zu stoppen oder zu verstärken. Wie halte ich den Raum für diese Gefühle?', phase: 'Live-Coaching: Emotionsbegleitung', keywords: 'emotionen handhaben tränen wut aufregung' },
+                    'LIVE3': { text: 'Im Online-Coaching ergeben sich besondere Herausforderungen: [HERAUSFORDERUNGEN EINFÜGEN]. Hilf mir dabei, die digitale Session genauso effektiv und verbindungsvoll zu gestalten wie ein Präsenz-Coaching.', phase: 'Online-Coaching: Optimierung', keywords: 'videocoaching online digital zoom technik' },
+                    'LIVE4': { text: 'Mein Coachee braucht schnelle Unterstützung für diese akute Situation: [SITUATION EINFÜGEN]. Hilf mir dabei, eine kurze aber wirkungsvolle Intervention zu entwickeln, die er sofort umsetzen kann.', phase: 'Mobile Coaching: Micro-Intervention', keywords: 'mobile coaching unterwegs handy kurz effizient' },
+                    'LIVE5': { text: 'Es gibt technische Probleme in der Online-Session: [PROBLEME EINFÜGEN]. Hilf mir dabei, den Coaching-Flow trotzdem aufrechtzuerhalten und professionell mit der Situation umzugehen.', phase: 'Online-Coaching: Störungsmanagement', keywords: 'technische probleme störungen verbindung backup' },
+                    'LIVE6': { text: 'Mein Coachee hat mir diese Nachricht geschickt: [NACHRICHT EINFÜGEN]. Hilf mir dabei, eine hilfreiche, professionelle Antwort zu formulieren, die coaching-konform ist und weiterhilft.', phase: 'Asynchron-Coaching: Chat-Support', keywords: 'chat nachrichten asynchron flexibel zeit' }
+                }
+            }
+        };
+
+        let currentStep = 1;
+        let stepData = {};
+        let sessionId = 'COACH-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        let allPrompts = [];
+        let visiblePrompts = 0;
+
+        function initializeApp() {
+            document.getElementById('sessionId').textContent = sessionId;
+            loadStepData();
+            renderProgressBar();
+            renderStepDetails();
+            updateNavigation();
+            renderRepositoryContent();
+            updateSuggestions();
+            initializePromptSearch();
+        }
+
+        function initializePromptSearch() {
+            allPrompts = [];
+            Object.keys(fullPromptDatabase).forEach(categoryKey => {
+                const category = fullPromptDatabase[categoryKey];
+                Object.keys(category.prompts).forEach(promptKey => {
+                    allPrompts.push({
+                        code: promptKey,
+                        text: category.prompts[promptKey].text,
+                        phase: category.prompts[promptKey].phase,
+                        keywords: category.prompts[promptKey].keywords,
+                        category: categoryKey
+                    });
+                });
+            });
+            visiblePrompts = allPrompts.length;
+            updateStats();
+        }
+
+        function updateStats() {
+            const statsDisplay = document.getElementById('statsDisplay');
+            if (visiblePrompts === allPrompts.length) {
+                statsDisplay.textContent = `${allPrompts.length} Prompts verfügbar • 8 Kategorien • Vollständiges System`;
+            } else {
+                statsDisplay.textContent = `${visiblePrompts} von ${allPrompts.length} Prompts gefunden`;
+            }
+        }
+
+        function renderProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = '';
+            steps.forEach((step, index) => {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'step';
+                if (step.id === currentStep) stepElement.classList.add('active');
+                if (stepData[step.id]?.completed) stepElement.classList.add('completed');
+                stepElement.innerHTML = `<div class="step-circle">${step.id}</div><div class="step-label">${step.title}</div>`;
+                stepElement.onclick = () => goToStep(step.id);
+                progressBar.appendChild(stepElement);
+            });
+        }
+
+        function renderStepDetails() {
+            const step = steps.find(s => s.id === currentStep);
+            const stepDetails = document.getElementById('stepDetails');
+            const phaseClass = `phase-${step.phase.toLowerCase()}`;
+            stepDetails.innerHTML = `
+                <div class="phase-badge ${phaseClass}">Phase ${step.phase}</div>
+                <div class="step-title">${step.id}. ${step.title}</div>
+                <ul class="task-list">
+                    ${step.tasks.map((task, index) => `
+                        <li class="task-item ${stepData[currentStep]?.tasks?.[index] ? 'completed' : ''}">
+                            <input type="checkbox" class="task-checkbox" ${stepData[currentStep]?.tasks?.[index] ? 'checked' : ''} onchange="toggleTask(${index})">
+                            <span class="task-text">${task}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        function updateSuggestions() {
+            const step = steps.find(s => s.id === currentStep);
+            document.getElementById('coacheeSuggestions').innerHTML = `<h4>💡 Empfohlene Fragen:</h4>${step.coachingSuggestions.map(s => `<div class="suggestion-item" onclick="insertText('coachee', '${s}')">${s}</div>`).join('')}`;
+            document.getElementById('kiSuggestions').innerHTML = `<h4>🔧 KI-Unterstützung:</h4>${step.assistantSuggestions.map(s => `<div class="suggestion-item" onclick="insertText('ki', '${s}')">${s}</div>`).join('')}`;
+        }
+
+        function toggleTask(taskIndex) {
+            if (!stepData[currentStep]) stepData[currentStep] = { tasks: [] };
+            if (!stepData[currentStep].tasks) stepData[currentStep].tasks = [];
+            stepData[currentStep].tasks[taskIndex] = !stepData[currentStep].tasks[taskIndex];
+            const step = steps.find(s => s.id === currentStep);
+            const allCompleted = step.tasks.every((_, index) => stepData[currentStep].tasks[index]);
+            stepData[currentStep].completed = allCompleted;
+            saveStepData();
+            renderProgressBar();
+            renderStepDetails();
+        }
+
+        function goToStep(stepId) { currentStep = stepId; renderProgressBar(); renderStepDetails(); updateNavigation(); updateSuggestions(); }
+        function previousStep() { if (currentStep > 1) { currentStep--; renderProgressBar(); renderStepDetails(); updateNavigation(); updateSuggestions(); } }
+        function nextStep() { if (currentStep < steps.length) { currentStep++; renderProgressBar(); renderStepDetails(); updateNavigation(); updateSuggestions(); } }
+        function updateNavigation() { document.getElementById('prevBtn').disabled = currentStep === 1; document.getElementById('nextBtn').disabled = currentStep === steps.length; document.getElementById('stepCounter').textContent = `Schritt ${currentStep} von ${steps.length}`; }
+
+        function sendMessage(chatType) {
+            const inputId = chatType + 'Input';
+            const messagesId = chatType + 'Messages';
+            const input = document.getElementById(inputId);
+            const messages = document.getElementById(messagesId);
+            
+            if (input.value.trim()) {
+                const time = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+                const messageClass = chatType === 'coachee' ? 'coach' : chatType;
+                const senderName = chatType === 'coachee' ? 'Coach' : chatType === 'ki' ? 'Coach' : 'Coach';
+                
+                const userMessage = document.createElement('div');
+                userMessage.className = `message ${messageClass}`;
+                userMessage.innerHTML = `
+                    <div class="message-sender">${senderName}</div>
+                    ${input.value}
+                    <div class="message-time">${time}</div>
+                `;
+                messages.appendChild(userMessage);
+                
+                if (chatType !== 'notes') {
+                    simulateResponse(chatType, input.value);
+                }
+                
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        function simulateResponse(chatType, userMessage) {
+            const messagesId = chatType + 'Messages';
+            const messages = document.getElementById(messagesId);
+            
+            setTimeout(() => {
+                const time = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+                const responseMessage = document.createElement('div');
+                
+                if (chatType === 'coachee') {
+                    responseMessage.className = 'message coachee';
+                    responseMessage.innerHTML = `
+                        <div class="message-sender">Coachee</div>
+                        Das ist interessant... können Sie mir dabei helfen? Ich fühle mich oft überfordert.
+                        <div class="message-time">${time}</div>
+                    `;
+                } else if (chatType === 'ki') {
+                    responseMessage.className = 'message ki';
+                    responseMessage.innerHTML = `
+                        <div class="message-sender">KI-Assistent</div>
+                        <button class="forward-btn" onclick="openForwardModal(\`Basierend auf &quot;${userMessage.substring(0, 30)}...&quot; empfehle ich eine Ausbalancierungsanalyse. Die Aussage deutet auf ein Spannungsfeld zwischen Kontrolle und Vertrauen hin.\`)">→ An Coachee</button>
+                        Basierend auf "${userMessage.substring(0, 30)}..." empfehle ich eine Ausbalancierungsanalyse. Die Aussage deutet auf ein Spannungsfeld zwischen Kontrolle und Vertrauen hin. Nutzen Sie das Repository für passende Prompts wie DIAG1 oder GT5.
+                        <div class="message-time">${time}</div>
+                    `;
+                }
+                
+                messages.appendChild(responseMessage);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1500);
+        }
+
+        function insertText(chatType, text) {
+            document.getElementById(chatType + 'Input').value = text;
+        }
+
+        function copyCoacheeLink() {
+            const coacheeUrl = window.location.origin + '/coachee-interface.html?session=' + sessionId;
+            navigator.clipboard.writeText(coacheeUrl).then(() => {
+                showCopyFeedback('Coachee-Link kopiert!');
+            });
+        }
+
+        function startNewSession() {
+            sessionId = 'COACH-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+            document.getElementById('sessionId').textContent = sessionId;
+            showCopyFeedback('Neue Session gestartet!');
+        }
+
+        function openRepository() { 
+            document.getElementById('repositoryModal').style.display = 'block'; 
+            document.getElementById('searchInput').focus();
+        }
+        function closeRepository() { document.getElementById('repositoryModal').style.display = 'none'; }
+
+        function renderRepositoryContent() {
+            const content = document.getElementById('repositoryContent');
+            content.innerHTML = '';
+            
+            Object.keys(fullPromptDatabase).forEach(categoryKey => {
+                const category = fullPromptDatabase[categoryKey];
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category-section';
+                
+                let promptsHtml = '';
+                Object.keys(category.prompts).forEach(promptKey => {
+                    const prompt = category.prompts[promptKey];
+                    promptsHtml += `
+                        <div class="prompt-card" data-keywords="${prompt.keywords}" data-code="${promptKey}" data-phase="${prompt.phase}">
+                            <div class="prompt-header">
+                                <div class="prompt-code">${promptKey}</div>
+                                <div class="prompt-title">${promptKey}: ${getPromptTitle(promptKey)}</div>
+                            </div>
+                            <div class="prompt-description">${getPromptDescription(promptKey)}</div>
+                            <div class="prompt-text">${prompt.text}</div>
+                            <div class="prompt-actions">
+                                <div class="prompt-phase">${prompt.phase}</div>
+                                <button class="copy-btn" onclick="copyPromptToChat('${promptKey}', \`${prompt.text.replace(/`/g, '\\`')}\`)">Kopieren</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                categoryElement.innerHTML = `
+                    <div class="category-header">
+                        <div class="category-icon">${getCategoryIcon(categoryKey)}</div>
+                        <div class="category-title">${category.title}</div>
+                        <div class="category-subtitle">${category.description}</div>
+                    </div>
+                    <div class="prompts-grid">
+                        ${promptsHtml}
+                    </div>
+                `;
+                content.appendChild(categoryElement);
+            });
+        }
+
+        function getCategoryIcon(categoryKey) {
+            const icons = {
+                'geissler_triadisch': '🔄',
+                'solution_finder': '⭐',
+                'diagnostik': '🔍',
+                'loesungsorientiert': '💡',
+                'meta_prompts': '🎯',
+                'notfall_grenzen': '🚨',
+                'gruppen_paare': '👥',
+                'live_digital': '📱'
+            };
+            return icons[categoryKey] || '📝';
+        }
+
+        function getPromptTitle(promptKey) {
+            const titles = {
+                'GT1': 'Coaching-Auftrag klären',
+                'GT2': 'Problem definieren',
+                'GT3': 'Kontrakt schließen',
+                'GT4': 'Hypothesen entwickeln',
+                'GT5': 'Muster erkennen',
+                'GT6': 'Feedback geben',
+                'GT7': 'Lösungen entwickeln',
+                'GT8': 'Entscheidungen unterstützen',
+                'GT9': 'Handlungsplan entwickeln',
+                'GT10': 'Umsetzung begleiten',
+                'GT11': 'Erfolg bewerten',
+                'GT12': 'Abschluss gestalten',
+                'SF0': 'Kühnste Hoffnung',
+                'SF1': 'Skalierungsfrage',
+                'SF2': 'Ausnahmen finden',
+                'SF3': 'Wunderfrage stellen',
+                'SF4': 'Erste kleine Schritte',
+                'SF5': 'Ressourcen aktivieren',
+                'SF6': 'Fortschritte würdigen',
+                'SF7': 'Unterstützung mobilisieren',
+                'SF8': 'Rückfälle handhaben',
+                'SF9': 'Erfolg verankern',
+                'DIAG1': 'Spannungsfeld identifizieren',
+                'DIAG2': 'Widerstand verstehen',
+                'DIAG3': 'Innere Anteile erkunden',
+                'DIAG4': 'Glaubenssätze erkennen',
+                'DIAG5': 'Emotionale Muster',
+                'LÖS1': 'Ziel konkretisieren',
+                'LÖS2': 'Ressourcen aktivieren',
+                'LÖS3': 'Erfolgserinnerungen',
+                'LÖS4': 'Kreative Lösungsfindung',
+                'LÖS5': 'Perspektivenwechsel',
+                'META1': 'Prozess reflektieren',
+                'META2': 'Session strukturieren',
+                'META3': 'Beziehung stärken',
+                'META4': 'Stagnation überwinden',
+                'META5': 'Selbstreflexion',
+                'WARN1': 'Coaching-Grenzen',
+                'WARN2': 'Suizidgefahr',
+                'WARN3': 'Gewaltprävention',
+                'WARN4': 'Substanzmissbrauch',
+                'WARN5': 'Trauma-Reaktionen',
+                'WARN6': 'Rechtliche Konflikte',
+                'GRUPPE1': 'Gruppendynamik',
+                'GRUPPE2': 'Paar-Coaching',
+                'GRUPPE3': 'Team-Konflikte',
+                'GRUPPE4': 'Familien-Coaching',
+                'GRUPPE5': 'Beteiligung ausbalancieren',
+                'GRUPPE6': 'Gruppenressourcen',
+                'LIVE1': 'Spontan reagieren',
+                'LIVE2': 'Emotionen begleiten',
+                'LIVE3': 'Online-Coaching',
+                'LIVE4': 'Mobile Interventionen',
+                'LIVE5': 'Technische Störungen',
+                'LIVE6': 'Asynchrones Coaching'
+            };
+            return titles[promptKey] || 'Prompt';
+        }
+
+        function getPromptDescription(promptKey) {
+            const descriptions = {
+                'GT1': 'Den Coaching-Auftrag systematisch definieren und Erwartungen klären',
+                'GT2': 'Das Coaching-Thema gemeinsam schärfen und konkretisieren',
+                'GT3': 'Konkrete Vereinbarungen für das Coaching treffen',
+                'GT4': 'Erste Hypothesen hypothesenoffen entwickeln',
+                'GT5': 'Wiederkehrende Muster behutsam erkunden und bewusst machen',
+                'GT6': 'Konstruktives Feedback entwicklungsfördernd formulieren',
+                'GT7': 'Gemeinsam vielfältige Lösungsalternativen generieren',
+                'GT8': 'Bei der Entscheidungsfindung unterstützen ohne zu entscheiden',
+                'GT9': 'Konkrete, realistische und überprüfbare Schritte definieren',
+                'GT10': 'Bei Reflexion und Anpassung der Umsetzung unterstützen',
+                'GT11': 'Konstruktive Erfolgsbewertung und Learnings extrahieren',
+                'GT12': 'Würdigen Abschluss gestalten und Transfer sichern',
+                'SF0': 'Die idealsten Vorstellungen und größten Hoffnungen aktivieren',
+                'SF1': 'Passende Skalierungsfrage formulieren und lösungsorientiert nutzen',
+                'SF2': 'Momente finden, in denen das Problem nicht oder weniger auftritt',
+                'SF3': 'Maßgeschneiderte Wunderfrage für Lösungsvision formulieren',
+                'SF4': 'Kleinste mögliche erste Schritte identifizieren',
+                'SF5': 'Verborgene und offensichtliche Ressourcen identifizieren',
+                'SF6': 'Kleine Erfolge angemessen würdigen und Motivation stärken',
+                'SF7': 'Persönliches und berufliches Netzwerk für Unterstützung erkunden',
+                'SF8': 'Präventive Strategien für mögliche Herausforderungen entwickeln',
+                'SF9': 'Erreichte Erfolge verankern und nachhaltig machen',
+                'DIAG1': 'Grundspannungen oder Ruhestand-Spannungen systematisch erkennen',
+                'DIAG2': 'Die Funktion von Widerstand respektvoll erkunden',
+                'DIAG3': 'Verschiedene innere Stimmen und Persönlichkeitsanteile verstehen',
+                'DIAG4': 'Limitierende Überzeugungen identifizieren und verstehen',
+                'DIAG5': 'Wiederkehrende emotionale Reaktionen und Trigger verstehen',
+                'LÖS1': 'Vage Ziele konkret und messbar machen',
+                'LÖS2': 'Vorhandene Stärken und Kompetenzen mobilisieren',
+                'LÖS3': 'Vergangene Erfolge und Bewältigungsstrategien nutzen',
+                'LÖS4': 'Kreativität und Ideenvielfalt systematisch fördern',
+                'LÖS5': 'Neue Blickwinkel und Interpretationen entwickeln',
+                'META1': 'Den bisherigen Coaching-Verlauf systematisch reflektieren',
+                'META2': 'Coaching-Sessions effektiv strukturieren und planen',
+                'META3': 'Vertrauen und Arbeitsbeziehung mit dem Coachee vertiefen',
+                'META4': 'Bei festgefahrenen Situationen neue Impulse setzen',
+                'META5': 'Die eigene Coach-Performance und -Entwicklung reflektieren',
+                'WARN1': 'Professionelle Grenzen erkennen und kommunizieren',
+                'WARN2': 'Bei Suizidgefahr professionell und sicher handeln',
+                'WARN3': 'Bei Gewaltandrohungen oder aggressivem Verhalten reagieren',
+                'WARN4': 'Bei Anzeichen von Substanzmissbrauch angemessen handeln',
+                'WARN5': 'Bei traumatischen Reaktionen sicher und stabilisierend handeln',
+                'WARN6': 'Bei rechtlichen Problemen oder illegalen Aktivitäten handeln',
+                'GRUPPE1': 'Gruppenprozesse konstruktiv leiten und alle einbeziehen',
+                'GRUPPE2': 'Paarkonflikte moderieren und Kommunikation verbessern',
+                'GRUPPE3': 'Konflikte im Team konstruktiv lösen und Zusammenarbeit stärken',
+                'GRUPPE4': 'Familiensysteme und -dynamiken coaching-orientiert begleiten',
+                'GRUPPE5': 'Dominante und zurückhaltende Teilnehmer ausgewogen einbeziehen',
+                'GRUPPE6': 'Die Ressourcen und Erfahrungen der Gruppe optimal nutzen',
+                'LIVE1': 'Bei unerwarteten Situationen im Live-Coaching schnell und professionell reagieren',
+                'LIVE2': 'Starke emotionale Reaktionen im Live-Setting angemessen begleiten',
+                'LIVE3': 'Digitale Coaching-Formate effektiv und verbindungsstark gestalten',
+                'LIVE4': 'Kurze, effektive Coaching-Impulse für unterwegs entwickeln',
+                'LIVE5': 'Bei technischen Problemen den Coaching-Flow aufrechterhalten',
+                'LIVE6': 'Chat- und nachrichtenbasierte Coaching-Unterstützung professionell gestalten'
+            };
+            return descriptions[promptKey] || 'Coaching-Prompt';
+        }
+
+        function searchPrompts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const promptCards = document.querySelectorAll('.prompt-card');
+            visiblePrompts = 0;
+
+            promptCards.forEach(card => {
+                const keywords = card.getAttribute('data-keywords').toLowerCase();
+                const code = card.getAttribute('data-code').toLowerCase();
+                const phase = card.getAttribute('data-phase').toLowerCase();
+                const title = card.querySelector('.prompt-title').textContent.toLowerCase();
+                const description = card.querySelector('.prompt-description').textContent.toLowerCase();
+                const text = card.querySelector('.prompt-text').textContent.toLowerCase();
+
+                const isMatch = searchTerm === '' || 
+                               code.includes(searchTerm) ||
+                               keywords.includes(searchTerm) ||
+                               phase.includes(searchTerm) ||
+                               title.includes(searchTerm) ||
+                               description.includes(searchTerm) ||
+                               text.includes(searchTerm);
+
+                if (isMatch) {
+                    card.classList.remove('hidden');
+                    visiblePrompts++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Hide empty categories
+            document.querySelectorAll('.category-section').forEach(category => {
+                const visibleCards = category.querySelectorAll('.prompt-card:not(.hidden)');
+                category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+            });
+
+            updateStats();
+        }
+
+        function copyPromptToChat(code, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyFeedback(`${code} kopiert!`);
+                
+                // Intelligent target selection based on prompt type
+                if (code.startsWith('GT') || code.startsWith('DIAG') || code.startsWith('META') || code.startsWith('WARN')) {
+                    // KI-oriented prompts go to KI input
+                    document.getElementById('kiInput').value = text;
+                } else if (code.startsWith('SF') || code.startsWith('LÖS') || code.startsWith('GRUPPE') || code.startsWith('LIVE')) {
+                    // More direct coaching prompts can go to either
+                    document.getElementById('coacheeInput').value = text;
+                } else {
+                    // Default to KI input
+                    document.getElementById('kiInput').value = text;
+                }
+            }).catch(() => {
+                showCopyFeedback('Kopieren fehlgeschlagen');
+            });
+        }
+
+        function showCopyFeedback(message = 'Kopiert!') {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.textContent = message;
+            feedback.classList.add('show');
+            setTimeout(() => feedback.classList.remove('show'), 2000);
+        }
+
+        function openForwardModal(text) {
+            document.getElementById('forwardText').value = text;
+            document.getElementById('forwardModal').style.display = 'block';
+        }
+
+        function closeForwardModal() {
+            document.getElementById('forwardModal').style.display = 'none';
+        }
+
+        function sendToCoachee() {
+            const text = document.getElementById('forwardText').value;
+            const coacheeMessages = document.getElementById('coacheeMessages');
+            const time = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+            
+            const message = document.createElement('div');
+            message.className = 'message coach';
+            message.innerHTML = `
+                <div class="message-sender">Coach</div>
+                ${text}
+                <div class="message-time">${time}</div>
+            `;
+            coacheeMessages.appendChild(message);
+            coacheeMessages.scrollTop = coacheeMessages.scrollHeight;
+            
+            closeForwardModal();
+            showCopyFeedback('An Coachee gesendet!');
+        }
+
+        function saveStepData() { 
+            try { 
+                localStorage.setItem('coaching-step-data-' + sessionId, JSON.stringify(stepData)); 
+            } catch (e) {} 
+        }
+        
+        function loadStepData() { 
+            try { 
+                const saved = localStorage.getItem('coaching-step-data-' + sessionId); 
+                stepData = saved ? JSON.parse(saved) : {}; 
+            } catch (e) { 
+                stepData = {}; 
+            } 
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeRepository();
+                closeForwardModal();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                openRepository();
+            }
+        });
+
+        window.onclick = function(event) {
+            const repositoryModal = document.getElementById('repositoryModal');
+            const forwardModal = document.getElementById('forwardModal');
+            if (event.target === repositoryModal) closeRepository();
+            if (event.target === forwardModal) closeForwardModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
