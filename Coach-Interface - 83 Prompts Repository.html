@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Coach-Interface - 83 Prompts Repository</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            height: calc(100vh - 200px);
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .prompt-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .prompt-item {
+            background: white;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .prompt-item:hover {
+            background: #f8f9ff;
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.15);
+        }
+        
+        .prompt-item.active {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border-color: #4f46e5;
+        }
+        
+        .prompt-code {
+            font-weight: bold;
+            color: #4f46e5;
+            font-size: 0.9em;
+        }
+        
+        .prompt-item.active .prompt-code {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .prompt-title {
+            font-size: 0.95em;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+        
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prompt-display {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #fafbfc;
+        }
+        
+        .prompt-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #4f46e5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .prompt-meta {
+            background: rgba(79, 70, 229, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(79, 70, 229, 0.1);
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+        }
+        
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+        
+        .dual-chat-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .chat-containers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .chat-title {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #fafbfc;
+        }
+        
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .send-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .stats {
+            text-align: center;
+            margin: 20px 0;
+            color: #6b7280;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .chat-containers {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Coach-Interface - 83 Prompts Repository</h1>
+            <p>Professionelle KI-Coaching Prompts für strukturierte Gespräche</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <input type="text" class="search-box" placeholder="🔍 Prompts durchsuchen..." id="searchBox">
+                
+                <div class="stats">
+                    <strong>83 Prompts verfügbar</strong>
+                </div>
+                
+                <div class="prompt-section">
+                    <div class="section-title">🎯 Gesprächstechniken (GT1-GT12)</div>
+                    <div class="prompt-item" data-prompt="GT1">
+                        <div class="prompt-code">GT1</div>
+                        <div class="prompt-title">Aktives Zuhören</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT2">
+                        <div class="prompt-code">GT2</div>
+                        <div class="prompt-title">Offene Fragen stellen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT3">
+                        <div class="prompt-code">GT3</div>
+                        <div class="prompt-title">Paraphrasieren</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT4">
+                        <div class="prompt-code">GT4</div>
+                        <div class="prompt-title">Emotionen spiegeln</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT5">
+                        <div class="prompt-code">GT5</div>
+                        <div class="prompt-title">Schweigen aushalten</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT6">
+                        <div class="prompt-code">GT6</div>
+                        <div class="prompt-title">Konkretisierung</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT7">
+                        <div class="prompt-code">GT7</div>
+                        <div class="prompt-title">Reframing</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT8">
+                        <div class="prompt-code">GT8</div>
+                        <div class="prompt-title">Skalierungsfragen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT9">
+                        <div class="prompt-code">GT9</div>
+                        <div class="prompt-title">Hypothetische Fragen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT10">
+                        <div class="prompt-code">GT10</div>
+                        <div class="prompt-title">Zirkuläre Fragen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT11">
+                        <div class="prompt-code">GT11</div>
+                        <div class="prompt-title">Ressourcenorientierung</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="GT12">
+                        <div class="prompt-code">GT12</div>
+                        <div class="prompt-title">Zielfokussierung</div>
+                    </div>
+                </div>
+                
+                <div class="prompt-section">
+                    <div class="section-title">🔍 Situationsfindung (SF0-SF9)</div>
+                    <div class="prompt-item" data-prompt="SF0">
+                        <div class="prompt-code">SF0</div>
+                        <div class="prompt-title">Allgemeine Situationsklärung</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF1">
+                        <div class="prompt-code">SF1</div>
+                        <div class="prompt-title">Berufliche Herausforderungen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF2">
+                        <div class="prompt-code">SF2</div>
+                        <div class="prompt-title">Persönliche Entwicklung</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF3">
+                        <div class="prompt-code">SF3</div>
+                        <div class="prompt-title">Teamdynamik</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF4">
+                        <div class="prompt-code">SF4</div>
+                        <div class="prompt-title">Führungsthemen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF5">
+                        <div class="prompt-code">SF5</div>
+                        <div class="prompt-title">Work-Life-Balance</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF6">
+                        <div class="prompt-code">SF6</div>
+                        <div class="prompt-title">Kommunikationsprobleme</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF7">
+                        <div class="prompt-code">SF7</div>
+                        <div class="prompt-title">Entscheidungsfindung</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF8">
+                        <div class="prompt-code">SF8</div>
+                        <div class="prompt-title">Konfliktsituationen</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="SF9">
+                        <div class="prompt-code">SF9</div>
+                        <div class="prompt-title">Veränderungsprozesse</div>
+                    </div>
+                </div>
+                
+                <div class="prompt-section">
+                    <div class="section-title">🔬 Diagnose (DIAG1-DIAG3)</div>
+                    <div class="prompt-item" data-prompt="DIAG1">
+                        <div class="prompt-code">DIAG1</div>
+                        <div class="prompt-title">Stärken-Schwächen-Analyse</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="DIAG2">
+                        <div class="prompt-code">DIAG2</div>
+                        <div class="prompt-title">Werteklarheit</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="DIAG3">
+                        <div class="prompt-code">DIAG3</div>
+                        <div class="prompt-title">Motivationsanalyse</div>
+                    </div>
+                </div>
+                
+                <div class="prompt-section">
+                    <div class="section-title">💡 Lösungsfindung (LÖS1-LÖS3)</div>
+                    <div class="prompt-item" data-prompt="LÖS1">
+                        <div class="prompt-code">LÖS1</div>
+                        <div class="prompt-title">Brainstorming-Techniken</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="LÖS2">
+                        <div class="prompt-code">LÖS2</div>
+                        <div class="prompt-title">Handlungsplanung</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="LÖS3">
+                        <div class="prompt-code">LÖS3</div>
+                        <div class="prompt-title">Ressourcenmobilisierung</div>
+                    </div>
+                </div>
+                
+                <div class="prompt-section">
+                    <div class="section-title">🎭 Meta-Ebene (META1-META2)</div>
+                    <div class="prompt-item" data-prompt="META1">
+                        <div class="prompt-code">META1</div>
+                        <div class="prompt-title">Coaching-Prozess reflektieren</div>
+                    </div>
+                    <div class="prompt-item" data-prompt="META2">
+                        <div class="prompt-code">META2</div>
+                        <div class="prompt-title">Selbstcoaching-Fähigkeiten</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-area">
+                <div class="chat-header">
+                    <h3 id="selectedPromptTitle">Prompt auswählen</h3>
+                    <button class="copy-btn" id="copyPromptBtn" style="display: none;">📋 Prompt kopieren</button>
+                </div>
+                
+                <div class="prompt-display">
+                    <div id="promptContent">
+                        <div style="text-align: center; color: #6b7280; padding: 50px;">
+                            <h3>👈 Wählen Sie einen Prompt aus der Liste</h3>
+                            <p>Klicken Sie auf einen Prompt-Code links, um den vollständigen Text anzuzeigen.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dual-chat-section">
+                    <h3 style="text-align: center; margin-bottom: 20px; color: #4f46e5;">💬 Dual-Chat-System</h3>
+                    
+                    <div class="chat-containers">
+                        <div class="chat-container">
+                            <div class="chat-title">🤖 KI-Assistent Chat</div>
+                            <div class="chat-messages" id="aiMessages"></div>
+                            <div class="chat-input-container">
+                                <textarea class="chat-input" id="aiInput" placeholder="Nachricht an KI-Assistent..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-container">
+                            <div class="chat-title">👤 Coachee Chat</div>
+                            <div class="chat-messages" id="coacheeMessages"></div>
+                            <div class="chat-input-container">
+                                <textarea class="chat-input" id="coacheeInput" placeholder="Nachricht an Coachee..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="send-buttons">
+                        <button class="send-btn" onclick="sendToAI()">📤 An KI senden</button>
+                        <button class="send-btn" onclick="sendToCoachee()">📤 An Coachee senden</button>
+                        <button class="send-btn" onclick="clearChats()" style="background: #dc2626;">🗑️ Chats leeren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Prompt-Datenbank
+        const prompts = {
+            'GT1': {
+                title: 'Aktives Zuhören',
+                content: `Du bist ein erfahrener Coach. Zeige dem Coachee durch aktives Zuhören, dass du präsent und aufmerksam bist.
+
+**Techniken für aktives Zuhören:**
+- Volle Aufmerksamkeit schenken
+- Blickkontakt halten (wenn persönlich)
+- Körpersprache beachten
+- Zusammenfassen und bestätigen
+- Emotionen wahrnehmen und benennen
+
+**Beispielphrasen:**
+- "Wenn ich Sie richtig verstehe..."
+- "Das bedeutet für Sie..."
+- "Ich höre heraus, dass..."
+- "Sie wirken dabei..."
+
+Höre aktiv zu und spiegele die wichtigsten Punkte wider.`
+            },
+            'GT2': {
+                title: 'Offene Fragen stellen',
+                content: `Stelle offene Fragen, die zum Nachdenken anregen und neue Perspektiven eröffnen.
+
+**W-Fragen nutzen:**
+- Was genau meinen Sie damit?
+- Wie haben Sie das erlebt?
+- Wann tritt das auf?
+- Wo zeigt sich das besonders?
+- Warum ist Ihnen das wichtig?
+- Wozu führt das?
+
+**Erkenntnisfördernde Fragen:**
+- "Was würde passieren, wenn...?"
+- "Wie würden andere das sehen?"
+- "Was ist das Beste, was passieren könnte?"
+- "Welche Möglichkeiten sehen Sie?"
+
+Vermeide geschlossene Ja/Nein-Fragen und führe den Coachee zur Selbstreflexion.`
+            },
+            'GT3': {
+                title: 'Paraphrasieren',
+                content: `Gib das Gesagte in eigenen Worten wieder, um Verständnis zu zeigen und zu vertiefen.
+
+**Paraphrasierung-Techniken:**
+- Inhalt zusammenfassen
+- Emotionen benennen
+- Kernaussagen hervorheben
+- Unausgesprochenes ansprechen
+
+**Einleitungsphrasen:**
+- "Wenn ich Sie richtig verstehe..."
+- "Sie sagen also..."
+- "Mit anderen Worten..."
+- "Das bedeutet für Sie..."
+- "Ich verstehe, dass..."
+
+**Zweck:**
+- Verständnis überprüfen
+- Wichtiges hervorheben
+- Struktur schaffen
+- Reflexion fördern
+
+Paraphrasiere regelmäßig, um sicherzustellen, dass du den Coachee verstanden hast.`
+            },
+            'GT4': {
+                title: 'Emotionen spiegeln',
+                content: `Erkenne und benenne Emotionen, die der Coachee ausdrückt oder zeigt.
+
+**Emotionen wahrnehmen:**
+- Tonfall beachten
+- Körpersprache deuten
+- Wortwahl analysieren
+- Unausgesprochenes erfassen
+
+**Emotionen benennen:**
+- "Sie wirken frustriert..."
+- "Ich höre Enttäuschung heraus..."
+- "Das scheint Sie zu belasten..."
+- "Sie klingen begeistert..."
+- "Ich spüre Unsicherheit..."
+
+**Emotionale Validierung:**
+- Gefühle als berechtigt anerkennen
+- Verständnis zeigen
+- Raum für Emotionen geben
+- Nicht bewerten oder korrigieren
+
+Hilf dem Coachee, seine Emotionen zu erkennen und zu verstehen.`
+            },
+            'GT5': {
+                title: 'Schweigen aushalten',
+                content: `Nutze bewusste Pausen, um dem Coachee Raum für Reflexion zu geben.
+
+**Wann Schweigen einsetzen:**
+- Nach wichtigen Fragen
+- Bei emotionalen Momenten
+- Wenn der Coachee nachdenkt
+- Nach Erkenntnissen
+
+**Arten von Schweigen:**
+- Reflexionszeit geben
+- Emotionen nachklingen lassen
+- Spannung aufbauen
+- Entscheidungen reifen lassen
+
+**Schweigen beenden:**
+- Erst wenn der Coachee bereit ist
+- Mit sanfter Nachfrage
+- Durch zusammenfassendes Paraphrasieren
+- Mit ermutigenden Worten
+
+**Tipps:**
+- Nicht von eigenem Unbehagen leiten lassen
+- Schweigen als kraftvolles Werkzeug verstehen
+- Geduld zeigen
+- Raum halten
+
+Halte Schweigen aus und gib dem Coachee Zeit zum Nachdenken.`
+            },
+            'GT6': {
+                title: 'Konkretisierung',
+                content: `Führe den Coachee von vagen Aussagen zu konkreten, spezifischen Informationen.
+
+**Konkretisierungs-Fragen:**
+- "Können Sie ein konkretes Beispiel geben?"
+- "Was genau ist passiert?"
+- "Wie hat sich das gezeigt?"
+- "Wann war das zuletzt so?"
+- "Wer war beteiligt?"
+
+**Von allgemein zu spezifisch:**
+- "Alle" → "Wer genau?"
+- "Immer" → "Wann konkret?"
+- "Probleme" → "Welche Art von Problemen?"
+- "Schwierig" → "Was macht es schwierig?"
+
+**Nutzen der Konkretisierung:**
+- Klarheit schaffen
+- Lösungsansätze finden
+- Muster erkennen
+- Handlungsoptionen entwickeln
+
+**Vorsicht vor:**
+- Zu detaillierter Problemfokussierung
+- Verlieren des größeren Bildes
+
+Helfe dem Coachee, vage Aussagen zu konkretisieren und spezifisch zu werden.`
+            },
+            'GT7': {
+                title: 'Reframing',
+                content: `Biete alternative Sichtweisen und Interpretationen an, um neue Perspektiven zu eröffnen.
+
+**Reframing-Techniken:**
+- Problem als Chance sehen
+- Stärken in Schwächen finden
+- Anderen Blickwinkel einnehmen
+- Positiv umformulieren
+
+**Beispiele:**
+- "Perfektionismus" → "Hohe Qualitätsansprüche"
+- "Stur" → "Konsequent"
+- "Problem" → "Herausforderung"
+- "Scheitern" → "Lernerfahrung"
+
+**Reframing-Fragen:**
+- "Wie könnte man das auch sehen?"
+- "Was wäre eine andere Interpretation?"
+- "Welche Stärke steckt dahinter?"
+- "Was ist das Positive daran?"
+
+**Vorsichtsmaßnahmen:**
+- Gefühle des Coachees respektieren
+- Nicht bagatellisieren
+- Authentisch bleiben
+- Timing beachten
+
+Hilf dem Coachee, Situationen aus neuen Blickwinkeln zu betrachten.`
+            },
+            'GT8': {
+                title: 'Skalierungsfragen',
+                content: `Nutze Skalen von 1-10, um Situationen messbar und Fortschritte sichtbar zu machen.
+
+**Typische Skalierungsfragen:**
+- "Auf einer Skala von 1-10, wie zufrieden sind Sie?"
+- "Wie hoch ist Ihr Stresslevel?"
+- "Wie confident fühlen Sie sich?"
+- "Wie wichtig ist Ihnen das?"
+
+**Vertiefende Fragen:**
+- "Was macht es zu einer 6 und nicht zu einer 4?"
+- "Was bräuchten Sie für eine 8?"
+- "Wann waren Sie schon mal bei einer 9?"
+- "Was war anders, als Sie bei einer 2 waren?"
+
+**Nutzen von Skalierung:**
+- Komplexe Gefühle messbar machen
+- Fortschritte visualisieren
+- Ziele definieren
+- Veränderungen bewerten
+
+**Anwendungsbereich:**
+- Zufriedenheit
+- Motivation
+- Selbstvertrauen
+- Stress
+- Wichtigkeit
+
+Verwende Skalierungsfragen, um abstrakte Konzepte greifbar zu machen.`
+            },
+            'GT9': {
+                title: 'Hypothetische Fragen',
+                content: `Stelle "Was wäre wenn"-Fragen, um neue Möglichkeiten und Lösungswege zu erkunden.
+
+**Hypothetische Szenarien:**
+- "Was wäre, wenn das Problem gelöst wäre?"
+- "Angenommen, Sie hätten unbegrenzte Ressourcen..."
+- "Stellen Sie sich vor, Sie wären in 5 Jahren..."
+- "Was, wenn Sie keine Angst hätten?"
+
+**Verschiedene Perspektiven:**
+- "Wie würde Ihr bester Freund das sehen?"
+- "Was würden Sie einem anderen raten?"
+- "Wie würde ein Außenstehender das beurteilen?"
+- "Was würde Ihr Vorbild tun?"
+
+**Zukunftsfokus:**
+- "Wie sieht Ihr ideales Szenario aus?"
+- "Was ist das Beste, was passieren könnte?"
+- "Wie würden Sie sich dann fühlen?"
+- "Was wäre dann anders?"
+
+**Nutzen:**
+- Kreativität fördern
+- Lösungsorientierung
+- Perspektivwechsel
+- Möglichkeiten erweitern
+
+Nutze hypothetische Fragen, um den Lösungsraum zu erweitern.`
+            },
+            'GT10': {
+                title: 'Zirkuläre Fragen',
+                content: `Erforsche Beziehungen und Systeme durch Fragen zu Außenperspektiven.
+
+**Zirkuläre Fragetypen:**
+- "Wie würde X das sehen?"
+- "Was würde Y dazu sagen?"
+- "Wie reagiert Z normalerweise?"
+- "Was denkt Ihr Team darüber?"
+
+**Beziehungsdynamiken erkunden:**
+- "Wer unterstützt Sie dabei?"
+- "Wer könnte Widerstand zeigen?"
+- "Wie beeinflusst das andere?"
+- "Was ist die Auswirkung auf...?"
+
+**Systemische Perspektive:**
+- Zusammenhänge aufzeigen
+- Wechselwirkungen verstehen
+- Stakeholder einbeziehen
+- Komplexität würdigen
+
+**Beispielfragen:**
+- "Wenn Ihr Chef hier wäre, was würde er sagen?"
+- "Wie erlebt Ihre Familie diese Veränderung?"
+- "Welche Auswirkungen hat das auf Ihr Team?"
+- "Wer profitiert vom Status quo?"
+
+Nutze zirkuläre Fragen, um das größere System zu verstehen.`
+            },
+            'GT11': {
+                title: 'Ressourcenorientierung',
+                content: `Fokussiere auf Stärken, Fähigkeiten und verfügbare Ressourcen des Coachees.
+
+**Ressourcen identifizieren:**
+- "Was sind Ihre Stärken?"
+- "Womit haben Sie schon mal Erfolg gehabt?"
+- "Welche Fähigkeiten besitzen Sie?"
+- "Wer oder was unterstützt Sie?"
+
+**Erfolge würdigen:**
+- "Wie haben Sie das geschafft?"
+- "Was war Ihr Beitrag dazu?"
+- "Welche Ihrer Eigenschaften war hilfreich?"
+- "Was können Sie daraus lernen?"
+
+**Ressourcen-Kategorien:**
+- Persönliche Stärken
+- Erfahrungen und Wissen
+- Soziales Netzwerk
+- Materielle Ressourcen
+- Innere Haltung
+
+**Ressourcen mobilisieren:**
+- "Wie können Sie das nutzen?"
+- "Wann könnten Sie das einsetzen?"
+- "Wer könnte helfen?"
+- "Was steht Ihnen zur Verfügung?"
+
+Lenke den Fokus auf vorhandene Ressourcen und Stärken.`
+            },
+            'GT12': {
+                title: 'Zielfokussierung',
+                content: `Halte das gewünschte Ergebnis und die Ziele im Fokus des Gesprächs.
+
+**Ziele klären:**
+- "Was möchten Sie erreichen?"
+- "Wie würde Ihr ideales Ergebnis aussehen?"
+- "Woran würden Sie merken, dass Sie angekommen sind?"
+- "Was ist Ihr wichtigstes Ziel?"
+
+**SMART-Ziele entwickeln:**
+- Spezifisch: Was genau?
+- Messbar: Woran erkennbar?
+- Attraktiv: Warum wichtig?
+- Realistisch: Ist es machbar?
+- Terminiert: Bis wann?
+
+**Ziele vertiefen:**
+- "Warum ist Ihnen das wichtig?"
+- "Was würde sich dann ändern?"
+- "Wie würden Sie sich dann fühlen?"
+- "Was wäre der Nutzen?"
+
+**Hindernisse antizipieren:**
+- "Was könnte Sie aufhalten?"
+- "Welche Herausforderungen sehen Sie?"
+- "Wie überwinden Sie diese?"
+- "Was brauchen Sie dafür?"
+
+Halte den Fokus auf dem gewünschten Ziel und Ergebnis.`
+            },
+            'SF0': {
+                title: 'Allgemeine Situationsklärung',
+                content: `Verschaffe dir einen umfassenden Überblick über die aktuelle Situation des Coachees.
+
+**Situationserfassung:**
+- "Beschreiben Sie Ihre aktuelle Situation"
+- "Was beschäftigt Sie im Moment?"
+- "Wo stehen Sie gerade?"
+- "Was läuft gut, was weniger gut?"
+
+**Kontext verstehen:**
+- "Wie ist es zu dieser Situation gekommen?"
+- "Was hat sich verändert?"
+- "Welche Faktoren spielen eine Rolle?"
+- "Wer ist beteiligt?"
+
+**Prioritäten identifizieren:**
+- "Was ist am wichtigsten?"
+- "Womit möchten Sie beginnen?"
+- "Was belastet Sie am meisten?"
+- "Was hat die höchste Dringlichkeit?"
+
+**Ausgangslage definieren:**
+- "Was ist Ihr Startpunkt?"
+- "Welche Ressourcen haben Sie?"
+- "Was funktioniert bereits?"
+- "Wo sehen Sie Potenzial?"
+
+Schaffe eine solide Basis durch umfassende Situationsklärung.`
+            },
+            'SF1': {
+                title: 'Berufliche Herausforderungen',
+                content: `Erkunde spezifische berufliche Themen und Herausforderungen des Coachees.
+
+**Berufliche Situation:**
+- "Wie erleben Sie Ihren beruflichen Alltag?"
+- "Welche Herausforderungen haben Sie im Job?"
+- "Was läuft beruflich gut/weniger gut?"
+- "Wo sehen Sie Entwicklungsbedarf?"
+
+**Arbeitsumfeld:**
+- "Wie ist Ihr Arbeitsumfeld?"
+- "Wie ist die Zusammenarbeit im Team?"
+- "Wie erleben Sie die Führung?"
+- "Welche Strukturen unterstützen/behindern Sie?"
+
+**Karrierefragen:**
+- "Wo möchten Sie beruflich hin?"
+- "Was sind Ihre Karriereziele?"
+- "Welche Kompetenzen möchten Sie entwickeln?"
+- "Was würde Sie beruflich erfüllen?"
+
+**Konkrete Themen:**
+- Zeitmanagement
+- Kommunikation
+- Führungsaufgaben
+- Projekt-Herausforderungen
+- Work-Life-Balance
+
+Fokussiere auf die spezifischen beruflichen Herausforderungen.`
+            },
+            'SF2': {
+                title: 'Persönliche Entwicklung',
+                content: `Erkunde Themen der persönlichen Weiterentwicklung und des Wachstums.
+
+**Selbstreflexion fördern:**
+- "Wie sehen Sie sich selbst?"
+- "Was ist Ihnen wichtig im Leben?"
+- "Welche Werte leiten Sie?"
+- "Was motiviert Sie wirklich?"
+
+**Entwicklungsbereiche:**
+- "Wo möchten Sie sich weiterentwickeln?"
+- "Welche Fähigkeiten möchten Sie stärken?"
+- "Was würden Sie gern lernen?"
+- "Welche Gewohnheiten möchten Sie ändern?"
+
+**Lebensvision:**
+- "Wie sieht Ihr ideales Leben aus?"
+- "Was möchten Sie erreichen?"
+- "Wofür möchten Sie stehen?"
+- "Was ist Ihr Lebenssinn?"
+
+**Persönliche Themen:**
+- Selbstvertrauen
+- Kommunikationsfähigkeiten
+- Emotionale Intelligenz
+- Resilienz
+- Authentizität
+
+Unterstütze den Coachee bei seiner persönlichen Entwicklungsreise.`
+            },
+            'SF3': {
+                title: 'Teamdynamik',
+                content: `Analysiere Teamstrukturen, Rollen und zwischenmenschliche Dynamiken.
+
+**Team-Situation erfassen:**
+- "Wie funktioniert Ihr Team?"
+- "Welche Rollen gibt es?"
+- "Wie ist die Kommunikation?"
+- "Wo entstehen Spannungen?"
+
+**Eigene Rolle im Team:**
+- "Welche Rolle haben Sie im Team?"
+- "Wie werden Sie wahrgenommen?"
+- "Was ist Ihr Beitrag?"
+- "Wo möchten Sie sich einbringen?"
+
+**Beziehungsdynamiken:**
+- "Wie sind die Beziehungen untereinander?"
+- "Wer arbeitet gut zusammen?"
+- "Wo gibt es Konflikte?"
+- "Was beeinflusst die Teamchemie?"
+
+**Verbesserungsmöglichkeiten:**
+- "Was läuft gut im Team?"
+- "Was könnte besser werden?"
+- "Wie könnte sich das Team entwickeln?"
+- "Was ist Ihre Vision für das Team?"
+
+Erkunde die Komplexität von Teamdynamiken und Beziehungen.`
+            },
+            'SF4': {
+                title: 'Führungsthemen',
+                content: `Fokussiere auf Führungsherausforderungen und Entwicklung von Führungskompetenzen.
+
+**Führungssituation:**
+- "Wie erleben Sie Ihre Führungsrolle?"
+- "Welche Führungsaufgaben haben Sie?"
+- "Was ist herausfordernd an der Führung?"
+- "Wie möchten Sie führen?"
+
+**Führungsstil:**
+- "Wie würden Sie Ihren Führungsstil beschreiben?"
+- "Was ist Ihnen als Führungskraft wichtig?"
+- "Wie treffen Sie Entscheidungen?"
+- "Wie gehen Sie mit Konflikten um?"
+
+**Mitarbeiterführung:**
+- "Wie ist die Beziehung zu Ihren Mitarbeitern?"
+- "Wie motivieren Sie Ihr Team?"
+- "Wie geben Sie Feedback?"
+- "Wie entwickeln Sie Ihre Mitarbeiter?"
+
+**Führungsherausforderungen:**
+- Delegation
+- Kommunikation
+- Konfliktmanagement
+- Change Management
+- Teambuilding
+
+Unterstütze bei der Entwicklung von Führungskompetenzen.`
+            },
+            'SF5': {
+                title: 'Work-Life-Balance',
+                content: `Erkunde die Balance zwischen beruflichen und privaten Lebensbereichen.
+
+**Aktuelle Balance:**
+- "Wie ist derzeit Ihre Work-Life-Balance?"
+- "Wo sehen Sie Ungleichgewichte?"
+- "Was belastet Sie dabei?"
+- "Was läuft gut?"
+
+**Prioritäten klären:**
+- "Was ist Ihnen wichtig im Leben?"
+- "Wie möchten Sie Ihre Zeit verbringen?"
+- "Welche Bereiche brauchen mehr Aufmerksamkeit?"
+- "Wo können Sie Grenzen ziehen?"
+
+**Stressmanagement:**
+- "Wie gehen Sie mit Stress um?"
+- "Was entspannt Sie?"
+- "Wo finden Sie Energie?"
+- "Was raubt Ihnen Energie?"
+
+**Lebensqualität:**
+- "Was würde Ihre Lebensqualität verbessern?"
+- "Wie sieht Ihr idealer Tag aus?"
+- "Was fehlt Ihnen?"
+- "Wofür möchten Sie mehr Zeit haben?"
+
+Hilf dabei, eine gesunde Balance zwischen Arbeit und Leben zu finden.`
+            },
+            'SF6': {
+                title: 'Kommunikationsprobleme',
+                content: `Identifiziere und bearbeite kommunikative Herausforderungen und Missverständnisse.
+
+**Kommunikationssituation:**
+- "Wie läuft die Kommunikation in Ihrem Umfeld?"
+- "Wo entstehen Missverständnisse?"
+- "Mit wem ist die Kommunikation schwierig?"
+- "Was funktioniert gut?"
+
+**Eigenes Kommunikationsverhalten:**
+- "Wie kommunizieren Sie normalerweise?"
+- "Was ist Ihr Kommunikationsstil?"
+- "Wann fühlen Sie sich missverstanden?"
+- "Wo möchten Sie sich verbessern?"
+
+**Konflikte und Spannungen:**
+- "Welche Konflikte gibt es?"
+- "Wie entstehen diese?"
+- "Was verstärkt die Probleme?"
+- "Wie wurden sie bisher angegangen?"
+
+**Verbesserungsmöglichkeiten:**
+- "Wie könnte die Kommunikation besser werden?"
+- "Was brauchen Sie dafür?"
+- "Welche Gespräche sollten geführt werden?"
+- "Wie können Sie Ihre Botschaft klarer vermitteln?"
+
+Unterstütze bei der Verbesserung der Kommunikationsfähigkeiten.`
+            },
+            'SF7': {
+                title: 'Entscheidungsfindung',
+                content: `Begleite den Coachee bei wichtigen Entscheidungsprozessen und Wahlmöglichkeiten.
+
+**Entscheidungssituation:**
+- "Vor welcher Entscheidung stehen Sie?"
+- "Welche Optionen haben Sie?"
+- "Was macht die Entscheidung schwierig?"
+- "Bis wann müssen Sie entscheiden?"
+
+**Bewertungskriterien:**
+- "Was ist Ihnen bei der Entscheidung wichtig?"
+- "Welche Kriterien legen Sie an?"
+- "Was sind Ihre Prioritäten?"
+- "Welche Werte spielen eine Rolle?"
+
+**Pro und Contra:**
+- "Was spricht für die verschiedenen Optionen?"
+- "Welche Risiken sehen Sie?"
+- "Welche Chancen bieten sich?"
+- "Was sind die langfristigen Auswirkungen?"
+
+**Entscheidungsprozess:**
+- "Wie treffen Sie normalerweise Entscheidungen?"
+- "Wer sollte einbezogen werden?"
+- "Welche Informationen brauchen Sie noch?"
+- "Was würde Ihnen bei der Entscheidung helfen?"
+
+Unterstütze bei strukturierten Entscheidungsprozessen.`
+            },
+            'SF8': {
+                title: 'Konfliktsituationen',
+                content: `Analysiere und bearbeite bestehende oder potenzielle Konflikte.
+
+**Konfliktsituation verstehen:**
+- "Beschreiben Sie den Konflikt"
+- "Wer ist beteiligt?"
+- "Wie ist er entstanden?"
+- "Was sind die strittigen Punkte?"
+
+**Perspektiven erkunden:**
+- "Wie sehen Sie die Situation?"
+- "Wie könnte die andere Seite es sehen?"
+- "Wo sind die Gemeinsamkeiten?"
+- "Was sind die unterschiedlichen Interessen?"
+
+**Emotionale Ebene:**
+- "Wie geht es Ihnen mit dem Konflikt?"
+- "Welche Gefühle sind da?"
+- "Was ärgert Sie am meisten?"
+- "Was befürchten Sie?"
+
+**Lösungsansätze:**
+- "Wie könnte eine Lösung aussehen?"
+- "Was wäre ein Kompromiss?"
+- "Welche Schritte sind nötig?"
+- "Wer könnte vermitteln?"
+
+Begleite professionell durch Konfliktsituationen.`
+            },
+            'SF9': {
+                title: 'Veränderungsprozesse',
+                content: `Unterstütze bei anstehenden oder laufenden Veränderungen und Transitionen.
+
+**Veränderungssituation:**
+- "Welche Veränderungen stehen an?"
+- "Was verändert sich in Ihrem Umfeld?"
+- "Wie erleben Sie diese Veränderungen?"
+- "Was ist neu für Sie?"
+
+**Umgang mit Veränderung:**
+- "Wie gehen Sie normalerweise mit Veränderungen um?"
+- "Was fällt Ihnen leicht/schwer dabei?"
+- "Welche Erfahrungen haben Sie gemacht?"
+- "Was hilft Ihnen bei Übergängen?"
+
+**Widerstände und Ängste:**
+- "Was bereitet Ihnen Sorgen?"
+- "Welche Befürchtungen haben Sie?"
+- "Was könnte schiefgehen?"
+- "Wogegen wehren Sie sich?"
+
+**Chancen und Möglichkeiten:**
+- "Welche Chancen sehen Sie?"
+- "Was könnte besser werden?"
+- "Welche neuen Möglichkeiten entstehen?"
+- "Worauf freuen Sie sich?"
+
+Begleite durch Veränderungsprozesse und Übergänge.`
+            },
+            'DIAG1': {
+                title: 'Stärken-Schwächen-Analyse',
+                content: `Führe eine systematische Analyse der Stärken und Entwicklungsfelder durch.
+
+**Stärken identifizieren:**
+- "Was sind Ihre größten Stärken?"
+- "Womit haben Sie Erfolg?"
+- "Wofür bekommen Sie Anerkennung?"
+- "Was fällt Ihnen leicht?"
+
+**Stärken vertiefen:**
+- "Wie zeigt sich diese Stärke konkret?"
+- "Wann setzen Sie sie ein?"
+- "Wie können Sie sie noch besser nutzen?"
+- "Welche Situationen brauchen diese Stärke?"
+
+**Entwicklungsfelder erkunden:**
+- "Wo sehen Sie Verbesserungspotenzial?"
+- "Was fällt Ihnen schwer?"
+- "Welche Kompetenzen möchten Sie ausbauen?"
+- "Was hemmt Sie manchmal?"
+
+**Ausgewogene Betrachtung:**
+- "Wie können Stärken zu Schwächen werden?"
+- "Welche Stärken sind situationsabhängig?"
+- "Wo ist Ihre Komfortzone?"
+- "Was liegt außerhalb Ihrer Komfortzone?"
+
+Schaffe Bewusstsein für Stärken und Entwicklungspotenziale.`
+            },
+            'DIAG2': {
+                title: 'Werteklarheit',
+                content: `Erkunde die grundlegenden Werte und Überzeugungen des Coachees.
+
+**Werte identifizieren:**
+- "Was ist Ihnen wichtig im Leben?"
+- "Welche Prinzipien leiten Sie?"
+- "Wofür stehen Sie ein?"
+- "Was darf nicht verletzt werden?"
+
+**Werte-Hierarchie:**
+- "Welcher Wert ist am wichtigsten?"
+- "Wie würden Sie Ihre Werte ordnen?"
+- "Was haben Sie schon für Ihre Werte geopfert?"
+- "Wo kommen Ihre Werte her?"
+
+**Werte leben:**
+- "Wie leben Sie Ihre Werte?"
+- "Wo spiegeln sich Ihre Werte wider?"
+- "Wann fühlen Sie sich im Einklang?"
+- "Was passiert, wenn Werte verletzt werden?"
+
+**Werte-Konflikte:**
+- "Welche Werte stehen manchmal im Konflikt?"
+- "Wie entscheiden Sie dann?"
+- "Wo müssen Sie Kompromisse machen?"
+- "Was kostet Sie das?"
+
+Hilf dabei, Klarheit über persönliche Werte zu gewinnen.`
+            },
+            'DIAG3': {
+                title: 'Motivationsanalyse',
+                content: `Analysiere die intrinsischen und extrinsischen Motivationsfaktoren.
+
+**Motivationsquellen:**
+- "Was motiviert Sie wirklich?"
+- "Wann sind Sie besonders engagiert?"
+- "Was treibt Sie an?"
+- "Woraus schöpfen Sie Energie?"
+
+**Intrinsische Motivation:**
+- "Was machen Sie gern?"
+- "Wobei vergessen Sie die Zeit?"
+- "Was erfüllt Sie?"
+- "Was würden Sie auch ohne Bezahlung tun?"
+
+**Extrinsische Faktoren:**
+- "Welche äußeren Anreize wirken?"
+- "Was erwarten andere von Ihnen?"
+- "Welche Belohnungen sind wichtig?"
+- "Was sind Ihre Ziele?"
+
+**Motivationskiller:**
+- "Was demotiviert Sie?"
+- "Wann verlieren Sie die Motivation?"
+- "Was raubt Ihnen Energie?"
+- "Welche Faktoren bremsen Sie?"
+
+Verstehe die individuellen Motivationsmuster des Coachees.`
+            },
+            'LÖS1': {
+                title: 'Brainstorming-Techniken',
+                content: `Nutze kreative Techniken zur Ideenfindung und Lösungsentwicklung.
+
+**Brainstorming-Regeln:**
+- Quantität vor Qualität
+- Keine Bewertung während der Ideenfindung
+- Wilde Ideen sind erwünscht
+- Auf Ideen anderer aufbauen
+
+**Kreativitätstechniken:**
+- "Was wäre, wenn es keine Grenzen gäbe?"
+- "Wie würde ein Kind das lösen?"
+- "Was ist das Gegenteil der naheliegenden Lösung?"
+- "Welche verrückte Idee haben Sie?"
+
+**Strukturierte Ideenfindung:**
+- Mind-Mapping verwenden
+- 6-3-5 Methode anwenden
+- Worst-Case-Szenario entwickeln
+- Zufallswörter einbeziehen
+
+**Ideenbewertung:**
+- Erst sammeln, dann bewerten
+- Kriterien für gute Lösungen definieren
+- Machbarkeit prüfen
+- Kombinationen erkunden
+
+Fördere kreative Lösungsfindung durch strukturiertes Brainstorming.`
+            },
+            'LÖS2': {
+                title: 'Handlungsplanung',
+                content: `Entwickle konkrete, umsetzbare Handlungspläne für die identifizierten Lösungen.
+
+**Ziele konkretisieren:**
+- "Was genau möchten Sie erreichen?"
+- "Wie sieht das gewünschte Ergebnis aus?"
+- "Woran werden Sie den Erfolg messen?"
+- "Bis wann soll es erreicht sein?"
+
+**Schritte definieren:**
+- "Welche Schritte sind nötig?"
+- "Womit fangen Sie an?"
+- "Was ist die logische Reihenfolge?"
+- "Welche Meilensteine gibt es?"
+
+**Ressourcen planen:**
+- "Was brauchen Sie dafür?"
+- "Wer kann unterstützen?"
+- "Welche Mittel sind erforderlich?"
+- "Welche Zeit müssen Sie einplanen?"
+
+**Hindernisse antizipieren:**
+- "Was könnte schiefgehen?"
+- "Welche Hindernisse sind absehbar?"
+- "Wie bereiten Sie sich darauf vor?"
+- "Was ist Plan B?"
+
+Entwickle realistische und umsetzbare Handlungspläne.`
+            },
+            'LÖS3': {
+                title: 'Ressourcenmobilisierung',
+                content: `Identifiziere und aktiviere verfügbare Ressourcen für die Zielerreichung.
+
+**Interne Ressourcen:**
+- "Welche Fähigkeiten können Sie nutzen?"
+- "Welche Erfahrungen helfen Ihnen?"
+- "Was haben Sie schon mal erfolgreich gemacht?"
+- "Welche Stärken sind relevant?"
+
+**Externe Ressourcen:**
+- "Wer kann Sie unterstützen?"
+- "Welche Netzwerke stehen zur Verfügung?"
+- "Wo finden Sie Expertise?"
+- "Welche Tools oder Systeme helfen?"
+
+**Emotionale Ressourcen:**
+- "Was gibt Ihnen Kraft?"
+- "Wer ermutigt Sie?"
+- "Was motiviert Sie?"
+- "Welche Erfolge können Sie sich in Erinnerung rufen?"
+
+**Ressourcen aktivieren:**
+- "Wie können Sie diese Ressourcen nutzen?"
+- "Wen werden Sie ansprechen?"
+- "Wann werden Sie aktiv?"
+- "Wie stellen Sie sicher, dass Sie Hilfe bekommen?"
+
+Mobilisiere alle verfügbaren Ressourcen für den Erfolg.`
+            },
+            'META1': {
+                title: 'Coaching-Prozess reflektieren',
+                content: `Reflektiere gemeinsam den Coaching-Prozess und die Gesprächsqualität.
+
+**Prozessreflexion:**
+- "Wie erleben Sie unser Coaching?"
+- "Was ist hilfreich für Sie?"
+- "Was funktioniert gut?"
+- "Was könnte anders sein?"
+
+**Erkenntnisse würdigen:**
+- "Welche Einsichten haben Sie gewonnen?"
+- "Was haben Sie über sich gelernt?"
+- "Welche Perspektiven haben sich verändert?"
+- "Was nehmen Sie mit?"
+
+**Coaching-Beziehung:**
+- "Wie ist die Zusammenarbeit für Sie?"
+- "Fühlen Sie sich verstanden?"
+- "Was brauchen Sie von mir als Coach?"
+- "Wo sehen Sie Verbesserungsmöglichkeiten?"
+
+**Methoden bewerten:**
+- "Welche Fragen/Methoden waren besonders hilfreich?"
+- "Was hat Sie zum Nachdenken gebracht?"
+- "Welche Übungen waren wertvoll?"
+- "Was würden Sie gern vertiefen?"
+
+Schaffe Bewusstsein für den Coaching-Prozess selbst.`
+            },
+            'META2': {
+                title: 'Selbstcoaching-Fähigkeiten',
+                content: `Entwickle die Fähigkeit zur Selbstreflexion und eigenständigen Problemlösung.
+
+**Selbstreflexion fördern:**
+- "Welche Fragen können Sie sich selbst stellen?"
+- "Wie können Sie regelmäßig reflektieren?"
+- "Was sind Ihre persönlichen Reflexions-Trigger?"
+- "Wann nehmen Sie sich Zeit für sich selbst?"
+
+**Eigene Muster erkennen:**
+- "Welche Muster bemerken Sie bei sich?"
+- "Wie reagieren Sie typischerweise?"
+- "Was sind Ihre Gewohnheiten?"
+- "Wo wiederholen sich Situationen?"
+
+**Selbstcoaching-Tools:**
+- "Welche Methoden können Sie selbst anwenden?"
+- "Wie können Sie sich selbst herausfordern?"
+- "Welche Fragen helfen Ihnen weiter?"
+- "Wie finden Sie eigene Lösungen?"
+
+**Autonomie entwickeln:**
+- "Wie können Sie unabhängiger werden?"
+- "Was brauchen Sie, um selbstständig voranzukommen?"
+- "Wie vertrauen Sie Ihren eigenen Antworten?"
+- "Wann holen Sie sich externe Unterstützung?"
+
+Stärke die Fähigkeit zur Selbstführung und Eigenverantwortung.`
+            }
+        };
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchBox');
+            const promptItems = document.querySelectorAll('.prompt-item');
+            const copyBtn = document.getElementById('copyPromptBtn');
+
+            // Suchfunktion
+            searchBox.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                promptItems.forEach(item => {
+                    const code = item.querySelector('.prompt-code').textContent.toLowerCase();
+                    const title = item.querySelector('.prompt-title').textContent.toLowerCase();
+                    const isVisible = code.includes(searchTerm) || title.includes(searchTerm);
+                    item.style.display = isVisible ? 'block' : 'none';
+                });
+            });
+
+            // Prompt-Auswahl
+            promptItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Aktive Klasse entfernen
+                    promptItems.forEach(p => p.classList.remove('active'));
+                    // Aktive Klasse hinzufügen
+                    this.classList.add('active');
+                    
+                    const promptCode = this.getAttribute('data-prompt');
+                    showPrompt(promptCode);
+                });
+            });
+
+            // Copy-Button
+            copyBtn.addEventListener('click', function() {
+                const content = document.getElementById('promptContent').textContent;
+                navigator.clipboard.writeText(content).then(() => {
+                    this.textContent = '✅ Kopiert!';
+                    setTimeout(() => {
+                        this.textContent = '📋 Prompt kopieren';
+                    }, 2000);
+                });
+            });
+        });
+
+        // Prompt anzeigen
+        function showPrompt(code) {
+            const prompt = prompts[code];
+            if (!prompt) return;
+
+            document.getElementById('selectedPromptTitle').textContent = `${code}: ${prompt.title}`;
+            document.getElementById('copyPromptBtn').style.display = 'block';
+
+            const content = `
+                <div class="prompt-meta">
+                    <strong>Prompt-Code:</strong> ${code}<br>
+                    <strong>Titel:</strong> ${prompt.title}
+                </div>
+                <div class="prompt-content">${prompt.content.replace(/\n/g, '<br><br>')}</div>
+            `;
+
+            document.getElementById('promptContent').innerHTML = content;
+        }
+
+        // Chat-Funktionen
+        function sendToAI() {
+            const input = document.getElementById('aiInput');
+            const messages = document.getElementById('aiMessages');
+            
+            if (input.value.trim()) {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = 'margin: 10px 0; padding: 10px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;';
+                messageDiv.innerHTML = `<strong>Sie:</strong> ${input.value}`;
+                messages.appendChild(messageDiv);
+                messages.scrollTop = messages.scrollHeight;
+                input.value = '';
+            }
+        }
+
+        function sendToCoachee() {
+            const input = document.getElementById('coacheeInput');
+            const messages = document.getElementById('coacheeMessages');
+            
+            if (input.value.trim()) {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = 'margin: 10px 0; padding: 10px; background: #f3e5f5; border-radius: 8px; border-left: 4px solid #9c27b0;';
+                messageDiv.innerHTML = `<strong>Coach:</strong> ${input.value}`;
+                messages.appendChild(messageDiv);
+                messages.scrollTop = messages.scrollHeight;
+                input.value = '';
+            }
+        }
+
+        function clearChats() {
+            document.getElementById('aiMessages').innerHTML = '';
+            document.getElementById('coacheeMessages').innerHTML = '';
+            document.getElementById('aiInput').value = '';
+            document.getElementById('coacheeInput').value = '';
+        }
+
+        // Enter-Taste für Chat-Inputs
+        document.getElementById('aiInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendToAI();
+            }
+        });
+
+        document.getElementById('coacheeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendToCoachee();
+            }
+        });
+    </script>
+</body>
+</html>

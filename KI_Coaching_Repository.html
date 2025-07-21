@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Triadisches Repository - KI-Coaching Prompts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 5px;
+        }
+
+        .search-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .content {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .category-icon {
+            font-size: 1.2em;
+        }
+
+        .category-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .category-subtitle {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-left: auto;
+        }
+
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .prompt-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .prompt-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        }
+
+        .prompt-card.hidden {
+            display: none;
+        }
+
+        .prompt-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .prompt-code {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9em;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .prompt-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1em;
+            line-height: 1.3;
+        }
+
+        .prompt-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .prompt-text {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+            color: #2d3436;
+            margin-bottom: 15px;
+            max-height: 120px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .prompt-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, #f8f9fa);
+        }
+
+        .prompt-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prompt-phase {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,184,148,0.3);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            font-weight: 500;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .stats {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .content {
+                padding: 20px;
+                max-height: 60vh;
+            }
+
+            .prompts-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .prompt-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <span class="category-icon">🧠</span>
+                <span class="header-title">Triadisches Repository - Vollständig (83 Prompts)</span>
+            </div>
+            <button class="close-btn" onclick="window.close()" title="Schließen">✕</button>
+        </div>
+
+        <div class="search-section">
+            <input 
+                type="text" 
+                class="search-box" 
+                id="searchBox" 
+                placeholder="Suchen nach Codes oder Stichwörtern... (GT1, SF3, Widerstand, Spannungsfeld)"
+                oninput="searchPrompts()"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="stats" id="statsDisplay">
+            83 Prompts verfügbar • 6 Kategorien • Vollständiges System
+        </div>
+
+        <div class="content">
+            <!-- Geißler Triadisch: GT1-GT12 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🔄</span>
+                    <span class="category-title">Geißler Triadisch</span>
+                    <span class="category-subtitle">12-Schritte Coaching-Prozess</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="auftrag klären erwartungen ziele rahmenbedingungen kontrakt">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT1</div>
+                            <div class="prompt-title">Coaching-Auftrag klären</div>
+                        </div>
+                        <div class="prompt-description">
+                            Den Coaching-Auftrag systematisch definieren und Erwartungen klären
+                        </div>
+                        <div class="prompt-text">Ich möchte mit meinem Coachee den Coaching-Auftrag klären. Bitte hilf mir dabei, die richtigen Fragen zu stellen, um Erwartungen, Ziele und Rahmenbedingungen zu definieren. Der Coachee hat gesagt: [AUSSAGE EINFÜGEN]. Wie kann ich am besten nachfragen und welche Aspekte sollte ich unbedingt klären?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 1: Auftragsklärung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="problem thema definieren konkretisieren schärfen">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT2</div>
+                            <div class="prompt-title">Problem oder Thema definieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Das Coaching-Thema gemeinsam schärfen und konkretisieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee beschreibt sein Anliegen so: [BESCHREIBUNG EINFÜGEN]. Hilf mir dabei, das Thema gemeinsam mit ihm zu schärfen und zu konkretisieren, ohne zu früh in Lösungen zu gehen. Welche Fragen helfen bei der Problemdefinition?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 2: Problemdefinition</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="kontrakt vereinbarungen rahmen verbindlichkeit">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT3</div>
+                            <div class="prompt-title">Kontrakt und Vereinbarungen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Konkrete Vereinbarungen für das Coaching treffen
+                        </div>
+                        <div class="prompt-text">Ich möchte mit meinem Coachee konkrete Vereinbarungen für unser Coaching treffen. Das Thema ist [THEMA] und die Rahmenbedingungen sind [RAHMEN]. Hilf mir dabei, einen klaren, verbindlichen Kontrakt zu gestalten und wichtige Aspekte anzusprechen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 3: Kontraktschließung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="hypothesen entwickeln perspektiven erkunden">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT4</div>
+                            <div class="prompt-title">Hypothesen entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Erste Hypothesen hypothesenoffen entwickeln
+                        </div>
+                        <div class="prompt-text">Basierend auf dem, was mein Coachee erzählt hat: [INFORMATIONEN EINFÜGEN], möchte ich erste Hypothesen entwickeln. Hilf mir dabei, hypothesenoffen zu bleiben und unterschiedliche Perspektiven zu erkunden, ohne zu schnell zu interpretieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 4: Hypothesenbildung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="muster strukturen wiederkehrend emotionen verhalten">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT5</div>
+                            <div class="prompt-title">Muster und Strukturen erkennen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Wiederkehrende Muster behutsam erkunden und bewusst machen
+                        </div>
+                        <div class="prompt-text">Ich bemerke bei meinem Coachee folgende wiederkehrende Muster: [MUSTER EINFÜGEN]. Hilf mir dabei, diese Strukturen behutsam zu erkunden und dem Coachee bewusst zu machen, ohne zu konfrontativ zu werden. Wie spreche ich Muster konstruktiv an?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 5: Mustererkennung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="feedback konfrontation rückmeldung konstruktiv">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT6</div>
+                            <div class="prompt-title">Feedback und Konfrontation</div>
+                        </div>
+                        <div class="prompt-description">
+                            Konstruktives Feedback entwicklungsfördernd formulieren
+                        </div>
+                        <div class="prompt-text">Ich möchte meinem Coachee konstruktives Feedback zu folgendem Aspekt geben: [BEOBACHTUNG EINFÜGEN]. Hilf mir dabei, eine empathische aber klare Rückmeldung zu formulieren, die entwicklungsfördernd wirkt und Widerstände minimiert.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 6: Feedback geben</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="lösungen alternativen entwickeln kreativ brainstorming">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT7</div>
+                            <div class="prompt-title">Lösungen und Alternativen entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Gemeinsam vielfältige Lösungsalternativen generieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee und ich wollen gemeinsam Lösungsalternativen entwickeln für: [HERAUSFORDERUNG EINFÜGEN]. Hilf mir dabei, den kreativen Prozess zu moderieren und vielfältige Optionen zu generieren, ohne selbst Lösungen vorzugeben.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 7: Lösungsentwicklung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="entscheidungen unterstützen bewerten optionen">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT8</div>
+                            <div class="prompt-title">Entscheidungen unterstützen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei der Entscheidungsfindung unterstützen ohne zu entscheiden
+                        </div>
+                        <div class="prompt-text">Mein Coachee steht vor folgenden Entscheidungsalternativen: [OPTIONEN EINFÜGEN]. Hilf mir dabei, ihn bei der Entscheidungsfindung zu unterstützen, ohne die Entscheidung für ihn zu treffen. Welche Fragen helfen bei der Bewertung der Optionen?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 8: Entscheidungsfindung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="handlungsplan entwickeln schritte konkret realistisch">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT9</div>
+                            <div class="prompt-title">Handlungsplan entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Konkrete, realistische und überprüfbare Schritte definieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat sich für folgende Lösung entschieden: [ENTSCHEIDUNG EINFÜGEN]. Jetzt wollen wir einen konkreten Handlungsplan entwickeln. Hilf mir dabei, realistische und überprüfbare Schritte zu definieren und mögliche Hindernisse zu antizipieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 9: Handlungsplanung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="umsetzung begleiten motivation durchhalten">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT10</div>
+                            <div class="prompt-title">Umsetzung begleiten</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei Reflexion und Anpassung der Umsetzung unterstützen
+                        </div>
+                        <div class="prompt-text">Mein Coachee berichtet über seine Umsetzungserfahrungen: [ERFAHRUNGEN EINFÜGEN]. Hilf mir dabei, ihn bei der Reflexion und Anpassung seines Vorgehens zu unterstützen. Wie kann ich Motivation und Durchhaltevermögen stärken?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 10: Umsetzungsbegleitung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="erfolg bewerten lernen reflexion würdigen">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT11</div>
+                            <div class="prompt-title">Erfolg bewerten und lernen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Konstruktive Erfolgsbewertung und Learnings extrahieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee und ich wollen die bisherigen Erfolge bewerten: [BISHERIGE ERGEBNISSE EINFÜGEN]. Hilf mir dabei, eine konstruktive Erfolgsbewertung zu gestalten und Learnings für die Zukunft zu extrahieren. Wie würdige ich Erfolge angemessen?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 11: Erfolgsbewertung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="abschluss transfer nachhaltigkeit selbstständigkeit">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GT12</div>
+                            <div class="prompt-title">Abschluss und Transfer</div>
+                        </div>
+                        <div class="prompt-description">
+                            Würdigen Abschluss gestalten und Transfer sichern
+                        </div>
+                        <div class="prompt-text">Das Coaching mit meinem Coachee geht zu Ende. Die wichtigsten Erfolge waren: [ERFOLGE EINFÜGEN]. Hilf mir dabei, einen würdigen Abschluss zu gestalten, den Transfer zu sichern und die Selbstständigkeit des Coachees zu stärken.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Phase 12: Coaching-Abschluss</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solution Finder: SF0-SF9 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">⭐</span>
+                    <span class="category-title">Solution Finder</span>
+                    <span class="category-subtitle">Lösungsorientierte Haltung</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="kühnste hoffnung vision ideal träume">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF0</div>
+                            <div class="prompt-title">Kühnste Hoffnung erkunden</div>
+                        </div>
+                        <div class="prompt-description">
+                            Die idealsten Vorstellungen und größten Hoffnungen aktivieren
+                        </div>
+                        <div class="prompt-text">Ich möchte die « kühnste Hoffnung » meines Coachees erkunden. Das Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, eine Frage zu formulieren, die seine idealsten Vorstellungen und größten Hoffnungen aktiviert, auch wenn sie zunächst unrealistisch erscheinen mögen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Einstieg</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="skalierung bewertung fortschritt messung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF1</div>
+                            <div class="prompt-title">Skalierungsfrage entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Passende Skalierungsfrage formulieren und lösungsorientiert nutzen
+                        </div>
+                        <div class="prompt-text">Ich möchte eine Skalierungsfrage für meinen Coachee entwickeln. Das Thema ist: [THEMA EINFÜGEN]. Bitte formuliere eine passende Skalierungsfrage von 1-10 und erkläre mir, wie ich die Antwort lösungsorientiert nutzen kann. Welche Nachfragen sind sinnvoll?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Kern</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="ausnahmen funktioniert besser momente">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF2</div>
+                            <div class="prompt-title">Ausnahmen identifizieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Momente finden, in denen das Problem nicht oder weniger auftritt
+                        </div>
+                        <div class="prompt-text">Mein Coachee beschreibt ein Problem: [PROBLEM EINFÜGEN]. Hilf mir dabei, Ausnahmen zu finden – Momente, in denen das Problem nicht auftritt oder weniger stark ist. Wie kann ich nach diesen wertvollen Ausnahmen fragen?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Ressourcen</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="wunderfrage wunder über nacht magic">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF3</div>
+                            <div class="prompt-title">Wunderfrage stellen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Maßgeschneiderte Wunderfrage für Lösungsvision formulieren
+                        </div>
+                        <div class="prompt-text">Ich möchte die klassische Wunderfrage für meinen Coachee anpassen. Sein Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, eine maßgeschneiderte Wunderfrage zu formulieren, die seine Lösungsvision aktiviert und konkrete Veränderungen sichtbar macht.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Vision</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="kleine schritte mini babysteps machbar">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF4</div>
+                            <div class="prompt-title">Erste kleine Schritte</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kleinste mögliche erste Schritte identifizieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat eine Lösungsvision entwickelt: [VISION EINFÜGEN]. Jetzt suchen wir nach den kleinsten möglichen ersten Schritten. Hilf mir dabei, machbare Mini-Schritte zu identifizieren, die sofort umsetzbar sind und Erfolgserlebnisse schaffen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Umsetzung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="ressourcen stärken potentiale fähigkeiten">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF5</div>
+                            <div class="prompt-title">Ressourcen und Stärken</div>
+                        </div>
+                        <div class="prompt-description">
+                            Verborgene und offensichtliche Ressourcen identifizieren
+                        </div>
+                        <div class="prompt-text">Ich möchte die Ressourcen und Stärken meines Coachees aktivieren. Er hat bisher erzählt: [INFORMATIONEN EINFÜGEN]. Hilf mir dabei, seine verborgenen und offensichtlichen Ressourcen zu identifizieren und nutzbar zu machen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Potentiale</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="fortschritte würdigen erfolge motivation">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF6</div>
+                            <div class="prompt-title">Fortschritte würdigen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kleine Erfolge angemessen würdigen und Motivation stärken
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat bereits kleine Fortschritte gemacht: [FORTSCHRITTE EINFÜGEN]. Hilf mir dabei, diese Erfolge angemessen zu würdigen und die Motivation für weitere Schritte zu stärken. Wie kann ich Selbstwirksamkeit verstärken?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Motivation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="unterstützung mobilisieren netzwerk hilfe">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF7</div>
+                            <div class="prompt-title">Unterstützung mobilisieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Persönliches und berufliches Netzwerk für Unterstützung erkunden
+                        </div>
+                        <div class="prompt-text">Mein Coachee braucht Unterstützung für: [ZIEL EINFÜGEN]. Hilf mir dabei, sein persönliches und berufliches Netzwerk zu erkunden und konkrete Unterstützungsmöglichkeiten zu identifizieren. Wer könnte wie helfen?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Netzwerk</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="rückfälle handhaben hindernisse präventive strategien">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF8</div>
+                            <div class="prompt-title">Rückfälle handhaben</div>
+                        </div>
+                        <div class="prompt-description">
+                            Präventive Strategien für mögliche Herausforderungen entwickeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee befürchtet Rückfälle oder Hindernisse: [BEFÜRCHTUNGEN EINFÜGEN]. Hilf mir dabei, präventive Strategien zu entwickeln und ihn auf mögliche Herausforderungen vorzubereiten, ohne pessimistisch zu werden.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Nachhaltigkeit</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="erfolg verankern nachhaltig kompetenzen stabilisieren">
+                        <div class="prompt-header">
+                            <div class="prompt-code">SF9</div>
+                            <div class="prompt-title">Erfolg verankern</div>
+                        </div>
+                        <div class="prompt-description">
+                            Erreichte Erfolge verankern und nachhaltig machen
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat deutliche Fortschritte erreicht: [ERFOLGE EINFÜGEN]. Hilf mir dabei, diese Erfolge zu verankern und nachhaltig zu machen. Wie kann ich seine neuen Kompetenzen und Einsichten stabilisieren?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Solution Finder Abschluss</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagnostische Prompts: DIAG1-DIAG15 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🔍</span>
+                    <span class="category-title">Diagnostik</span>
+                    <span class="category-subtitle">Spannungsfelder erfassen</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="spannungsfeld identifizieren grundspannungen konflikt">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG1</div>
+                            <div class="prompt-title">Spannungsfeld identifizieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Grundspannungen oder Ruhestand-Spannungen systematisch erkennen
+                        </div>
+                        <div class="prompt-text">Mein Coachee beschreibt folgende Situation: [SITUATION EINFÜGEN]. Hilf mir dabei zu identifizieren, welches Spannungsfeld hier vorliegen könnte. Nutze die 19 Grundspannungen oder 21 Ruhestand-Spannungen als Orientierung und erkläre mir, wie ich das behutsam ansprechen kann.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Spannungsanalyse</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="widerstand verstehen blockadenanalyse hindernis funktion">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG2</div>
+                            <div class="prompt-title">Widerstand verstehen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Die Funktion von Widerstand respektvoll erkunden
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt Widerstand gegen: [WIDERSTAND EINFÜGEN]. Hilf mir dabei zu verstehen, welche Funktion dieser Widerstand haben könnte und wie ich ihn respektvoll und lösungsorientiert ansprechen kann, ohne ihn zu verstärken.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Widerstandsanalyse</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="innere anteile teamchef unterstützer bremse kritiker">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG3</div>
+                            <div class="prompt-title">Innere Anteile erkunden</div>
+                        </div>
+                        <div class="prompt-description">
+                            Verschiedene innere Stimmen und Persönlichkeitsanteile verstehen
+                        </div>
+                        <div class="prompt-text">Ich bemerke bei meinem Coachee verschiedene innere Stimmen: [BEOBACHTUNG EINFÜGEN]. Hilf mir dabei, die verschiedenen inneren Anteile (Teamchef, Unterstützer, Bremse, Kritiker, Träumer, Realist) zu erkunden und konstruktiv zu nutzen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Persönlichkeitsanteile</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="glaubenssätze überzeugungen limitierend perfektionismus">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG4</div>
+                            <div class="prompt-title">Glaubenssätze erkennen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Limitierende Überzeugungen identifizieren und verstehen
+                        </div>
+                        <div class="prompt-text">Ich erkenne bei meinem Coachee limitierende Glaubenssätze: [GLAUBENSSÄTZE EINFÜGEN]. Hilf mir dabei, diese Überzeugungen zu verstehen und behutsam zu hinterfragen, ohne den Coachee zu bedrängen oder zu kritisieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Glaubenssatz-Analyse</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="emotionale muster wiederkehrend reaktionen trigger">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG5</div>
+                            <div class="prompt-title">Emotionale Muster analysieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Wiederkehrende emotionale Reaktionen und Trigger verstehen
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt wiederkehrende emotionale Muster: [MUSTER EINFÜGEN]. Hilf mir dabei, diese Reaktionen zu verstehen und die dahinterliegenden Trigger oder Bedürfnisse zu identifizieren, ohne zu psychologisieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Emotional</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="kommunikationsmuster stil konflikte beziehungen">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG6</div>
+                            <div class="prompt-title">Kommunikationsmuster erkennen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kommunikationsstil und zwischenmenschliche Muster analysieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee beschreibt Kommunikationsprobleme: [PROBLEME EINFÜGEN]. Hilf mir dabei, seine Kommunikationsmuster zu verstehen und alternative Ansätze zu erkunden, die zu besseren Beziehungen führen könnten.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Kommunikation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="motivationsanalyse antreiber werte prioritäten">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG7</div>
+                            <div class="prompt-title">Motivation und Antreiber</div>
+                        </div>
+                        <div class="prompt-description">
+                            Tieferliegende Motivationen und Antreiber verstehen
+                        </div>
+                        <div class="prompt-text">Ich möchte die tieferliegenden Motivationen meines Coachees verstehen: [VERHALTEN/AUSSAGEN EINFÜGEN]. Hilf mir dabei, seine Antreiber, Werte und Prioritäten zu erkennen und zu verstehen, was ihn wirklich bewegt.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Motivation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="systemische verstrickungen familie beruf dynamiken">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG8</div>
+                            <div class="prompt-title">Systemische Verstrickungen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Familiäre oder berufliche Systemdynamiken erkennen
+                        </div>
+                        <div class="prompt-text">Mein Coachee berichtet über komplexe Beziehungsdynamiken: [DYNAMIKEN EINFÜGEN]. Hilf mir dabei, mögliche systemische Verstrickungen oder Loyalitätskonflikte zu erkennen, ohne zu interpretieren oder zu pathologisieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Systemisch</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="stressreaktionen belastung überforderung grenzen">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG9</div>
+                            <div class="prompt-title">Stressreaktionen verstehen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Belastungsreaktionen und Überforderungssignale erkennen
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt Anzeichen von Stress oder Überforderung: [SYMPTOME EINFÜGEN]. Hilf mir dabei, diese Reaktionen zu verstehen und gemeinsam Strategien für bessere Belastungsregulation zu entwickeln.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Stress</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="change bereitschaft veränderung ambivalenz">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG10</div>
+                            <div class="prompt-title">Veränderungsbereitschaft</div>
+                        </div>
+                        <div class="prompt-description">
+                            Ambivalenzen gegenüber Veränderung verstehen und nutzen
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt Ambivalenz bezüglich Veränderung: [AMBIVALENZ EINFÜGEN]. Hilf mir dabei, seine Veränderungsbereitschaft einzuschätzen und die verschiedenen Seiten seiner Ambivalenz zu verstehen und zu nutzen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Change</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="selbstbild fremdwahrnehmung diskrepanz blinder fleck">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG11</div>
+                            <div class="prompt-title">Selbst- und Fremdwahrnehmung</div>
+                        </div>
+                        <div class="prompt-description">
+                            Diskrepanzen zwischen Selbst- und Fremdwahrnehmung erkunden
+                        </div>
+                        <div class="prompt-text">Es gibt Diskrepanzen zwischen dem Selbstbild meines Coachees und dem Feedback anderer: [DISKREPANZEN EINFÜGEN]. Hilf mir dabei, diese blinden Flecken behutsam zu thematisieren und neue Perspektiven zu eröffnen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Wahrnehmung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="konfliktstil vermeidung eskalation harmoniesucht">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG12</div>
+                            <div class="prompt-title">Konfliktstil analysieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Umgang mit Konflikten und schwierigen Situationen verstehen
+                        </div>
+                        <div class="prompt-text">Mein Coachee beschreibt seinen Umgang mit Konflikten: [KONFLIKTSTIL EINFÜGEN]. Hilf mir dabei, seine Konfliktmuster zu verstehen und alternative Herangehensweisen zu erkunden, die authentischer und effektiver sein könnten.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Konflikt</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="entscheidungsverhalten prokrastination überforderung perfektionismus">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG13</div>
+                            <div class="prompt-title">Entscheidungsverhalten</div>
+                        </div>
+                        <div class="prompt-description">
+                            Entscheidungsmuster und mögliche Blockaden verstehen
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat Schwierigkeiten bei Entscheidungen: [SCHWIERIGKEITEN EINFÜGEN]. Hilf mir dabei, seine Entscheidungsmuster zu verstehen und herauszufinden, was ihn blockiert oder überfordert.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Entscheidung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="selbstwirksamkeit kontrolle hilflosigkeit resignation">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG14</div>
+                            <div class="prompt-title">Selbstwirksamkeit einschätzen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kontrollerfahrungen und Selbstwirksamkeitserwartung verstehen
+                        </div>
+                        <div class="prompt-text">Mein Coachee äußert Gefühle von Hilflosigkeit oder mangelnder Kontrolle: [ÄUSSERUNGEN EINFÜGEN]. Hilf mir dabei, seine Selbstwirksamkeitserwartung zu verstehen und Ansätze zu finden, diese zu stärken.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Selbstwirksamkeit</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="biografische muster lebensmuster wiederholung generationen">
+                        <div class="prompt-header">
+                            <div class="prompt-code">DIAG15</div>
+                            <div class="prompt-title">Biografische Muster</div>
+                        </div>
+                        <div class="prompt-description">
+                            Wiederkehrende Lebensmuster und -themen erkennen
+                        </div>
+                        <div class="prompt-text">Mein Coachee erzählt von wiederkehrenden Mustern in seinem Leben: [MUSTER EINFÜGEN]. Hilf mir dabei, biografische Zusammenhänge zu verstehen und zu erkunden, ohne zu psychotherapeutisch zu werden.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Diagnostik: Biografisch</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lösungsorientierte Prompts: LÖS1-LÖS15 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">💡</span>
+                    <span class="category-title">Lösungsorientiert</span>
+                    <span class="category-subtitle">Handlungs- und Ressourcenorientierung</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="ziel konkretisieren smart messbar motivation">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS1</div>
+                            <div class="prompt-title">Ziel konkretisieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Vage Ziele konkret und messbar machen
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat ein vages Ziel formuliert: [ZIEL EINFÜGEN]. Hilf mir dabei, dieses Ziel zu konkretisieren und messbar zu machen, ohne es zu technisch oder zu restriktiv zu gestalten. Wie frage ich nach der wahren Motivation dahinter?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Zielklärung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="ressourcen aktivieren stärken nutzen energie">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS2</div>
+                            <div class="prompt-title">Ressourcen aktivieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Vorhandene Stärken und Kompetenzen mobilisieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee steht vor dieser Herausforderung: [HERAUSFORDERUNG EINFÜGEN]. Hilf mir dabei, seine Ressourcen und Stärken zu identifizieren und zu aktivieren. Wie kann ich ihn dabei unterstützen, seine eigenen Lösungskompetenzen zu entdecken, ohne ihm Lösungen vorzugeben?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Ressourcenarbeit</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="erfolgserinnerungen vergangene erfolge stolz achievements">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS3</div>
+                            <div class="prompt-title">Erfolgserinnerungen aktivieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Vergangene Erfolge und Bewältigungsstrategien nutzen
+                        </div>
+                        <div class="prompt-text">Ich möchte die Erfolgserinnerungen meines Coachees aktivieren. Das aktuelle Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, systematisch nach vergangenen Erfolgen und Bewältigungsstrategien zu fragen, die auf die jetzige Situation übertragbar sind.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Erfolgsaktivierung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="brainstorming kreativität ideenfindung options">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS4</div>
+                            <div class="prompt-title">Kreative Lösungsfindung</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kreativität und Ideenvielfalt systematisch fördern
+                        </div>
+                        <div class="prompt-text">Mein Coachee fühlt sich bezüglich seiner Herausforderung festgefahren: [HERAUSFORDERUNG EINFÜGEN]. Hilf mir dabei, einen kreativen Prozess zu gestalten, der neue Perspektiven und unkonventionelle Lösungsansätze hervorbringt.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Kreativität</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="perspektivenwechsel reframing neue sichtweise">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS5</div>
+                            <div class="prompt-title">Perspektivenwechsel fördern</div>
+                        </div>
+                        <div class="prompt-description">
+                            Neue Blickwinkel und Interpretationen entwickeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee sieht seine Situation sehr einseitig: [SICHTWEISE EINFÜGEN]. Hilf mir dabei, behutsam neue Perspektiven zu eröffnen und alternative Interpretationen zu erkunden, ohne seine Wahrnehmung zu invalidieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Reframing</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="selbstcoaching autonomie unabhängigkeit tools">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS6</div>
+                            <div class="prompt-title">Selbstcoaching-Kompetenzen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Eigenständige Problemlösungskompetenzen stärken
+                        </div>
+                        <div class="prompt-text">Ich möchte die Selbstcoaching-Kompetenzen meines Coachees stärken. Das Ziel ist: [ZIEL EINFÜGEN]. Hilf mir dabei, ihm Werkzeuge und Strategien zu vermitteln, mit denen er künftig eigenständig ähnliche Herausforderungen bewältigen kann.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Selbstcoaching</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="hindernisse überwinden blockaden auflösen barriers">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS7</div>
+                            <div class="prompt-title">Hindernisse überwinden</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kreative Wege um Blockaden und Hindernisse finden
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat folgende Hindernisse identifiziert: [HINDERNISSE EINFÜGEN]. Hilf mir dabei, mit ihm gemeinsam kreative Wege zu finden, diese zu überwinden, ohne ihm Lösungen vorzugeben. Welche lösungsorientierten Fragen kann ich stellen?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Hindernis-Überwindung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="handlungsalternativen optionen wahlmöglichkeiten flexibilität">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS8</div>
+                            <div class="prompt-title">Handlungsalternativen entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Vielfältige Optionen und Wahlmöglichkeiten schaffen
+                        </div>
+                        <div class="prompt-text">Mein Coachee sieht nur eine begrenzte Anzahl von Handlungsoptionen: [OPTIONEN EINFÜGEN]. Hilf mir dabei, systematisch weitere Alternativen zu entwickeln und seine Wahlmöglichkeiten zu erweitern.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Optionen</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="motivation stärken energie antrieb purpose">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS9</div>
+                            <div class="prompt-title">Motivation verstärken</div>
+                        </div>
+                        <div class="prompt-description">
+                            Intrinsische Motivation und Antrieb wiederbeleben
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt Motivationsschwierigkeiten bezüglich: [BEREICH EINFÜGEN]. Hilf mir dabei, seine intrinsische Motivation zu erkunden und zu verstärken, ohne Druck aufzubauen oder zu moralisieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Motivation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="zukunftsvision entwickeln träume inspiration vision">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS10</div>
+                            <div class="prompt-title">Zukunftsvision entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Inspirierende und realistische Zukunftsbilder schaffen
+                        </div>
+                        <div class="prompt-text">Ich möchte mit meinem Coachee eine kraftvolle Zukunftsvision entwickeln. Das Thema ist: [THEMA EINFÜGEN]. Hilf mir dabei, eine inspirierende aber realistische Vision zu gestalten, die Energie freisetzt und Handlungsimpulse auslöst.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Vision</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="erfolgsmessung indikatoren fortschritt tracking">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS11</div>
+                            <div class="prompt-title">Erfolgsmessung definieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Konkrete Erfolgs-Indikatoren und Fortschrittsmessung entwickeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee und ich möchten Erfolgsindikatoren für sein Ziel definieren: [ZIEL EINFÜGEN]. Hilf mir dabei, messbare und motivierende Kriterien zu entwickeln, an denen er seinen Fortschritt erkennen kann.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Erfolgsmessung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="gewohnheiten routinen habits rituale">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS12</div>
+                            <div class="prompt-title">Positive Gewohnheiten etablieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Nachhaltige Routinen und Gewohnheiten entwickeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee möchte positive Veränderungen in seinem Alltag verankern: [VERÄNDERUNGEN EINFÜGEN]. Hilf mir dabei, realistische Gewohnheiten und Routinen zu entwickeln, die nachhaltig umsetzbar sind.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Gewohnheiten</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="selbstvertrauen confidence stärken selbstwert">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS13</div>
+                            <div class="prompt-title">Selbstvertrauen stärken</div>
+                        </div>
+                        <div class="prompt-description">
+                            Selbstwert und Selbstvertrauen systematisch aufbauen
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt mangelndes Selbstvertrauen in Bezug auf: [BEREICH EINFÜGEN]. Hilf mir dabei, sein Selbstvertrauen schrittweise und nachhaltig zu stärken, ohne oberflächlich zu werden oder falsche Versprechungen zu machen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Selbstvertrauen</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="kommunikation verbessern beziehungen gespräche">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS14</div>
+                            <div class="prompt-title">Kommunikation verbessern</div>
+                        </div>
+                        <div class="prompt-description">
+                            Zwischenmenschliche Kommunikation und Beziehungen stärken
+                        </div>
+                        <div class="prompt-text">Mein Coachee möchte seine Kommunikation in folgenden Bereichen verbessern: [BEREICHE EINFÜGEN]. Hilf mir dabei, konkrete und praktisch umsetzbare Kommunikationsstrategien zu entwickeln.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Kommunikation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="lebensbalance work life balance gleichgewicht">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LÖS15</div>
+                            <div class="prompt-title">Lebensbalance entwickeln</div>
+                        </div>
+                        <div class="prompt-description">
+                            Ausgewogenes Gleichgewicht zwischen verschiedenen Lebensbereichen schaffen
+                        </div>
+                        <div class="prompt-text">Mein Coachee sucht nach besserer Balance zwischen: [BEREICHE EINFÜGEN]. Hilf mir dabei, gemeinsam eine realistische und nachhaltige Lebensbalance zu entwickeln, die seinen Werten und Prioritäten entspricht.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Lösungsorientiert: Balance</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meta-Prompts: META1-META10 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🎯</span>
+                    <span class="category-title">Meta-Prompts</span>
+                    <span class="category-subtitle">Coach-Unterstützung und Prozess-Steuerung</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="prozess reflektieren coaching verlauf reflexion">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META1</div>
+                            <div class="prompt-title">Coaching-Prozess reflektieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Den bisherigen Coaching-Verlauf systematisch reflektieren
+                        </div>
+                        <div class="prompt-text">Ich möchte den bisherigen Coaching-Verlauf mit meinem Coachee reflektieren. Wir sind bei Session [NUMMER EINFÜGEN] und haben bisher [FORTSCHRITT EINFÜGEN] erreicht. Wie kann ich eine gute Prozessreflexion gestalten, die motiviert und den Fokus schärft?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Prozessreflexion</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="session planen struktur vorbereitung agenda">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META2</div>
+                            <div class="prompt-title">Session strukturieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Coaching-Sessions effektiv strukturieren und planen
+                        </div>
+                        <div class="prompt-text">Ich möchte die nächste Session mit meinem Coachee strukturieren. Das Hauptthema ist: [THEMA EINFÜGEN] und der aktuelle Stand ist: [STAND EINFÜGEN]. Hilf mir dabei, eine effektive Session-Struktur zu entwickeln.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Session-Planung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="coaching beziehung rapport vertrauen alliance">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META3</div>
+                            <div class="prompt-title">Coaching-Beziehung stärken</div>
+                        </div>
+                        <div class="prompt-description">
+                            Vertrauen und Arbeitsbeziehung mit dem Coachee vertiefen
+                        </div>
+                        <div class="prompt-text">Ich bemerke Herausforderungen in der Coaching-Beziehung: [HERAUSFORDERUNGEN EINFÜGEN]. Hilf mir dabei, das Vertrauen und die Arbeitsallianz zu stärken und eine noch bessere Zusammenarbeit zu entwickeln.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Beziehungsarbeit</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="stagnation überwinden blockade festgefahren">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META4</div>
+                            <div class="prompt-title">Stagnation überwinden</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei festgefahrenen Situationen neue Impulse setzen
+                        </div>
+                        <div class="prompt-text">Das Coaching mit meinem Coachee fühlt sich festgefahren an: [SITUATION EINFÜGEN]. Hilf mir dabei, neue Impulse zu setzen und den Prozess wieder in Bewegung zu bringen, ohne zu forcieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Prozess-Dynamisierung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="supervision reflexion coach entwicklung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META5</div>
+                            <div class="prompt-title">Coach-Selbstreflexion</div>
+                        </div>
+                        <div class="prompt-description">
+                            Die eigene Coach-Performance und -Entwicklung reflektieren
+                        </div>
+                        <div class="prompt-text">Ich möchte meine eigene Coach-Performance reflektieren. Diese Session ist [BESCHREIBUNG EINFÜGEN] verlaufen. Hilf mir dabei, mein Verhalten zu analysieren und Verbesserungsmöglichkeiten zu identifizieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Selbstreflexion</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="interventionen auswählen methoden tools passend">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META6</div>
+                            <div class="prompt-title">Interventionen auswählen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Passende Coaching-Methoden und -Tools situativ auswählen
+                        </div>
+                        <div class="prompt-text">Ich suche die passende Intervention für diese Coaching-Situation: [SITUATION EINFÜGEN]. Hilf mir dabei, eine geeignete Methode oder einen passenden Ansatz auszuwählen und zu begründen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Methodenwahl</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="transfer sichern nachhaltigkeit alltag umsetzung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META7</div>
+                            <div class="prompt-title">Transfer sicherstellen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Coaching-Ergebnisse nachhaltig in den Alltag übertragen
+                        </div>
+                        <div class="prompt-text">Ich möchte sicherstellen, dass die Coaching-Ergebnisse nachhaltig sind: [ERGEBNISSE EINFÜGEN]. Hilf mir dabei, den Transfer in den Alltag zu planen und zu sichern.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Transfer-Sicherung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="dokumentation notizen follow up nachbereitung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META8</div>
+                            <div class="prompt-title">Session dokumentieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Coaching-Sessions strukturiert dokumentieren und nachbereiten
+                        </div>
+                        <div class="prompt-text">Ich möchte die Session systematisch dokumentieren. Die wichtigsten Inhalte waren: [INHALTE EINFÜGEN]. Hilf mir dabei, eine strukturierte Dokumentation zu erstellen und nächste Schritte zu definieren.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Dokumentation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="coaching abschluss beenden erfolgreich würdig">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META9</div>
+                            <div class="prompt-title">Coaching-Abschluss gestalten</div>
+                        </div>
+                        <div class="prompt-description">
+                            Das gesamte Coaching würdig und nachhaltig beenden
+                        </div>
+                        <div class="prompt-text">Das Coaching neigt sich dem Ende zu. Der gesamte Prozess war: [PROZESS-BESCHREIBUNG EINFÜGEN]. Hilf mir dabei, einen würdigen und nachhaltigen Abschluss zu gestalten, der die Autonomie des Coachees stärkt.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Coaching-Abschluss</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="schwierige situationen herausforderungen krisenintervention">
+                        <div class="prompt-header">
+                            <div class="prompt-code">META10</div>
+                            <div class="prompt-title">Schwierige Situationen meistern</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei unerwarteten oder herausfordernden Coaching-Situationen angemessen reagieren
+                        </div>
+                        <div class="prompt-text">In der Session ist eine schwierige Situation entstanden: [SITUATION EINFÜGEN]. Hilf mir dabei, professionell und angemessen zu reagieren und den Coaching-Prozess konstruktiv fortzuführen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Meta-Ebene: Krisenmanagement</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notfall & Grenzen: WARN1-WARN6 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🚨</span>
+                    <span class="category-title">Notfall & Grenzen</span>
+                    <span class="category-subtitle">Sicherheit und professionelle Grenzen</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="coaching grenzen therapie überschreitung ethik">
+                        <div class="prompt-header">
+                            <div class="prompt-code">WARN1</div>
+                            <div class="prompt-title">Coaching-Grenzen wahren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Professionelle Grenzen erkennen und kommunizieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee bewegt sich in Richtung therapeutischer Themen: [THEMA EINFÜGEN]. Hilf mir dabei, die Coaching-Grenzen zu wahren und professionell zu kommunizieren, dass hier therapeutische Unterstützung nötig sein könnte, ohne abweisend zu wirken.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Sicherheit: Grenzen wahren</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="suizid selbstmord gedanken krisenintervention notfall">
+                        <div class="prompt-header">
+                            <div class="prompt-code">WARN2</div>
+                            <div class="prompt-title">Suizidale Äußerungen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei Suizidgefahr professionell und sicher handeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat suizidale Gedanken oder Äußerungen gemacht: [ÄUSSERUNGEN EINFÜGEN]. Hilf mir dabei, sofort angemessen zu reagieren, die Gefährdung einzuschätzen und professionelle Hilfe zu organisieren. Dies ist ein Notfall.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">NOTFALL: Suizidgefahr</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="gewalt aggression bedrohung sicherheit schutz">
+                        <div class="prompt-header">
+                            <div class="prompt-code">WARN3</div>
+                            <div class="prompt-title">Gewalt und Aggression</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei Gewaltandrohungen oder aggressivem Verhalten reagieren
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt aggressive Tendenzen oder macht Gewaltandrohungen: [VERHALTEN EINFÜGEN]. Hilf mir dabei, die Situation zu deeskalieren und angemessen zu reagieren, ohne mich selbst zu gefährden.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">NOTFALL: Gewaltprävention</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="substanzmissbrauch drogen alkohol abhängigkeit">
+                        <div class="prompt-header">
+                            <div class="prompt-code">WARN4</div>
+                            <div class="prompt-title">Substanzmissbrauch erkennen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei Anzeichen von Substanzmissbrauch angemessen handeln
+                        </div>
+                        <div class="prompt-text">Ich vermute bei meinem Coachee Substanzmissbrauch: [ANZEICHEN EINFÜGEN]. Hilf mir dabei, das Thema behutsam aber direkt anzusprechen und geeignete Unterstützung zu vermitteln, ohne zu konfrontativ zu werden.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Sicherheit: Substanzmissbrauch</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="trauma traumatisierung flashback retraumatisierung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">WARN5</div>
+                            <div class="prompt-title">Trauma-Reaktionen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei traumatischen Reaktionen sicher und stabilisierend handeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt Anzeichen einer Trauma-Reaktion oder Flashback: [ANZEICHEN EINFÜGEN]. Hilf mir dabei, stabilisierend zu wirken und Retraumatisierung zu vermeiden. Welche sofortigen Maßnahmen sind wichtig?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">NOTFALL: Trauma-Stabilisierung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="rechtliche probleme illegal straftat meldepflicht">
+                        <div class="prompt-header">
+                            <div class="prompt-code">WARN6</div>
+                            <div class="prompt-title">Rechtliche Konflikte</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei rechtlichen Problemen oder illegalen Aktivitäten handeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee berichtet über rechtliche Probleme oder illegale Aktivitäten: [SACHVERHALT EINFÜGEN]. Hilf mir dabei, meine rechtlichen und ethischen Verpflichtungen zu verstehen und angemessen zu handeln.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Sicherheit: Rechtliche Fragen</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gruppen & Paare: GRUPPE1-GRUPPE6 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">👥</span>
+                    <span class="category-title">Gruppen & Paare</span>
+                    <span class="category-subtitle">Mehrpersonen-Coaching Settings</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="gruppendynamik team mehrere personen moderation">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GRUPPE1</div>
+                            <div class="prompt-title">Gruppendynamik moderieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Gruppenprozesse konstruktiv leiten und alle einbeziehen
+                        </div>
+                        <div class="prompt-text">In meiner Coaching-Gruppe entsteht folgende Dynamik: [DYNAMIK EINFÜGEN]. Hilf mir dabei, diese konstruktiv zu moderieren und alle Teilnehmer einzubeziehen, ohne die Gruppe zu spalten oder einzelne zu bevorzugen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Gruppen-Coaching: Dynamik</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="paarbeziehung konflikt kommunikation partner">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GRUPPE2</div>
+                            <div class="prompt-title">Paar-Coaching leiten</div>
+                        </div>
+                        <div class="prompt-description">
+                            Paarkonflikte moderieren und Kommunikation verbessern
+                        </div>
+                        <div class="prompt-text">Ich coache ein Paar mit folgenden Herausforderungen: [HERAUSFORDERUNGEN EINFÜGEN]. Hilf mir dabei, neutral zu bleiben und beiden Partnern zu helfen, ihre Kommunikation und ihr Verständnis füreinander zu verbessern.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Paar-Coaching: Kommunikation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="teamkonflikt arbeitsplatz kollegen führung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GRUPPE3</div>
+                            <div class="prompt-title">Team-Konflikte bearbeiten</div>
+                        </div>
+                        <div class="prompt-description">
+                            Konflikte im Team konstruktiv lösen und Zusammenarbeit stärken
+                        </div>
+                        <div class="prompt-text">Das Team hat folgenden Konflikt: [KONFLIKT EINFÜGEN]. Hilf mir dabei, eine konstruktive Konfliktbearbeitung zu moderieren und die Zusammenarbeit nachhaltig zu verbessern.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Team-Coaching: Konfliktlösung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="familiencoaching generationen eltern kinder system">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GRUPPE4</div>
+                            <div class="prompt-title">Familien-Coaching</div>
+                        </div>
+                        <div class="prompt-description">
+                            Familiensysteme und -dynamiken coaching-orientiert begleiten
+                        </div>
+                        <div class="prompt-text">Ich coache eine Familie mit dieser Ausgangslage: [AUSGANGSLAGE EINFÜGEN]. Hilf mir dabei, systemische Perspektiven einzunehmen und alle Familienmitglieder respektvoll einzubeziehen, ohne therapeutisch zu werden.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Familien-Coaching: System</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="partizipation beteiligung schweiger dominante">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GRUPPE5</div>
+                            <div class="prompt-title">Beteiligung ausbalancieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Dominante und zurückhaltende Teilnehmer ausgewogen einbeziehen
+                        </div>
+                        <div class="prompt-text">In der Gruppe gibt es sehr dominante und sehr zurückhaltende Teilnehmer: [SITUATION EINFÜGEN]. Hilf mir dabei, eine ausgewogene Beteiligung zu fördern und allen Raum zu geben, ohne zu dirigistisch zu werden.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Gruppen-Coaching: Partizipation</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="gruppenressourcen peer learning voneinander">
+                        <div class="prompt-header">
+                            <div class="prompt-code">GRUPPE6</div>
+                            <div class="prompt-title">Gruppenressourcen nutzen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Die Ressourcen und Erfahrungen der Gruppe optimal nutzen
+                        </div>
+                        <div class="prompt-text">Ich möchte die Gruppenressourcen für folgendes Thema aktivieren: [THEMA EINFÜGEN]. Hilf mir dabei, das Peer-Learning zu fördern und die Teilnehmer dazu zu bringen, voneinander zu lernen und sich gegenseitig zu unterstützen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Gruppen-Coaching: Ressourcen</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live & Digital: LIVE1-LIVE6 -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">📱</span>
+                    <span class="category-title">Live & Digital</span>
+                    <span class="category-subtitle">Spontane und mobile Coaching-Unterstützung</span>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" data-keywords="spontan reagieren unerwartetes situation schnell">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LIVE1</div>
+                            <div class="prompt-title">Spontan reagieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei unerwarteten Situationen im Live-Coaching schnell und professionell reagieren
+                        </div>
+                        <div class="prompt-text">Im Live-Coaching ist gerade etwas Unerwartetes passiert: [SITUATION EINFÜGEN]. Ich brauche schnell eine passende, professionelle Reaktion. Hilf mir dabei, lösungsorientiert und empathisch zu antworten, ohne die Coaching-Grenzen zu überschreiten.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Live-Coaching: Spontanreaktion</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="emotionen handhaben tränen wut aufregung">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LIVE2</div>
+                            <div class="prompt-title">Emotionen begleiten</div>
+                        </div>
+                        <div class="prompt-description">
+                            Starke emotionale Reaktionen im Live-Setting angemessen begleiten
+                        </div>
+                        <div class="prompt-text">Mein Coachee zeigt starke Emotionen: [EMOTION EINFÜGEN]. Hilf mir dabei, angemessen zu reagieren und die Emotionen zu begleiten, ohne sie zu stoppen oder zu verstärken. Wie halte ich den Raum für diese Gefühle?</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Live-Coaching: Emotionsbegleitung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="videocoaching online digital zoom technik">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LIVE3</div>
+                            <div class="prompt-title">Online-Coaching optimieren</div>
+                        </div>
+                        <div class="prompt-description">
+                            Digitale Coaching-Formate effektiv und verbindungsstark gestalten
+                        </div>
+                        <div class="prompt-text">Im Online-Coaching ergeben sich besondere Herausforderungen: [HERAUSFORDERUNGEN EINFÜGEN]. Hilf mir dabei, die digitale Session genauso effektiv und verbindungsvoll zu gestalten wie ein Präsenz-Coaching.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Online-Coaching: Optimierung</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="mobile coaching unterwegs handy kurz effizient">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LIVE4</div>
+                            <div class="prompt-title">Mobile Micro-Interventionen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Kurze, effektive Coaching-Impulse für unterwegs entwickeln
+                        </div>
+                        <div class="prompt-text">Mein Coachee braucht schnelle Unterstützung für diese akute Situation: [SITUATION EINFÜGEN]. Hilf mir dabei, eine kurze aber wirkungsvolle Intervention zu entwickeln, die er sofort umsetzen kann.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Mobile Coaching: Micro-Intervention</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="technische probleme störungen verbindung backup">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LIVE5</div>
+                            <div class="prompt-title">Technische Störungen managen</div>
+                        </div>
+                        <div class="prompt-description">
+                            Bei technischen Problemen den Coaching-Flow aufrechterhalten
+                        </div>
+                        <div class="prompt-text">Es gibt technische Probleme in der Online-Session: [PROBLEME EINFÜGEN]. Hilf mir dabei, den Coaching-Flow trotzdem aufrechtzuerhalten und professionell mit der Situation umzugehen.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Online-Coaching: Störungsmanagement</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-keywords="chat nachrichten asynchron flexibel zeit">
+                        <div class="prompt-header">
+                            <div class="prompt-code">LIVE6</div>
+                            <div class="prompt-title">Asynchrones Coaching</div>
+                        </div>
+                        <div class="prompt-description">
+                            Chat- und nachrichtenbasierte Coaching-Unterstützung professionell gestalten
+                        </div>
+                        <div class="prompt-text">Mein Coachee hat mir diese Nachricht geschickt: [NACHRICHT EINFÜGEN]. Hilf mir dabei, eine hilfreiche, professionelle Antwort zu formulieren, die coaching-konform ist und weiterhilft.</div>
+                        <div class="prompt-actions">
+                            <div class="prompt-phase">Asynchron-Coaching: Chat-Support</div>
+                            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benachrichtigung -->
+    <div id="notification" class="notification">
+        ✅ Prompt kopiert!
+    </div>
+
+    <script>
+        let allPrompts = [];
+        let visiblePrompts = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            allPrompts = Array.from(document.querySelectorAll('.prompt-card'));
+            visiblePrompts = allPrompts.length;
+            updateStats();
+            
+            console.log('🧠 Triadisches Repository vollständig geladen');
+            console.log(`📊 ${allPrompts.length} Prompts in 6 Kategorien verfügbar`);
+            console.log('🎯 System ist produktionsreif!');
+            
+            document.getElementById('searchBox').focus();
+        });
+
+        function searchPrompts() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase().trim();
+            visiblePrompts = 0;
+
+            allPrompts.forEach(prompt => {
+                const keywords = prompt.getAttribute('data-keywords').toLowerCase();
+                const title = prompt.querySelector('.prompt-title').textContent.toLowerCase();
+                const description = prompt.querySelector('.prompt-description').textContent.toLowerCase();
+                const text = prompt.querySelector('.prompt-text').textContent.toLowerCase();
+                const code = prompt.querySelector('.prompt-code').textContent.toLowerCase();
+                const phase = prompt.querySelector('.prompt-phase').textContent.toLowerCase();
+
+                const isMatch = searchTerm === '' || 
+                               code.includes(searchTerm) ||
+                               keywords.includes(searchTerm) ||
+                               title.includes(searchTerm) ||
+                               description.includes(searchTerm) ||
+                               text.includes(searchTerm) ||
+                               phase.includes(searchTerm);
+
+                if (isMatch) {
+                    prompt.classList.remove('hidden');
+                    visiblePrompts++;
+                } else {
+                    prompt.classList.add('hidden');
+                }
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const statsDisplay = document.getElementById('statsDisplay');
+            if (visiblePrompts === allPrompts.length) {
+                statsDisplay.textContent = `${allPrompts.length} Prompts verfügbar • 6 Kategorien • Vollständiges System`;
+            } else {
+                statsDisplay.textContent = `${visiblePrompts} von ${allPrompts.length} Prompts gefunden`;
+            }
+        }
+
+        function copyPrompt(button) {
+            const promptCard = button.closest('.prompt-card');
+            const promptText = promptCard.querySelector('.prompt-text').textContent;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(promptText).then(() => {
+                    showCopyFeedback(button);
+                    showNotification();
+                }).catch(err => {
+                    fallbackCopy(promptText, button);
+                });
+            } else {
+                fallbackCopy(promptText, button);
+            }
+        }
+
+        function fallbackCopy(text, button) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopyFeedback(button);
+                showNotification();
+            } catch (err) {
+                alert('Prompt konnte nicht kopiert werden. Bitte manuell markieren und kopieren.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showCopyFeedback(button) {
+            const originalText = button.textContent;
+            button.textContent = 'Kopiert!';
+            button.classList.add('copied');
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('copied');
+            }, 2000);
+        }
+
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const searchBox = document.getElementById('searchBox');
+            
+            if (e.key === 'Escape') {
+                if (searchBox.value) {
+                    searchBox.value = '';
+                    searchPrompts();
+                }
+                searchBox.focus();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                searchBox.focus();
+            }
+        });
+    </script>
+</body>
+</html>

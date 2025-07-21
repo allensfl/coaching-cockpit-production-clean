@@ -306,43 +306,60 @@
         }
 
         .tool-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            display: flex !important;
+            gap: 8px !important;
+            flex-wrap: nowrap !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-top: 10px !important;
         }
 
-        .btn, .btn-tool, .suggestion, .ki-actions button, .action-buttons button {
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
-            text-align: center;
-            line-height: 1.2;
+        /* UNIVERSAL BUTTON STYLES - FORCE CONSISTENCY */
+        .btn, .btn-tool, .suggestion, 
+        .ki-actions button, .action-buttons button,
+        .input-area button {
+            min-height: 48px !important;
+            max-height: 48px !important;
+            padding: 12px 16px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 0.9em !important;
+            transition: all 0.3s ease !important;
+            text-align: center !important;
+            line-height: 1.2 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
         }
 
-        .btn:hover, .btn-tool:hover, .suggestion:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* BUTTON COLORS - Unified */
+        /* TOOL BUTTON SPECIFIC */
         .btn-tool {
-            background: #9b59b6;
-            color: white;
-            flex: 1;
-            min-width: 80px;
-            max-width: 90px;
+            background: #9b59b6 !important;
+            color: white !important;
+            flex: 1 !important;
+            min-width: 70px !important;
+            max-width: 100px !important;
+            margin: 0 4px !important;
         }
 
         .btn-tool:hover {
-            background: #8e44ad;
+            background: #8e44ad !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* HEADER BUTTONS */
+        .session-info .btn {
+            background: #e74c3c !important;
+            color: white !important;
+            margin: 0 5px !important;
+            min-width: 120px !important;
+        }
+
+        .session-info .btn:hover {
+            background: #c0392b !important;
         }
 
         /* COACH INSTRUCTIONS */
@@ -674,8 +691,12 @@
                     <div class="message">Hallo! Ich bin bereit für das Coaching. Wo fangen wir an?</div>
                 </div>
                 <div class="input-area">
-                    <input type="text" id="coachee-input" placeholder="Antwort des Coachees eingeben...">
-                    <button onclick="addCoacheeMessage()">Senden</button>
+                    <input type="text" id="coachee-input" placeholder="Was sagt der Coachee?" 
+                           style="flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em;">
+                    <button onclick="addCoacheeMessage()" 
+                            style="background: #3498db; color: white; min-width: 80px;">
+                        💬 Add
+                    </button>
                 </div>
             </div>
 
@@ -976,11 +997,8 @@
 
             // Tool-Integration für spezifische Schritte anzeigen
             const toolIntegration = document.getElementById('tool-integration');
-            if (step.id === 3 || step.id === 6 || step.id === 9) {
-                toolIntegration.style.display = 'block';
-            } else {
-                toolIntegration.style.display = 'none';
-            }
+            // ZEIGE TOOLS FÜR ALLE SCHRITTE (zum Testen)
+            toolIntegration.style.display = 'block';
 
             // Animation
             const currentStepElement = document.getElementById('current-step');

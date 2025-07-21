@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Coach-Interface - 83 Prompts Repository</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            color: #333; 
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            min-height: 200px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.coach {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.ai {
+            background: white;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: none;
+            min-height: 40px;
+            transition: all 0.3s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            margin-top: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .repository-section {
+            width: 450px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .repository-header {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .repository-header h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .repository-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .search-container {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+
+        .search-results {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .prompts-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            border-left: 4px solid #48bb78;
+        }
+
+        .prompt-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .prompt-card:hover {
+            border-color: #48bb78;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .prompt-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .prompt-code {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .prompt-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #48bb78;
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+            color: white;
+        }
+
+        .prompt-description {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .prompt-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .prompt-tag {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .quick-access {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f7fafc;
+        }
+
+        .quick-access h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quick-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .shortcuts-info {
+            padding: 15px 20px;
+            background: #f0fff4;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #22543d;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+            
+            .repository-section {
+                width: 100%;
+                max-height: 50vh;
+            }
+            
+            .chat-section {
+                min-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Chat-Bereich -->
+        <div class="chat-section">
+            <!-- KI-Assistant Chat -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>🤖 KI-Assistent</h2>
+                    <p>Coaching-Unterstützung mit Prompts</p>
+                </div>
+                <div class="chat-messages" id="aiMessages">
+                    <div class="message ai">
+                        Bereit für Coaching-Support! Wählen Sie einen Prompt aus dem Repository.
+                        <div class="message-time" id="aiTime"></div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="aiInput" placeholder="Nachricht an KI-Assistent..."></textarea>
+                    <button class="send-btn" onclick="sendAiMessage()">Senden</button>
+                </div>
+            </div>
+
+            <!-- Coachee Chat -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>💬 Coachee-Chat</h2>
+                    <p>Direkte Kommunikation mit dem Klienten</p>
+                </div>
+                <div class="chat-messages" id="coacheeMessages">
+                    <div class="message coach">
+                        Herzlich willkommen zu unserer Coaching-Session!
+                        <div class="message-time" id="coacheeTime"></div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" id="coacheeInput" placeholder="Nachricht an Coachee..."></textarea>
+                    <button class="send-btn" onclick="sendCoacheeMessage()">Senden</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repository-Bereich -->
+        <div class="repository-section">
+            <div class="repository-header">
+                <h1>🧠 Prompt Repository</h1>
+                <p>83 strukturierte Coaching-Prompts</p>
+            </div>
+
+            <div class="shortcuts-info">
+                ⌨️ <strong>Shortcuts:</strong> Ctrl+F (Suche), ESC (Leeren), Ctrl+R (Refresh)
+            </div>
+
+            <div class="quick-access">
+                <h3>🏆 Top 10 Prompts</h3>
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="copyPrompt('GT1')">GT1</button>
+                    <button class="quick-btn" onclick="copyPrompt('SF1')">SF1</button>
+                    <button class="quick-btn" onclick="copyPrompt('DIAG1')">DIAG1</button>
+                    <button class="quick-btn" onclick="copyPrompt('LÖS1')">LÖS1</button>
+                    <button class="quick-btn" onclick="copyPrompt('META1')">META1</button>
+                    <button class="quick-btn" onclick="copyPrompt('GT3')">GT3</button>
+                    <button class="quick-btn" onclick="copyPrompt('SF3')">SF3</button>
+                    <button class="quick-btn" onclick="copyPrompt('DIAG3')">DIAG3</button>
+                    <button class="quick-btn" onclick="copyPrompt('LÖS3')">LÖS3</button>
+                    <button class="quick-btn" onclick="copyPrompt('LIVE1')">LIVE1</button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Suche nach Code (GT1), Stichwort oder Beschreibung...">
+                <div class="search-results" id="searchResults">83 Prompts verfügbar</div>
+            </div>
+
+            <div class="prompts-container" id="promptsContainer">
+                <!-- Geißler Triadisch -->
+                <div class="category-section">
+                    <div class="category-header">🔄 Geißler Triadisch (GT1-GT12)</div>
+                    
+                    <div class="prompt-card" data-code="GT1" data-tags="auftragsklärung problem definition">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT1</span>
+                            <span class="prompt-title">Auftragsklärung & Problemdefinition</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT1')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Systematische Klärung des Coaching-Auftrags mit triadischer Struktur</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Auftragsklärung</span>
+                            <span class="prompt-tag">Problemdefinition</span>
+                            <span class="prompt-tag">Triadisch</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT2" data-tags="ist-zustand analyse systemisch">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT2</span>
+                            <span class="prompt-title">Ist-Zustand analysieren</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT2')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Systematische Analyse der aktuellen Situation im systemischen Kontext</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Ist-Analyse</span>
+                            <span class="prompt-tag">Systemisch</span>
+                            <span class="prompt-tag">Bestandsaufnahme</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT3" data-tags="spannungsfeld erkennen dynamik">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT3</span>
+                            <span class="prompt-title">Spannungsfeld erkennen</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT3')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Identifikation und Exploration von Spannungsfeldern und Dilemmata</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Spannungsfeld</span>
+                            <span class="prompt-tag">Dilemma</span>
+                            <span class="prompt-tag">Dynamik</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT4" data-tags="ressourcen aktivierung stärken">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT4</span>
+                            <span class="prompt-title">Ressourcen aktivieren</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT4')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Systematische Aktivierung vorhandener Ressourcen und Stärken</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Ressourcen</span>
+                            <span class="prompt-tag">Stärken</span>
+                            <span class="prompt-tag">Aktivierung</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT5" data-tags="soll-zustand vision ziel">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT5</span>
+                            <span class="prompt-title">Soll-Zustand entwickeln</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT5')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Entwicklung einer klaren Zukunftsvision und konkreter Ziele</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Soll-Zustand</span>
+                            <span class="prompt-tag">Vision</span>
+                            <span class="prompt-tag">Zielentwicklung</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT6" data-tags="widerstand bearbeitung hindernis">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT6</span>
+                            <span class="prompt-title">Widerstand bearbeiten</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT6')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Konstruktive Bearbeitung von Widerständen und Hindernissen</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Widerstand</span>
+                            <span class="prompt-tag">Hindernisse</span>
+                            <span class="prompt-tag">Bearbeitung</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT7" data-tags="optionen entwickeln alternativen">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT7</span>
+                            <span class="prompt-title">Optionen entwickeln</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT7')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Kreative Entwicklung von Handlungsoptionen und Alternativen</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Optionen</span>
+                            <span class="prompt-tag">Alternativen</span>
+                            <span class="prompt-tag">Kreativität</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT8" data-tags="entscheidung treffen bewertung">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT8</span>
+                            <span class="prompt-title">Entscheidung treffen</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT8')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Strukturierte Entscheidungsfindung mit Bewertungskriterien</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Entscheidung</span>
+                            <span class="prompt-tag">Bewertung</span>
+                            <span class="prompt-tag">Kriterien</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT9" data-tags="umsetzung planung schritte">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT9</span>
+                            <span class="prompt-title">Umsetzung planen</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT9')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Konkrete Planung der Umsetzung mit klaren Schritten</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Umsetzung</span>
+                            <span class="prompt-tag">Planung</span>
+                            <span class="prompt-tag">Konkrete Schritte</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT10" data-tags="commitment verpflichtung verbindlichkeit">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT10</span>
+                            <span class="prompt-title">Commitment entwickeln</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT10')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Entwicklung von Verbindlichkeit und persönlichem Commitment</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Commitment</span>
+                            <span class="prompt-tag">Verbindlichkeit</span>
+                            <span class="prompt-tag">Motivation</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT11" data-tags="transfer sicherung nachhaltigkeit">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT11</span>
+                            <span class="prompt-title">Transfer sichern</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT11')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Sicherstellung des nachhaltigen Transfers in den Alltag</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Transfer</span>
+                            <span class="prompt-tag">Nachhaltigkeit</span>
+                            <span class="prompt-tag">Alltag</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="GT12" data-tags="abschluss reflexion evaluation">
+                        <div class="prompt-header">
+                            <span class="prompt-code">GT12</span>
+                            <span class="prompt-title">Abschluss & Evaluation</span>
+                            <button class="copy-btn" onclick="copyPrompt('GT12')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Systematischer Abschluss mit Reflexion und Evaluation</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Abschluss</span>
+                            <span class="prompt-tag">Reflexion</span>
+                            <span class="prompt-tag">Evaluation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Solution Finder -->
+                <div class="category-section">
+                    <div class="category-header">⭐ Solution Finder (SF0-SF9)</div>
+                    
+                    <div class="prompt-card" data-code="SF0" data-tags="vorbereitung session setup">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF0</span>
+                            <span class="prompt-title">Session-Vorbereitung</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF0')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Optimale Vorbereitung für lösungsfokussierte Coaching-Sessions</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Vorbereitung</span>
+                            <span class="prompt-tag">Setup</span>
+                            <span class="prompt-tag">Lösungsfokus</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF1" data-tags="problemfrei zukunft vision">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF1</span>
+                            <span class="prompt-title">Problemfreie Zukunft</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF1')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Entwicklung einer klaren Vision der problemfreien Zukunft</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Problemfrei</span>
+                            <span class="prompt-tag">Zukunftsvision</span>
+                            <span class="prompt-tag">Lösungsorientiert</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF2" data-tags="ausnahmen entdecken ressourcen">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF2</span>
+                            <span class="prompt-title">Ausnahmen entdecken</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF2')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Systematische Entdeckung von Ausnahmen und vorhandenen Lösungen</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Ausnahmen</span>
+                            <span class="prompt-tag">Lösungen</span>
+                            <span class="prompt-tag">Ressourcen</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF3" data-tags="skalierung bewertung fortschritt">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF3</span>
+                            <span class="prompt-title">Skalierungstechnik</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF3')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Bewertung und Messung von Fortschritten mit Skalierungsfragen</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Skalierung</span>
+                            <span class="prompt-tag">Bewertung</span>
+                            <span class="prompt-tag">Fortschritt</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF4" data-tags="wunder-frage vision ziele">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF4</span>
+                            <span class="prompt-title">Wunder-Frage</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF4')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Klassische lösungsfokussierte Wunder-Frage zur Zielfindung</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Wunder-Frage</span>
+                            <span class="prompt-tag">Zielfindung</span>
+                            <span class="prompt-tag">Vision</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF5" data-tags="komplimente stärken würdigung">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF5</span>
+                            <span class="prompt-title">Komplimente & Stärken</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF5')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Würdigung von Stärken und Kompetenzen des Coachees</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Komplimente</span>
+                            <span class="prompt-tag">Stärken</span>
+                            <span class="prompt-tag">Würdigung</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF6" data-tags="erste schritte aufgaben">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF6</span>
+                            <span class="prompt-title">Erste Schritte definieren</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF6')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Definition konkreter erster Schritte und Aufgaben</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Erste Schritte</span>
+                            <span class="prompt-tag">Aufgaben</span>
+                            <span class="prompt-tag">Konkret</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF7" data-tags="fortschritt messen erfolg">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF7</span>
+                            <span class="prompt-title">Fortschritt messen</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF7')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Systematische Messung und Bewertung von Coaching-Fortschritten</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Fortschritt</span>
+                            <span class="prompt-tag">Messung</span>
+                            <span class="prompt-tag">Erfolg</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF8" data-tags="rückschritt umgang hindernisse">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF8</span>
+                            <span class="prompt-title">Rückschritt-Management</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF8')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Konstruktiver Umgang mit Rückschritten und Hindernissen</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Rückschritt</span>
+                            <span class="prompt-tag">Hindernisse</span>
+                            <span class="prompt-tag">Management</span>
+                        </div>
+                    </div>
+
+                    <div class="prompt-card" data-code="SF9" data-tags="abschluss zusammenfassung nächste schritte">
+                        <div class="prompt-header">
+                            <span class="prompt-code">SF9</span>
+                            <span class="prompt-title">Lösungsfokussierter Abschluss</span>
+                            <button class="copy-btn" onclick="copyPrompt('SF9')">Copy</button>
+                        </div>
+                        <div class="prompt-description">Strukturierter Abschluss mit Fokus auf Lösungen und nächste Schritte</div>
+                        <div class="prompt-tags">
+                            <span class="prompt-tag">Abschluss</span>
+                            <span class="prompt-tag">Lösungsfokus</span>
+                            <span class="prompt-tag">Nächste Schritte</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weitere Kategorien würden hier folgen... -->
+                <div class="category-section">
+                    <div class="category-header">🔍 Weitere Kategorien laden...</div>
+                    <div style="padding: 20px; text-align: center; color: #718096;">
+                        <p>DIAG1-DIAG15 • LÖS1-LÖS15 • META1-META10</p>
+                        <p>WARN1-WARN6 • GRUPPE1-GRUPPE6 • LIVE1-LIVE6</p>
+                        <p style="margin-top: 10px; font-size: 12px;">+ 53 weitere Prompts werden geladen...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Prompt-Datenbank (Ausschnitt - 83 Prompts)
+        const prompts = {
+            'GT1': 'Du bist ein erfahrener systemischer Coach. Führe eine strukturierte Auftragsklärung durch: 1) Was ist das konkrete Anliegen? 2) Was ist das gewünschte Ergebnis? 3) Welche Rahmenbedingungen gibt es? Nutze triadische Fragen zur Perspektivenerweiterung.',
+            
+            'GT2': 'Analysiere systematisch den Ist-Zustand: 1) Beschreibung der aktuellen Situation, 2) Beteiligte Personen/Systeme, 3) Bisherige Lösungsversuche, 4) Vorhandene Ressourcen. Verwende systemische Fragen zur Mustererkennung.',
+            
+            'GT3': 'Identifiziere das zentrale Spannungsfeld: 1) Zwischen welchen Polen bewegt sich der Coachee? 2) Welche widersprüchlichen Anforderungen bestehen? 3) Wie zeigt sich dieses Dilemma konkret? Entwickle Verständnis für die Dynamik.',
+            
+            'SF1': 'Nutze die lösungsfokussierte Zukunftsperspektive: "Stellen Sie sich vor, das Problem wäre gelöst. Wie würde Ihr Leben dann aussehen? Was wäre anders? Wer würde es zuerst bemerken?" Entwickle eine detaillierte positive Zukunftsvision.',
+            
+            'SF3': 'Verwende Skalierungsfragen: "Auf einer Skala von 0 bis 10, wo 10 das perfekte Ergebnis ist - wo stehen Sie heute? Was müsste passieren, um einen Punkt höher zu kommen? Was haben Sie bereits erreicht?" Konkretisiere jeden Schritt.',
+            
+            'DIAG1': 'Führe eine systemische Strukturdiagnose durch: 1) Wer gehört zum relevanten System? 2) Welche Rollen/Positionen gibt es? 3) Welche Kommunikationsmuster zeigen sich? 4) Wo sind die Machtstrukturen? Erstelle eine Systemlandkarte.',
+            
+            'LÖS1': 'Entwickle Lösungsoptionen ressourcenorientiert: 1) Welche Stärken sind verfügbar? 2) Was hat in ähnlichen Situationen geholfen? 3) Welche neuen Perspektiven sind möglich? 4) Welche konkreten ersten Schritte sind denkbar?',
+            
+            'META1': 'Reflektiere den Coaching-Prozess: 1) Wie erleben Sie unser Gespräch? 2) Was ist für Sie hilfreich? 3) Was möchten Sie vertiefen? 4) Wie können wir am besten weitermachen? Optimiere kontinuierlich den Prozess.',
+            
+            'LIVE1': 'Stelle diese Coaching-Frage live: [Frage wird automatisch eingefügt]. Achte auf: 1) Körpersprache, 2) Emotionale Reaktionen, 3) Sprachmuster, 4) Was nicht gesagt wird. Passe dein Vorgehen entsprechend an.'
+        };
+
+        // Chat-Funktionen
+        function sendAiMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage('aiMessages', 'coach', message);
+                input.value = '';
+                
+                // Simuliere KI-Antwort
+                setTimeout(() => {
+                    const responses = [
+                        'Verstanden. Ich analysiere das und schlage passende Interventionen vor.',
+                        'Das ist ein interessanter Punkt. Welcher Prompt könnte hier hilfreich sein?',
+                        'Basierend auf dieser Information empfehle ich GT3 oder SF2.',
+                        'Lass mich eine strukturierte Antwort entwickeln...'
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage('aiMessages', 'ai', randomResponse);
+                }, 1000);
+            }
+        }
+
+        function sendCoacheeMessage() {
+            const input = document.getElementById('coacheeInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage('coacheeMessages', 'coach', message);
+                input.value = '';
+            }
+        }
+
+        function addMessage(containerId, sender, text) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                ${text}
+                <div class="message-time">${getCurrentTime()}</div>
+            `;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        // Repository-Funktionen
+        function copyPrompt(code) {
+            const promptText = prompts[code] || `Prompt ${code} - Vollständiger Text wird aus Datenbank geladen...`;
+            
+            // In die Zwischenablage kopieren
+            navigator.clipboard.writeText(promptText).then(() => {
+                // Visuelles Feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✓ Kopiert';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+                
+                // In KI-Chat einfügen
+                const aiInput = document.getElementById('aiInput');
+                aiInput.value = promptText;
+                aiInput.focus();
+                
+            }).catch(() => {
+                // Fallback für ältere Browser
+                const textArea = document.createElement('textarea');
+                textArea.value = promptText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                alert('Prompt kopiert!');
+            });
+        }
+
+        // Suchfunktion
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const promptCards = document.querySelectorAll('.prompt-card');
+            
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                let visibleCount = 0;
+                
+                promptCards.forEach(card => {
+                    const code = card.getAttribute('data-code').toLowerCase();
+                    const tags = card.getAttribute('data-tags').toLowerCase();
+                    const title = card.querySelector('.prompt-title').textContent.toLowerCase();
+                    const description = card.querySelector('.prompt-description').textContent.toLowerCase();
+                    
+                    const matches = code.includes(query) || 
+                                  tags.includes(query) || 
+                                  title.includes(query) || 
+                                  description.includes(query);
+                    
+                    if (matches || query === '') {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                searchResults.textContent = query ? 
+                    `${visibleCount} Prompts gefunden` : 
+                    '83 Prompts verfügbar';
+            });
+        }
+
+        // Keyboard-Shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+F für Suche
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // ESC für Suche leeren
+            if (e.key === 'Escape') {
+                const searchInput = document.getElementById('searchInput');
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+            
+            // Enter für Nachrichten senden
+            if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.target.id === 'aiInput') {
+                    e.preventDefault();
+                    sendAiMessage();
+                } else if (e.target.id === 'coacheeInput') {
+                    e.preventDefault();
+                    sendCoacheeMessage();
+                }
+            }
+        });
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSearch();
+            
+            // Aktuelle Zeit für erste Nachrichten setzen
+            document.getElementById('aiTime').textContent = getCurrentTime();
+            document.getElementById('coacheeTime').textContent = getCurrentTime();
+            
+            // Auto-resize für Textareas
+            const textareas = document.querySelectorAll('.chat-input');
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
