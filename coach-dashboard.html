@@ -311,24 +311,38 @@
             flex-wrap: wrap;
         }
 
+        .btn, .btn-tool, .suggestion, .ki-actions button, .action-buttons button {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .btn:hover, .btn-tool:hover, .suggestion:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* BUTTON COLORS - Unified */
         .btn-tool {
             background: #9b59b6;
             color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            min-height: 36px;
             flex: 1;
-            min-width: 120px;
+            min-width: 80px;
+            max-width: 90px;
         }
 
         .btn-tool:hover {
             background: #8e44ad;
-            transform: translateY(-1px);
         }
 
         /* COACH INSTRUCTIONS */
@@ -638,8 +652,8 @@
                     <span id="coachee-link">https://coaching-session.vercel.app/session/ABC123</span>
                 </div>
                 <button class="btn" onclick="copyCoacheeLink()">📋 Link kopieren</button>
-                <button class="btn" onclick="openCoacheeInterface()">👥 Coachee-Interface öffnen</button>
-                <button class="btn" onclick="openRepository()">📚 Repository (83 Prompts)</button>
+                <button class="btn" onclick="openCoacheeInterface()">👥 Coachee-Interface</button>
+                <button class="btn" onclick="openRepository()">📚 Repository</button>
             </div>
         </div>
 
@@ -687,13 +701,13 @@
                         <div class="tool-integration" id="tool-integration" style="display: none;">
                             <div class="tool-buttons">
                                 <button class="btn-tool" onclick="openImageSelector()">
-                                    🖼️ Bildauswahl öffnen
+                                    🖼️ Bilder
                                 </button>
                                 <button class="btn-tool" onclick="openAvatarTool()">
-                                    🎭 Avatar-Tool öffnen
+                                    🎭 Avatare
                                 </button>
                                 <button class="btn-tool" onclick="openPromptRepository()">
-                                    📚 Prompt-Repository
+                                    📚 Prompts
                                 </button>
                             </div>
                         </div>
@@ -712,13 +726,13 @@
 
                     <div class="ki-suggestions">
                         <div class="suggestion" onclick="addSuggestion('Vertiefende Frage stellen')">
-                            💡 Vertiefende Frage
+                            💡 Vertiefung
                         </div>
                         <div class="suggestion" onclick="addSuggestion('Reflektion anregen')">
-                            🤔 Reflektion anregen
+                            🤔 Reflektion
                         </div>
                         <div class="suggestion" onclick="addSuggestion('Beispiel geben')">
-                            📖 Beispiel geben
+                            📖 Beispiel
                         </div>
                     </div>
                 </div>
@@ -1034,7 +1048,7 @@
             });
         }
 
-        // COACHEE DIALOG
+        // COACHEE DIALOG - REAL FUNCTIONALITY
         function addCoacheeMessage() {
             const input = document.getElementById('coachee-input');
             const messages = document.getElementById('coachee-messages');
@@ -1042,12 +1056,44 @@
             if (input.value.trim()) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message';
-                messageDiv.textContent = input.value;
+                messageDiv.innerHTML = `
+                    <strong>Coachee:</strong> ${input.value}
+                    <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                        ${new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'})}
+                    </div>
+                `;
                 messages.appendChild(messageDiv);
+                
+                // Auto-suggest KI response
+                setTimeout(() => {
+                    suggestKIResponse(input.value);
+                }, 1000);
                 
                 input.value = '';
                 messages.scrollTop = messages.scrollHeight;
             }
+        }
+
+        function suggestKIResponse(coacheeMessage) {
+            const suggestions = [
+                "Das höre ich oft. Können Sie mir mehr dazu erzählen?",
+                "Wie fühlt sich das für Sie an?",
+                "Was wäre für Sie ein kleiner erster Schritt?",
+                "Auf einer Skala von 1-10, wie wichtig ist Ihnen das?",
+                "Wann haben Sie das schon einmal erfolgreich gemeistert?"
+            ];
+            
+            const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+            
+            // Add to KI input as suggestion
+            const kiInput = document.getElementById('ki-input');
+            kiInput.value = `Antwort auf: "${coacheeMessage.substring(0, 50)}..."\n\n${randomSuggestion}`;
+            
+            // Visual highlight
+            kiInput.style.borderColor = '#27ae60';
+            setTimeout(() => {
+                kiInput.style.borderColor = '#ddd';
+            }, 3000);
         }
 
         // KI SUGGESTIONS
